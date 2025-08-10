@@ -5,9 +5,9 @@ class Project {
   // Get all projects with filters
   static async findAll(filters = {}, options = {}) {
     const {
-      type,
+      type: category,
       status,
-      isFeatured,
+      isFeatured: is_featured,
       search
     } = filters;
     
@@ -21,38 +21,17 @@ class Project {
     let sql = `
       SELECT 
         p.id,
-        p.identifier,
-        p.name,
-        p.nameEn,
-        p.type,
+        p.uuid,
+        p.slug,
+        p.title as name,
+        p.subtitle as nameEn,
+        p.category as type,
         p.status,
-        p.description,
-        p.descriptionEn,
         p.location,
-        p.locationEn,
-        p.price,
-        p.priceMin,
-        p.priceMax,
+        p.year,
         p.area,
-        p.areaMin,
-        p.areaMax,
-        p.developer,
-        p.developerEn,
-        p.architect,
-        p.architectEn,
-        p.yearStarted,
-        p.yearCompleted,
-        p.units,
-        p.floors,
-        p.features,
-        p.featuresEn,
-        p.mainImage,
-        p.videoUrl,
-        p.website,
-        p.brochureUrl,
-        p.isFeatured,
-        p.displayOrder,
-        p.viewCount,
+        p.is_featured as isFeatured,
+        p.view_count as viewCount,
         p.created_at,
         p.updated_at,
         u1.username as created_by_name,
@@ -62,17 +41,17 @@ class Project {
       FROM projects p
       LEFT JOIN users u1 ON p.created_by = u1.id
       LEFT JOIN users u2 ON p.updated_by = u2.id
-      LEFT JOIN project_images pi ON p.id = pi.project_id
-      LEFT JOIN project_tags pt ON p.id = pt.project_id
+      LEFT JOIN project_images pi ON p.uuid = pi.project_uuid
+      LEFT JOIN project_tags pt ON p.uuid = pt.project_uuid
       LEFT JOIN tags t ON pt.tag_id = t.id
       WHERE 1=1
     `;
     
     const params = [];
     
-    if (type) {
-      sql += ' AND p.type = ?';
-      params.push(type);
+    if (category) {
+      sql += ' AND p.category = ?';
+      params.push(category);
     }
     
     if (status) {
@@ -80,39 +59,33 @@ class Project {
       params.push(status);
     }
     
-    if (isFeatured !== undefined) {
-      sql += ' AND p.isFeatured = ?';
-      params.push(isFeatured);
+    if (is_featured !== undefined) {
+      sql += ' AND p.is_featured = ?';
+      params.push(is_featured);
     }
     
     if (search) {
-      sql += ' AND (p.name LIKE ? OR p.nameEn LIKE ? OR p.location LIKE ? OR p.description LIKE ?)';
+      sql += ' AND (p.title LIKE ? OR p.subtitle LIKE ? OR p.location LIKE ?)';
       const searchPattern = `%${search}%`;
-      params.push(searchPattern, searchPattern, searchPattern, searchPattern);
+      params.push(searchPattern, searchPattern, searchPattern);
     }
     
     sql += ' GROUP BY p.id';
     
     // Add ordering
-    const validColumns = ['displayOrder', 'created_at', 'updated_at', 'viewCount', 'view_count', 'name'];
+    const validColumns = ['created_at', 'updated_at', 'view_count', 'title', 'id'];
     const validDirs = ['ASC', 'DESC'];
     
-    // Map snake_case to camelCase for database columns
-    let orderColumn = orderBy;
-    if (orderBy === 'view_count') {
-      orderColumn = 'viewCount';
-    }
-    
     if (validColumns.includes(orderBy) && validDirs.includes(orderDir.toUpperCase())) {
-      sql += ` ORDER BY p.${orderColumn} ${orderDir.toUpperCase()}`;
+      sql += ` ORDER BY p.${orderBy} ${orderDir.toUpperCase()}`;
     } else {
-      sql += ' ORDER BY p.displayOrder ASC';
+      sql += ' ORDER BY p.created_at DESC';
     }
     
     // Add pagination
-    const offset = (page - 1) * limit;
-    sql += ' LIMIT ? OFFSET ?';
-    params.push(limit, offset);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit) || 20));
+    const offsetNum = Math.max(0, (parseInt(page) - 1) * limitNum);
+    sql += ` LIMIT ${limitNum} OFFSET ${offsetNum}`;
     
     // Get total count
     let countSql = `
@@ -123,9 +96,9 @@ class Project {
     
     const countParams = [];
     
-    if (type) {
-      countSql += ' AND p.type = ?';
-      countParams.push(type);
+    if (category) {
+      countSql += ' AND p.category = ?';
+      countParams.push(category);
     }
     
     if (status) {
@@ -133,15 +106,15 @@ class Project {
       countParams.push(status);
     }
     
-    if (isFeatured !== undefined) {
-      countSql += ' AND p.isFeatured = ?';
-      countParams.push(isFeatured);
+    if (is_featured !== undefined) {
+      countSql += ' AND p.is_featured = ?';
+      countParams.push(is_featured);
     }
     
     if (search) {
-      countSql += ' AND (p.name LIKE ? OR p.nameEn LIKE ? OR p.location LIKE ? OR p.description LIKE ?)';
+      countSql += ' AND (p.title LIKE ? OR p.subtitle LIKE ? OR p.location LIKE ?)';
       const searchPattern = `%${search}%`;
-      countParams.push(searchPattern, searchPattern, searchPattern, searchPattern);
+      countParams.push(searchPattern, searchPattern, searchPattern);
     }
     
     const [{ total }] = await query(countSql, countParams);
@@ -189,7 +162,7 @@ class Project {
       FROM projects p
       LEFT JOIN users u1 ON p.created_by = u1.id
       LEFT JOIN users u2 ON p.updated_by = u2.id
-      WHERE p.identifier = ?
+      WHERE p.slug = ?
     `;
     
     const project = await findOne(sql, [identifier]);
@@ -199,17 +172,17 @@ class Project {
     // Get images
     const images = await query(
       `SELECT * FROM project_images 
-       WHERE project_id = ? 
-       ORDER BY displayOrder`,
-      [project.id]
+       WHERE project_uuid = ? 
+       ORDER BY id`,
+      [project.uuid]
     );
     
     // Get tags
     const tags = await query(
       `SELECT t.* FROM tags t
        JOIN project_tags pt ON t.id = pt.tag_id
-       WHERE pt.project_id = ?`,
-      [project.id]
+       WHERE pt.project_uuid = ?`,
+      [project.uuid]
     );
     
     // Parse JSON fields
@@ -241,7 +214,7 @@ class Project {
       const {
         name,
         nameEn,
-        type,
+        type: category,
         status = 'planning',
         description,
         descriptionEn,
@@ -267,56 +240,34 @@ class Project {
         videoUrl,
         website,
         brochureUrl,
-        isFeatured = false,
+        isFeatured: is_featured = false,
         displayOrder = 0,
         tags = []
       } = data;
       
-      // Generate unique identifier
-      const identifier = `PRJ-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+      // Generate unique identifiers
+      const uuid = require('crypto').randomUUID();
+      const slug = `${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
       
-      // Insert project with default values for optional fields
+      // Insert project with database schema fields
       const [projectResult] = await connection.execute(
         `INSERT INTO projects (
-          identifier, name, nameEn, type, status, description, descriptionEn,
-          location, locationEn, price, priceMin, priceMax, area, areaMin, areaMax,
-          developer, developerEn, architect, architectEn, yearStarted, yearCompleted,
-          units, floors, features, featuresEn, mainImage, videoUrl, website,
-          brochureUrl, isFeatured, displayOrder, viewCount, created_by, updated_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          uuid, slug, title, subtitle, category, status, location, year, area,
+          view_count, is_active, is_featured, created_by, updated_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          identifier, 
-          name, 
+          uuid,
+          slug,
+          name,
           nameEn || null,
-          type, 
-          status, 
-          description || null,
-          descriptionEn || null,
-          location, 
-          locationEn || null,
-          price || null,
-          priceMin || null,
-          priceMax || null,
-          area || null,
-          areaMin || null,
-          areaMax || null,
-          developer || null,
-          developerEn || null,
-          architect || null,
-          architectEn || null,
+          category,
+          status,
+          location,
           yearStarted || null,
-          yearCompleted || null,
-          units || null,
-          floors || null,
-          JSON.stringify(features || []),
-          JSON.stringify(featuresEn || []),
-          mainImage || null,
-          videoUrl || null,
-          website || null,
-          brochureUrl || null,
-          isFeatured ? 1 : 0,
-          displayOrder,
+          area || null,
           0,
+          true,
+          is_featured ? 1 : 0,
           userId,
           userId
         ]
@@ -336,28 +287,29 @@ class Project {
           if (existingTag.length > 0) {
             tagId = existingTag[0].id;
           } else {
-            // Create new tag with identifier
-            const tagIdentifier = tagName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            // Create new tag
+            const tagSlug = tagName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
             const [tagResult] = await connection.execute(
-              'INSERT INTO tags (name, identifier) VALUES (?, ?)',
-              [tagName, tagIdentifier]
+              'INSERT INTO tags (name, slug) VALUES (?, ?)',
+              [tagName, tagSlug]
             );
             tagId = tagResult.insertId;
           }
           
           // Create project-tag relation
           await connection.execute(
-            'INSERT INTO project_tags (project_id, tag_id) VALUES (?, ?)',
-            [projectId, tagId]
+            'INSERT INTO project_tags (project_uuid, tag_id) VALUES (?, ?)',
+            [uuid, tagId]
           );
         }
       }
       
-      logger.info('Project created', { projectId, identifier, userId });
+      logger.info('Project created', { projectId, uuid, slug, userId });
       
       return {
         id: projectId,
-        identifier
+        uuid,
+        slug
       };
     });
   }
@@ -367,7 +319,7 @@ class Project {
     return await transaction(async (connection) => {
       // Check if project exists
       const [existing] = await connection.execute(
-        'SELECT id FROM projects WHERE identifier = ?',
+        'SELECT id, uuid FROM projects WHERE slug = ?',
         [identifier]
       );
       
@@ -377,36 +329,14 @@ class Project {
       
       const project = existing[0];
       const {
-        name,
-        nameEn,
-        type,
+        name: title,
+        nameEn: subtitle,
+        type: category,
         status,
-        description,
-        descriptionEn,
         location,
-        locationEn,
-        price,
-        priceMin,
-        priceMax,
+        year,
         area,
-        areaMin,
-        areaMax,
-        developer,
-        developerEn,
-        architect,
-        architectEn,
-        yearStarted,
-        yearCompleted,
-        units,
-        floors,
-        features,
-        featuresEn,
-        mainImage,
-        videoUrl,
-        website,
-        brochureUrl,
-        isFeatured,
-        displayOrder,
+        isFeatured: is_featured,
         tags
       } = data;
       
@@ -414,19 +344,19 @@ class Project {
       const updateFields = [];
       const updateParams = [];
       
-      if (name !== undefined) {
-        updateFields.push('name = ?');
-        updateParams.push(name);
+      if (title !== undefined) {
+        updateFields.push('title = ?');
+        updateParams.push(title);
       }
       
-      if (nameEn !== undefined) {
-        updateFields.push('nameEn = ?');
-        updateParams.push(nameEn);
+      if (subtitle !== undefined) {
+        updateFields.push('subtitle = ?');
+        updateParams.push(subtitle);
       }
       
-      if (type !== undefined) {
-        updateFields.push('type = ?');
-        updateParams.push(type);
+      if (category !== undefined) {
+        updateFields.push('category = ?');
+        updateParams.push(category);
       }
       
       if (status !== undefined) {
@@ -434,39 +364,14 @@ class Project {
         updateParams.push(status);
       }
       
-      if (description !== undefined) {
-        updateFields.push('description = ?');
-        updateParams.push(description);
-      }
-      
-      if (descriptionEn !== undefined) {
-        updateFields.push('descriptionEn = ?');
-        updateParams.push(descriptionEn);
-      }
-      
       if (location !== undefined) {
         updateFields.push('location = ?');
         updateParams.push(location);
       }
       
-      if (locationEn !== undefined) {
-        updateFields.push('locationEn = ?');
-        updateParams.push(locationEn);
-      }
-      
-      if (price !== undefined) {
-        updateFields.push('price = ?');
-        updateParams.push(price);
-      }
-      
-      if (priceMin !== undefined) {
-        updateFields.push('priceMin = ?');
-        updateParams.push(priceMin);
-      }
-      
-      if (priceMax !== undefined) {
-        updateFields.push('priceMax = ?');
-        updateParams.push(priceMax);
+      if (year !== undefined) {
+        updateFields.push('year = ?');
+        updateParams.push(year);
       }
       
       if (area !== undefined) {
@@ -474,94 +379,9 @@ class Project {
         updateParams.push(area);
       }
       
-      if (areaMin !== undefined) {
-        updateFields.push('areaMin = ?');
-        updateParams.push(areaMin);
-      }
-      
-      if (areaMax !== undefined) {
-        updateFields.push('areaMax = ?');
-        updateParams.push(areaMax);
-      }
-      
-      if (developer !== undefined) {
-        updateFields.push('developer = ?');
-        updateParams.push(developer);
-      }
-      
-      if (developerEn !== undefined) {
-        updateFields.push('developerEn = ?');
-        updateParams.push(developerEn);
-      }
-      
-      if (architect !== undefined) {
-        updateFields.push('architect = ?');
-        updateParams.push(architect);
-      }
-      
-      if (architectEn !== undefined) {
-        updateFields.push('architectEn = ?');
-        updateParams.push(architectEn);
-      }
-      
-      if (yearStarted !== undefined) {
-        updateFields.push('yearStarted = ?');
-        updateParams.push(yearStarted);
-      }
-      
-      if (yearCompleted !== undefined) {
-        updateFields.push('yearCompleted = ?');
-        updateParams.push(yearCompleted);
-      }
-      
-      if (units !== undefined) {
-        updateFields.push('units = ?');
-        updateParams.push(units);
-      }
-      
-      if (floors !== undefined) {
-        updateFields.push('floors = ?');
-        updateParams.push(floors);
-      }
-      
-      if (features !== undefined) {
-        updateFields.push('features = ?');
-        updateParams.push(JSON.stringify(features));
-      }
-      
-      if (featuresEn !== undefined) {
-        updateFields.push('featuresEn = ?');
-        updateParams.push(JSON.stringify(featuresEn));
-      }
-      
-      if (mainImage !== undefined) {
-        updateFields.push('mainImage = ?');
-        updateParams.push(mainImage);
-      }
-      
-      if (videoUrl !== undefined) {
-        updateFields.push('videoUrl = ?');
-        updateParams.push(videoUrl);
-      }
-      
-      if (website !== undefined) {
-        updateFields.push('website = ?');
-        updateParams.push(website);
-      }
-      
-      if (brochureUrl !== undefined) {
-        updateFields.push('brochureUrl = ?');
-        updateParams.push(brochureUrl);
-      }
-      
-      if (isFeatured !== undefined) {
-        updateFields.push('isFeatured = ?');
-        updateParams.push(isFeatured);
-      }
-      
-      if (displayOrder !== undefined) {
-        updateFields.push('displayOrder = ?');
-        updateParams.push(displayOrder);
+      if (is_featured !== undefined) {
+        updateFields.push('is_featured = ?');
+        updateParams.push(is_featured);
       }
       
       if (updateFields.length > 0) {
@@ -578,8 +398,8 @@ class Project {
       if (tags !== undefined) {
         // Remove existing tags
         await connection.execute(
-          'DELETE FROM project_tags WHERE project_id = ?',
-          [project.id]
+          'DELETE FROM project_tags WHERE project_uuid = ?',
+          [project.uuid]
         );
         
         // Add new tags
@@ -593,16 +413,17 @@ class Project {
           if (existingTag.length > 0) {
             tagId = existingTag[0].id;
           } else {
+            const tagSlug = tagName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
             const [tagResult] = await connection.execute(
-              'INSERT INTO tags (name) VALUES (?)',
-              [tagName]
+              'INSERT INTO tags (name, slug) VALUES (?, ?)',
+              [tagName, tagSlug]
             );
             tagId = tagResult.insertId;
           }
           
           await connection.execute(
-            'INSERT INTO project_tags (project_id, tag_id) VALUES (?, ?)',
-            [project.id, tagId]
+            'INSERT INTO project_tags (project_uuid, tag_id) VALUES (?, ?)',
+            [project.uuid, tagId]
           );
         }
       }
@@ -615,7 +436,7 @@ class Project {
   
   // Delete project
   static async delete(identifier) {
-    const sql = 'DELETE FROM projects WHERE identifier = ?';
+    const sql = 'DELETE FROM projects WHERE slug = ?';
     const result = await query(sql, [identifier]);
     
     if (result.affectedRows === 0) {
@@ -631,7 +452,7 @@ class Project {
   static async updateStatus(identifier, status, userId) {
     const result = await query(
       `UPDATE projects SET status = ?, updated_by = ?, updated_at = NOW() 
-       WHERE identifier = ?`,
+       WHERE slug = ?`,
       [status, userId, identifier]
     );
     
@@ -645,7 +466,7 @@ class Project {
   // Toggle featured status
   static async toggleFeatured(identifier, userId) {
     const project = await findOne(
-      'SELECT id, isFeatured FROM projects WHERE identifier = ?',
+      'SELECT id, is_featured as isFeatured FROM projects WHERE slug = ?',
       [identifier]
     );
     
@@ -654,7 +475,7 @@ class Project {
     }
     
     await query(
-      'UPDATE projects SET isFeatured = ?, updated_by = ?, updated_at = NOW() WHERE id = ?',
+      'UPDATE projects SET is_featured = ?, updated_by = ?, updated_at = NOW() WHERE id = ?',
       [!project.isFeatured, userId, project.id]
     );
     
@@ -664,7 +485,7 @@ class Project {
   // Increment view count
   static async incrementViewCount(identifier) {
     const result = await query(
-      'UPDATE projects SET viewCount = viewCount + 1 WHERE identifier = ?',
+      'UPDATE projects SET view_count = view_count + 1 WHERE slug = ?',
       [identifier]
     );
     
