@@ -12,6 +12,20 @@ html, body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+.element-with-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.element-with-scrollbar {
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for IE and older Edge */
+.element-with-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
 /* Hero Section Styles */
 .hero-section {
     width: 100%;

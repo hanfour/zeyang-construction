@@ -10,7 +10,7 @@ const MenuButton: React.FC<MenuButtonProps> = ({ isOpen, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="fixed top-4 lg:top-6 right-2 lg:right-12 z-50 w-12 h-12 flex items-center justify-center group"
+      className="fixed top-4 lg:top-6 right-2 lg:right-12 z-[60] w-12 h-12 flex items-center justify-center group"
       aria-label={isOpen ? 'Close menu' : 'Open menu'}
     >
       {isOpen ? (
