@@ -26,8 +26,9 @@
     transparent 60%
   );
   transform: translateX(-100%) translateY(-100%) rotate(30deg);
-  animation: shine 3s ease-out;
+  animation: shine 6s ease-out;
   animation-delay: 0.5s;
   animation-fill-mode: forwards;
   pointer-events: none;
+  animation-iteration-count: infinite;
 }

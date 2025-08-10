@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Hero from './components/Hero';
+import DreamSection from './components/DreamSection';
 import HotCategories from './components/HotCategories';
 import FeaturedProjects from './components/FeaturedProjects';
 import Features from './components/Features';
@@ -16,6 +17,7 @@ const HomePage: React.FC = () => {
       </Helmet>
       
       <Hero />
+      <DreamSection />
       <HotCategories />
       <FeaturedProjects />
       <Features />
