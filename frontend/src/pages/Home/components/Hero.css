@@ -1,0 +1,33 @@
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(30deg);
+  }
+  80%, 100% {
+    transform: translateX(200%) translateY(200%) rotate(30deg);
+  }
+}
+
+.logo-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-shine::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.7) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%) translateY(-100%) rotate(30deg);
+  animation: shine 3s ease-out;
+  animation-delay: 0.5s;
+  animation-fill-mode: forwards;
+  pointer-events: none;
+}
