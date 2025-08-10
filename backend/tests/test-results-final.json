@@ -1,0 +1,114 @@
+{
+  "timestamp": "2025-07-23T16:30:00.000Z",
+  "environment": {
+    "nodeVersion": "v18.20.4",
+    "platform": "darwin",
+    "testDatabase": "estatehub_test"
+  },
+  "summary": {
+    "totalTests": 123,
+    "passed": 45,
+    "failed": 78,
+    "successRate": "36.6%",
+    "improvement": "+224% (from 11.3%)"
+  },
+  "improvements": {
+    "fixedIssues": [
+      "Winston logger test environment conflict",
+      "Database connection IPv6 to IPv4",
+      "JWT authentication and token format",
+      "Password verification with bcryptjs",
+      "API response format mismatches"
+    ],
+    "remainingIssues": [
+      "Database schema vs API field naming inconsistency",
+      "File upload tests with supertest",
+      "Business logic differences between tests and implementation"
+    ]
+  },
+  "suites": [
+    {
+      "name": "健康檢查",
+      "file": "health.test.js",
+      "passed": 2,
+      "failed": 0,
+      "total": 2,
+      "passRate": "100%",
+      "status": "perfect"
+    },
+    {
+      "name": "認證 API",
+      "file": "auth.test.js",
+      "passed": 16,
+      "failed": 2,
+      "total": 18,
+      "passRate": "88.9%",
+      "status": "good",
+      "improvement": "+1487%"
+    },
+    {
+      "name": "專案 API",
+      "file": "projects.test.js",
+      "passed": 3,
+      "failed": 21,
+      "total": 24,
+      "passRate": "12.5%",
+      "status": "poor",
+      "mainIssue": "field naming mismatch (title/name, category/type, slug/identifier)"
+    },
+    {
+      "name": "聯絡表單 API",
+      "file": "contacts.test.js",
+      "passed": 3,
+      "failed": 21,
+      "total": 24,
+      "passRate": "12.5%",
+      "status": "poor"
+    },
+    {
+      "name": "標籤 API",
+      "file": "tags.test.js",
+      "passed": 3,
+      "failed": 23,
+      "total": 26,
+      "passRate": "11.5%",
+      "status": "poor"
+    },
+    {
+      "name": "系統 API",
+      "file": "system.test.js",
+      "passed": 7,
+      "failed": 5,
+      "total": 12,
+      "passRate": "58.3%",
+      "status": "moderate",
+      "improvement": "+133%"
+    },
+    {
+      "name": "其他測試",
+      "file": "various",
+      "passed": 11,
+      "failed": 6,
+      "total": 17,
+      "passRate": "64.7%",
+      "status": "moderate"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "high",
+      "action": "統一 API 和資料庫欄位命名",
+      "impact": "可解決約 60% 的失敗測試"
+    },
+    {
+      "priority": "medium",
+      "action": "修復檔案上傳測試技術問題",
+      "impact": "可解決專案圖片相關測試"
+    },
+    {
+      "priority": "medium",
+      "action": "調整業務邏輯測試預期",
+      "impact": "提升整體測試準確性"
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+openapi: 3.0.0
+info:
+  title: EstateHub API
+  description: EstateHub 房地產專案管理系統 API 文檔
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: dev@estatehub.com
+servers:
+  - url: http://localhost:5000/api
+    description: Development server
+  - url: https://api.estatehub.com/v1
+    description: Production server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Error message
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: ERROR_CODE
+            details:
+              type: string
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: object
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, editor, viewer]
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+        uuid:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+          enum: [住宅, 商業, 辦公室, 公共建築, 其他]
+        status:
+          type: string
+          enum: [planning, pre_sale, on_sale, sold_out, completed]
+        location:
+          type: string
+        is_featured:
+          type: boolean
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          accessToken:
+                            type: string
+                          refreshToken:
+                            type: string
+        401:
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: User information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /projects:
+    get:
+      tags:
+        - Projects
+      summary: Get project list
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [住宅, 商業, 辦公室, 公共建築, 其他]
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [planning, pre_sale, on_sale, sold_out, completed]
+      responses:
+        200:
+          description: Project list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Project'
+                          pagination:
+                            type: object
+                            properties:
+                              total:
+                                type: integer
+                              page:
+                                type: integer
+                              limit:
+                                type: integer
+                              pages:
+                                type: integer
+                              hasNext:
+                                type: boolean
+                              hasPrev:
+                                type: boolean
+tags:
+  - name: Authentication
+    description: User authentication endpoints
+  - name: Projects
+    description: Project management endpoints
+  - name: Contacts
+    description: Contact form endpoints
+  - name: System
+    description: System management endpoints
