@@ -4,23 +4,29 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const DreamSection: React.FC = () => {
+interface DreamSectionProps {
+  onBackgroundShifted?: () => void;
+}
+
+const DreamSection: React.FC<DreamSectionProps> = ({ onBackgroundShifted }) => {
   const sectionRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLHeadingElement>(null);
-  const paragraphLinesRef = useRef<(HTMLSpanElement | null)[]>([]);
+  const ctaRef = useRef<HTMLButtonElement>(null);
+  const bgContainerRef = useRef<HTMLDivElement>(null);
   const bgImageRef = useRef<HTMLImageElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
+    const content = contentRef.current;
     const title = titleRef.current;
     const subtitle = subtitleRef.current;
-    const paragraphLines = paragraphLinesRef.current.filter(Boolean);
+    const cta = ctaRef.current;
+    const bgContainer = bgContainerRef.current;
     const bgImage = bgImageRef.current;
-    const overlay = overlayRef.current;
 
-    if (!section || !title || !subtitle || paragraphLines.length === 0) return;
+    if (!section || !content || !title || !subtitle || !cta || !bgContainer || !bgImage) return;
 
     const mm = gsap.matchMedia();
 
@@ -29,47 +35,43 @@ const DreamSection: React.FC = () => {
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          end: '+=150%',
+          end: '+=300%',
           pin: true,
-          scrub: 0.5,
+          scrub: 1,
           anticipatePin: 1,
         }
       });
 
-      gsap.set([title, subtitle, ...paragraphLines], {
-        opacity: 0,
-        y: 20
+      gsap.set([title, subtitle, cta], {
+        opacity: 1,
+        y: 0
       });
 
-      tl.to(bgImage, {
-        scale: 1.1,
+      // 滾動階段 1：文字向上移動並淡出
+      tl.to(content, {
+        y: -100,
+        opacity: 0,
         duration: 1,
-        ease: "power2.out"
-      }, 0)
-      .to(overlay, {
-        opacity: 0.15,
-        duration: 0.8,
-        ease: "power2.out"
-      }, 0)
-      .to(title, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power2.out"
-      }, 0.1)
-      .to(subtitle, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power2.out"
-      }, 0.3)
-      .to(paragraphLines, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        stagger: 0.12,
-        ease: "power2.out"
+        ease: "power2.inOut"
+      }, 0);
+
+      // 滾動階段 2：背景圖向左移至螢幕寬度 50%
+      tl.to(bgContainer, {
+        x: '-25%',
+        width: '50%',
+        duration: 1.5,
+        ease: "power2.inOut",
+        onComplete: () => {
+          if (onBackgroundShifted) onBackgroundShifted();
+        }
       }, 0.5);
+
+      // 保持背景在左側
+      tl.set(bgContainer, {
+        position: 'fixed',
+        left: 0,
+        x: 0
+      }, 2);
 
       return () => {
         tl.kill();
@@ -77,7 +79,7 @@ const DreamSection: React.FC = () => {
     });
 
     mm.add("(max-width: 767px)", () => {
-      gsap.set([title, subtitle, ...paragraphLines], {
+      gsap.set([title, subtitle, cta], {
         opacity: 1,
         y: 0
       });
@@ -90,65 +92,46 @@ const DreamSection: React.FC = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative w-full h-screen overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0">
+    <section ref={sectionRef} className="section-dream relative w-full h-screen overflow-hidden">
+      {/* Background Container - 可以向左移動 */}
+      <div ref={bgContainerRef} className="absolute inset-0 w-full h-full">
         <img 
           ref={bgImageRef}
           src="/images/dream-bg.jpg" 
           alt="築夢背景" 
           className="w-full h-full object-cover object-center"
           onError={(e) => {
-            // Fallback to gradient background if image fails to load
             e.currentTarget.style.display = 'none';
           }}
         />
         {/* Fallback gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-amber-100" />
-        
-        {/* Dark overlay for better text visibility */}
-        <div ref={overlayRef} className="absolute inset-0 bg-black/20" />
       </div>
 
-      {/* Content Container */}
-      <div className="relative h-full flex items-center justify-center lg:justify-start z-10">
-        {/* Text content positioned 30% from left */}
-        <div className="lg:ml-[30%] flex items-center space-x-4 lg:space-x-12 h-full">
-          {/* Left side - Vertical title */}
-          <div className="flex items-start justify-start">
-            <h2 
-              ref={titleRef}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold text-primary tracking-wider"
-              style={{
-                writingMode: 'vertical-rl',
-                textOrientation: 'upright',
-                letterSpacing: '0.2em'
-              }}
-            >
-              築夢。
-            </h2>
-          </div>
+      {/* Content Container - 中央文字內容 */}
+      <div ref={contentRef} className="relative h-full flex items-center justify-center z-10">
+        <div className="text-center px-6">
+          {/* 主標題 */}
+          <h1 
+            ref={titleRef}
+            className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6"
+            style={{ fontSize: '48px' }}
+          >
+            築夢
+          </h1>
           
-          {/* Right side - Subtitle and content */}
-          <div className="max-w-md pt-24 lg:pt-32">
-            <h3 ref={subtitleRef} className="text-lg md:text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
-              築一座能安放幸福的家
-            </h3>
-            <p className="text-xs/8 md:text-sm/8 text-gray-700">
-              <span ref={el => paragraphLinesRef.current[0] = el} className="block">
-                建築的起點，從一磚一瓦開始，用心描繪出對未來的想像
-              </span>
-              <span ref={el => paragraphLinesRef.current[1] = el} className="block">
-                從晨光灑落的餐桌，到深夜仍亮著的燈火
-              </span>
-              <span ref={el => paragraphLinesRef.current[2] = el} className="block">
-                從家人間的歡聲笑語，到細水長流的溫馨
-              </span>
-              <span ref={el => paragraphLinesRef.current[3] = el} className="block">
-                家的模樣，就是幸福最真實的模樣
-              </span>
-            </p>
-          </div>
+          {/* 副標題 */}
+          <h2 ref={subtitleRef} className="text-lg md:text-xl lg:text-2xl text-gray-700 mb-8 max-w-2xl mx-auto">
+            建築夢想，創造永恆價值
+          </h2>
+          
+          {/* CTA按鈕 */}
+          <button 
+            ref={ctaRef}
+            className="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300"
+          >
+            探索更多
+          </button>
         </div>
       </div>
     </section>
