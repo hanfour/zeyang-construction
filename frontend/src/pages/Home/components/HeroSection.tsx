@@ -66,12 +66,12 @@ const HeroSection: React.FC = () => {
       // 垂直線條動畫 - 根據整個區塊的滾動進度
       gsap.to(line, {
         height: '100%',
+        ease: 'none',
         scrollTrigger: {
           trigger: section,
           start: 'top 80%',
           end: 'bottom 20%',
-          scrub: 1,
-          ease: 'none'
+          scrub: 1
         }
       });
 
@@ -87,10 +87,10 @@ const HeroSection: React.FC = () => {
             trigger: block,
             start: 'top 80%', // 當區塊頂部到達視窗 80% 位置時觸發
             toggleActions: 'play none none reverse',
-            onStart: () => {
+            onEnter: () => {
               block.classList.add('show');
             },
-            onReverseComplete: () => {
+            onLeaveBack: () => {
               block.classList.remove('show');
             }
           }
