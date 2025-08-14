@@ -1,24 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import projectService from '@/services/project.service';
 import { Project } from '@/types';
+import { getImageUrl } from '@/utils/image';
 import MenuButton from '@/components/Layout/MenuButton';
 import NavigationMenu from '@/components/Layout/NavigationMenu';
-import Footer from '@/components/Layout/Footer';
 
 const ProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  const BANNER_HEIGHT = 288; // h-72 = 288px
 
   useEffect(() => {
     loadProjects();
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const loadProjects = async () => {
     try {
       setLoading(true);
-      const response = await projectService.getProjects({ status: 'on_sale' });
+      const response = await projectService.getProjects();
       
       if (response.success && response.data?.items) {
         setProjects(response.data.items);
@@ -84,7 +94,8 @@ const ProjectsPage: React.FC = () => {
         {/* Menu Button */}
         <MenuButton 
           isOpen={isMenuOpen} 
-          onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          color={scrollY > BANNER_HEIGHT ? 'dark' : 'light'}
         />
         
         {/* Navigation Menu */}
@@ -127,7 +138,7 @@ const ProjectsPage: React.FC = () => {
                       {project.main_image && (
                         <div className="aspect-[4/3] overflow-hidden">
                           <img 
-                            src={project.main_image.file_path} 
+                            src={getImageUrl(project.main_image.file_path)} 
                             alt={`${project.title} 主要圖片`}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
@@ -173,7 +184,7 @@ const ProjectsPage: React.FC = () => {
                             {leftImage && (
                               <div className="aspect-[4/3] overflow-hidden rounded">
                                 <img 
-                                  src={leftImage.file_path} 
+                                  src={getImageUrl(leftImage.file_path)} 
                                   alt={leftImage.alt_text || `${project.title} 圖片`}
                                   className="w-full h-full object-cover"
                                 />
@@ -182,7 +193,7 @@ const ProjectsPage: React.FC = () => {
                             {rightImage && (
                               <div className="aspect-[4/3] overflow-hidden rounded">
                                 <img 
-                                  src={rightImage.file_path} 
+                                  src={getImageUrl(rightImage.file_path)} 
                                   alt={rightImage.alt_text || `${project.title} 圖片`}
                                   className="w-full h-full object-cover"
                                 />
