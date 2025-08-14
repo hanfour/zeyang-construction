@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import Hero from './components/Hero';
 import AnimatedSections from './components/AnimatedSections';
 import HeroSection from './components/HeroSection';
+import HotProjects from './components/HotProjects';
 import HotCategories from './components/HotCategories';
 import FeaturedProjects from './components/FeaturedProjects';
 import Features from './components/Features';
@@ -20,6 +21,8 @@ const HomePage: React.FC = () => {
       <AnimatedSections />
       {/* Hero 區塊 - 獨立於動畫容器外 */}
       <HeroSection />
+      {/* 熱銷個案輪播區塊 */}
+      <HotProjects />
       
       
       <HotCategories />
