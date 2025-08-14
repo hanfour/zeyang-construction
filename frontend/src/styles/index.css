@@ -8,7 +8,7 @@
   }
   
   body {
-    @apply text-gray-900 antialiased;
+    @apply text-gray-900 antialiased font-sans;
   }
   
   /* Hide scrollbar while keeping scrolling functionality */
@@ -23,7 +23,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
+    @apply font-serif font-semibold;
   }
 }
 

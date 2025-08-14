@@ -51,7 +51,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Microsoft JhengHei', 'Noto Sans TC', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Noto Sans TC', 'Microsoft JhengHei', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Noto Serif TC', 'serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
