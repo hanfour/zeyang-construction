@@ -50,7 +50,7 @@ module.exports = {
 
   // File upload
   UPLOAD: {
-    MAX_FILE_SIZE: 26214400, // 25MB
+    MAX_FILE_SIZE: 268435456, // 256MB
     ALLOWED_MIME_TYPES: [
       'image/jpeg',
       'image/jpg',

@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
+import { Dialog } from '@headlessui/react';
 import { 
   MapPinIcon, 
   BuildingOfficeIcon,
@@ -9,23 +10,39 @@ import {
   CurrencyDollarIcon,
   HomeIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  PhotoIcon,
+  PencilIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import ErrorMessage from '@/components/Common/ErrorMessage';
+import ProjectImageManager from '@/components/Admin/ProjectImageManager';
+import { useAuth } from '@/contexts/AuthContext';
 import projectService from '@/services/project.service';
 import { formatPrice } from '@/utils/format';
+import { getImageUrl, getMediumImageUrl } from '@/utils/image';
+import { ProjectImage } from '@/types';
 
 const ProjectDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [activeImageIndex, setActiveImageIndex] = React.useState(0);
+  const [imageManagerOpen, setImageManagerOpen] = React.useState(false);
+  const [projectImages, setProjectImages] = React.useState<ProjectImage[]>([]);
 
-  const { data: project, isLoading, error } = useQuery({
+  const { data: project, isLoading, error, refetch } = useQuery({
     queryKey: ['project', slug],
     queryFn: () => projectService.getProjectBySlug(slug!),
     enabled: !!slug,
   });
+
+  // Update local images state when project data changes
+  React.useEffect(() => {
+    if (project?.images) {
+      setProjectImages(project.images);
+    }
+  }, [project]);
 
   if (isLoading) {
     return (
@@ -48,8 +65,11 @@ const ProjectDetailPage: React.FC = () => {
     );
   }
 
-  const images = project.images || [];
+  const images = projectImages || project?.images || [];
   const activeImage = images[activeImageIndex];
+
+  // Check if user is admin and can manage images
+  const canManageImages = isAuthenticated && user && ['admin', 'editor'].includes(user.role);
 
   const nextImage = () => {
     setActiveImageIndex((prev) => (prev + 1) % images.length);
@@ -85,8 +105,8 @@ const ProjectDetailPage: React.FC = () => {
           {images.length > 0 ? (
             <>
               <img
-                src={activeImage.imageUrl}
-                alt={activeImage.alt || project.title}
+                src={getImageUrl(activeImage.file_path)}
+                alt={activeImage.alt_text || project.title}
                 className="w-full h-full object-cover"
               />
               {images.length > 1 && (
@@ -127,13 +147,26 @@ const ProjectDetailPage: React.FC = () => {
           
           <div className="absolute bottom-0 left-0 right-0 p-8">
             <div className="container mx-auto">
-              <div className={`inline-flex px-3 py-1 rounded-full text-sm font-medium mb-4 ${statusDisplay.class}`}>
-                {statusDisplay.label}
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className={`inline-flex px-3 py-1 rounded-full text-sm font-medium mb-4 ${statusDisplay.class}`}>
+                    {statusDisplay.label}
+                  </div>
+                  <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{project.title}</h1>
+                  {project.subtitle && (
+                    <p className="text-xl text-gray-200">{project.subtitle}</p>
+                  )}
+                </div>
+                {canManageImages && (
+                  <button
+                    onClick={() => setImageManagerOpen(true)}
+                    className="bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                    title="管理專案圖片"
+                  >
+                    <PencilIcon className="h-5 w-5" />
+                  </button>
+                )}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{project.title}</h1>
-              {project.subtitle && (
-                <p className="text-xl text-gray-200">{project.subtitle}</p>
-              )}
             </div>
           </div>
         </div>
@@ -194,7 +227,7 @@ const ProjectDetailPage: React.FC = () => {
                 <div className="mt-12">
                   <h3 className="text-2xl font-bold text-gray-900 mb-6">專案特色</h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    {project.features.map((feature, index) => (
+                    {project.features.map((feature: string, index: number) => (
                       <div key={index} className="flex items-start gap-3">
                         <div className="flex-shrink-0 w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mt-0.5">
                           <div className="w-2 h-2 bg-primary-600 rounded-full" />
@@ -214,7 +247,7 @@ const ProjectDetailPage: React.FC = () => {
                       {Object.entries(project.specifications).map(([key, value]) => (
                         <div key={key}>
                           <dt className="text-sm font-medium text-gray-500">{key}</dt>
-                          <dd className="mt-1 text-gray-900">{value}</dd>
+                          <dd className="mt-1 text-gray-900">{String(value)}</dd>
                         </div>
                       ))}
                     </dl>
@@ -250,7 +283,7 @@ const ProjectDetailPage: React.FC = () => {
                   <div className="mt-6">
                     <h4 className="text-sm font-medium text-gray-700 mb-3">標籤</h4>
                     <div className="flex flex-wrap gap-2">
-                      {project.tags.map((tag) => (
+                      {project.tags.map((tag: any) => (
                         <span
                           key={tag.id}
                           className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700"
@@ -280,8 +313,8 @@ const ProjectDetailPage: React.FC = () => {
                   className="aspect-[4/3] overflow-hidden rounded-lg hover:opacity-90 transition-opacity"
                 >
                   <img
-                    src={image.thumbnailUrl || image.imageUrl}
-                    alt={image.alt || `${project.title} - 圖片 ${index + 1}`}
+                    src={getMediumImageUrl(image)}
+                    alt={image.alt_text || `${project.title} - 圖片 ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -316,6 +349,57 @@ const ProjectDetailPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Admin Image Management Button - Fixed Position */}
+      {canManageImages && project && (
+        <button
+          onClick={() => setImageManagerOpen(true)}
+          className="fixed bottom-6 right-6 bg-primary-600 text-white p-3 rounded-full shadow-lg hover:bg-primary-700 transition-colors z-40"
+          title="管理專案圖片"
+        >
+          <PhotoIcon className="h-6 w-6" />
+        </button>
+      )}
+
+      {/* Image Management Modal */}
+      {canManageImages && project && (
+        <Dialog open={imageManagerOpen} onClose={() => setImageManagerOpen(false)} className="relative z-50">
+          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Dialog.Panel className="mx-auto max-w-4xl w-full bg-white rounded-lg shadow-xl" style={{ maxHeight: '75dvh' }}>
+              <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(75dvh - 2rem)' }}>
+                <Dialog.Title className="text-lg font-medium text-gray-900 mb-4">
+                  <div className="flex items-center gap-2">
+                    <PhotoIcon className="h-6 w-6" />
+                    {project.title} - 圖片管理
+                  </div>
+                </Dialog.Title>
+                
+                <ProjectImageManager
+                  projectUuid={project.uuid}
+                  images={projectImages}
+                  onImagesChange={(newImages) => {
+                    setProjectImages(newImages);
+                    // Refetch project data to update the main display
+                    refetch();
+                  }}
+                  maxFiles={20}
+                />
+                
+                <div className="mt-6 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setImageManagerOpen(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    關閉
+                  </button>
+                </div>
+              </div>
+            </Dialog.Panel>
+          </div>
+        </Dialog>
+      )}
     </>
   );
 };

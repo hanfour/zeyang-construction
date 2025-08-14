@@ -4,10 +4,10 @@ import Hero from './components/Hero';
 import AnimatedSections from './components/AnimatedSections';
 import HeroSection from './components/HeroSection';
 import HotProjects from './components/HotProjects';
-import HotCategories from './components/HotCategories';
-import FeaturedProjects from './components/FeaturedProjects';
-import Features from './components/Features';
-import CTA from './components/CTA';
+// import HotCategories from './components/HotCategories';
+// import FeaturedProjects from './components/FeaturedProjects';
+// import Features from './components/Features';
+// import CTA from './components/CTA';
 
 const HomePage: React.FC = () => {
   return (
@@ -25,10 +25,10 @@ const HomePage: React.FC = () => {
       <HotProjects />
       
       
-      <HotCategories />
+      {/* <HotCategories />
       <FeaturedProjects />
       <Features />
-      <CTA />
+      <CTA /> */}
     </>
   );
 };

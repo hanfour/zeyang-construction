@@ -81,6 +81,17 @@ export interface Project {
   images?: ProjectImage[];
   tags?: Tag[] | string[];
   image_count?: number;
+  main_image?: {
+    file_path: string;
+    thumbnails: {
+      THUMBNAIL?: ImageInfo;
+      SMALL?: ImageInfo;
+      MEDIUM?: ImageInfo;
+      LARGE?: ImageInfo;
+      ORIGINAL?: ImageInfo;
+      optimized?: ImageInfo;
+    };
+  };
 }
 
 export interface ProjectImage {

@@ -208,4 +208,4 @@ INSERT IGNORE INTO `settings` (`key`, `value`, `type`, `category`) VALUES
 ('site_name', 'EstateHub', 'string', 'general'),
 ('items_per_page', '20', 'number', 'general'),
 ('enable_registration', 'true', 'boolean', 'auth'),
-('max_upload_size', '5242880', 'number', 'upload');
+('max_upload_size', '268435456', 'number', 'upload');

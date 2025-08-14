@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
+import { getImageUrl } from '@/utils/image';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -13,8 +14,22 @@ gsap.registerPlugin(ScrollTrigger);
 interface Project {
   id: number;
   title: string;
-  image: string;
-  description: string;
+  subtitle?: string;
+  category: string;
+  status: string;
+  location: string;
+  is_featured: number;
+  main_image?: {
+    file_path: string;
+    thumbnails: {
+      LARGE: { path: string; width: number; height: number; filename: string; };
+      MEDIUM: { path: string; width: number; height: number; filename: string; };
+      SMALL: { path: string; width: number; height: number; filename: string; };
+      THUMBNAIL: { path: string; width: number; height: number; filename: string; };
+      ORIGINAL: { path: string; width: number; height: number; filename: string; };
+      optimized: { path: string; width: number; height: number; filename: string; };
+    };
+  };
 }
 
 const HotProjects: React.FC = () => {
@@ -25,37 +40,73 @@ const HotProjects: React.FC = () => {
   const sliderContainerRef = useRef<HTMLDivElement>(null);
   const currentImageMaskRef = useRef<HTMLDivElement>(null);
   const nextImageMaskRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLDivElement>(null);
   const [isAnimated, setIsAnimated] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const idleAnimationRef = useRef<GSAPTimeline | null>(null);
 
-  // 模擬專案數據
-  const projects: Project[] = [
-    {
-      id: 1,
-      title: '都心典藏',
-      image: '/images/project1.jpg',
-      description: '市中心黃金地段精品住宅'
-    },
-    {
-      id: 2,
-      title: '水岸第一排',
-      image: '/images/project2.jpg',
-      description: '享受河岸第一排絕佳視野'
-    },
-    {
-      id: 3,
-      title: '森林秘境',
-      image: '/images/project3.jpg',
-      description: '都市中的森林豪宅'
-    },
-    {
-      id: 4,
-      title: '天際線',
-      image: '/images/project4.jpg',
-      description: '超高層景觀豪宅'
+  // 獲取精選專案數據
+  const fetchFeaturedProjects = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('http://localhost:5001/api/projects/featured?limit=6');
+      if (!response.ok) {
+        throw new Error('Failed to fetch featured projects');
+      }
+      const data = await response.json();
+      
+      // 檢查響應結構：{ success: true, data: { items: [] } }
+      const projectsArray = data.success && data.data && data.data.items ? data.data.items : [];
+      
+      // 過濾符合條件的專案：必須是精選且狀態為規劃中、預售或銷售中
+      // 注意：API 中 status 是英文 (pre_sale)，is_featured 是數字 (1)
+      const allowedStatuses = ['planning', 'pre_sale', 'selling']; // 英文狀態
+      const filteredProjects = projectsArray.filter((project: any) => 
+        project.is_featured === 1 && allowedStatuses.includes(project.status)
+      );
+      
+      setProjects(filteredProjects);
+    } catch (error) {
+      console.error('Error fetching featured projects:', error);
+      // 如果API失敗，使用備用數據
+      setProjects([
+        {
+          id: 1,
+          title: '都心典藏',
+          category: '住宅',
+          location: '台北市中正區',
+          status: 'selling',
+          is_featured: 1
+        },
+        {
+          id: 2,
+          title: '水岸第一排',
+          category: '住宅',
+          location: '台北市大安區',
+          status: 'pre_sale',
+          is_featured: 1
+        },
+        {
+          id: 3,
+          title: '森林秘境',
+          category: '住宅',
+          location: '台北市信義區',
+          status: 'planning',
+          is_featured: 1
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  // 載入專案數據
+  useEffect(() => {
+    fetchFeaturedProjects();
+  }, []);
 
   // 進場動畫
   useEffect(() => {
@@ -65,12 +116,18 @@ const HotProjects: React.FC = () => {
     const sliderContainer = sliderContainerRef.current;
     const currentMask = currentImageMaskRef.current;
     const nextMask = nextImageMaskRef.current;
+    const moreButton = moreButtonRef.current;
 
-    if (!section || !title || !subtitle || !sliderContainer || !currentMask || !nextMask) return;
+    if (!section || !title || !subtitle || !sliderContainer || !currentMask || !nextMask || !moreButton) return;
 
     // 初始狀態設置
     gsap.set([title, subtitle], {
       opacity: 0
+    });
+
+    gsap.set(moreButton, {
+      opacity: 0,
+      y: 30
     });
 
     gsap.set(currentMask, {
@@ -110,12 +167,18 @@ const HotProjects: React.FC = () => {
         duration: 0.6,
         stagger: 0.1,
         ease: 'power2.out'
-      }, '-=0.8');
+      }, '-=0.8')
+      .to(moreButton, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out'
+      }, '-=0.2');
 
     // 滾動觸發器
     ScrollTrigger.create({
       trigger: section,
-      start: 'top 80%',
+      start: 'top 70%',
       once: true,
       onEnter: () => {
         entranceTimeline.play();
@@ -144,9 +207,9 @@ const HotProjects: React.FC = () => {
     idleAnimationRef.current = gsap.timeline({ repeat: -1 });
     
     slides.forEach(slide => {
-      gsap.set(slide, { x: 0 });
+      gsap.set(slide, { x: 0 }); // 重置位置，保持CSS中的scale
       idleAnimationRef.current?.to(slide, {
-        x: '-5%',
+        x: '-0.725%',
         duration: 5,
         ease: 'none'
       })
@@ -164,7 +227,7 @@ const HotProjects: React.FC = () => {
       idleAnimationRef.current.kill();
       const slides = sliderContainerRef.current?.querySelectorAll('.swiper-slide img');
       slides?.forEach(slide => {
-        gsap.set(slide, { x: 0 });
+        gsap.set(slide, { x: 0 }); // 重置位置，保持CSS中的scale
       });
     }
   };
@@ -193,12 +256,12 @@ const HotProjects: React.FC = () => {
   };
 
   return (
-    <section ref={sectionRef} className="hot-projects relative w-full py-20 lg:py-32 bg-white overflow-hidden">
-      <div className="relative w-full h-[60vh] lg:h-[80vh]">
+    <section ref={sectionRef} className="hot-projects relative w-full py-8 md:pb-24 bg-white overflow-hidden">
+      <div className="relative w-full h-[45vh] lg:h-[80vh]">
         {/* 標題層 - 絕對定位 */}
-        <div className="absolute z-20 lg:left-[calc(70%-2rem)] lg:top-1/2 lg:-translate-y-1/2 
-                        top-4 right-4 lg:right-auto">
-          <div className="flex lg:flex-row flex-col lg:gap-8 gap-4">
+        <div className="absolute z-20 lg:left-[calc(70%-1.5rem)] lg:top-1/2 lg:-translate-y-1/2 
+                        -top-8 right-4 lg:right-auto">
+          <div className="flex lg:flex-row lg:gap-4 gap-2 items-start lg:items-centerq">
             {/* 主標題 - 直式文字 */}
             <h2 
               ref={titleRef}
@@ -211,7 +274,7 @@ const HotProjects: React.FC = () => {
               我們的熱銷個案
             </h2>
             
-            {/* 副標題 - 桌機版橫式，手機版直式 */}
+            {/* 副標題 - 手機版直式 */}
             <p 
               ref={subtitleRef}
               className="text-sm lg:text-base text-gray-600 max-w-[200px] lg:max-w-none"
@@ -222,7 +285,7 @@ const HotProjects: React.FC = () => {
               }}
             >
               實現理想宜居的劃世代居所
-              <br className="hidden lg:block" />
+              <br />
               嚴選市中心燙金地段，融合人本設計與極致工藝
             </p>
           </div>
@@ -236,7 +299,7 @@ const HotProjects: React.FC = () => {
             spaceBetween={0}
             slidesPerView={1.2}
             slidesPerGroup={1}
-            loop={true}
+            loop={projects.length > 0}
             centeredSlides={false}
             autoplay={{
               delay: 5000,
@@ -247,7 +310,8 @@ const HotProjects: React.FC = () => {
               clickable: true,
               el: '.swiper-pagination-custom'
             }}
-            onSlideChange={() => {
+            onSlideChange={(swiper) => {
+              setCurrentSlideIndex(swiper.realIndex);
               if (isAnimated) {
                 stopIdleAnimation();
                 setTimeout(() => {
@@ -269,28 +333,51 @@ const HotProjects: React.FC = () => {
             }}
             className="w-full h-full"
           >
-            {projects.map((project) => (
-              <SwiperSlide key={project.id}>
-                <div className="relative w-full h-full">
-                  <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 relative overflow-hidden">
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                    
-                    {/* 專案資訊覆蓋層 */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-8">
-                      <h3 className="text-white text-2xl lg:text-3xl font-bold mb-2">{project.title}</h3>
-                      <p className="text-white/90 text-sm lg:text-base">{project.description}</p>
+            {isLoading ? (
+              // 載入中顯示骨架畫面
+              Array.from({ length: 3 }).map((_, index) => (
+                <SwiperSlide key={`loading-${index}`}>
+                  <div className="relative w-full h-full overflow-hidden">
+                    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse relative">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-gray-500">載入中...</div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </SwiperSlide>
-            ))}
+                </SwiperSlide>
+              ))
+            ) : (
+              // 如果只有一張圖片，創建三個相同的 slides 以確保 loop 正常運作
+              (projects.length === 1 ? [projects[0], projects[0], projects[0]] : projects).map((project, index) => (
+                <SwiperSlide key={`${project.id}-${index}`}>
+                  <div className="relative w-full h-full overflow-hidden">
+                    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 relative">
+                      {project.main_image ? (
+                        <img 
+                          src={getImageUrl(project.main_image.file_path)}
+                          alt={project.title}
+                          className="w-full h-full object-cover"
+                          style={{ transform: 'scale(1.1)' }}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-500">
+                          {project.title}
+                        </div>
+                      )}
+                      
+                      {/* 專案資訊覆蓋層 - 隱藏 */}
+                      {/* <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-8">
+                        <h3 className="text-white text-2xl lg:text-3xl font-bold mb-2">{project.title}</h3>
+                        <p className="text-white/90 text-sm lg:text-base">{project.description}</p>
+                      </div> */}
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))
+            )}
           </Swiper>
 
           {/* 窗簾遮罩 - 主圖片 */}
@@ -322,6 +409,23 @@ const HotProjects: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
+
+          {/* MORE 按鈕 - 只在主要 slider 左下角顯示 */}
+          <div ref={moreButtonRef} className="absolute -bottom-4 left-8 z-20">
+            <div className="bg-primary-more text-white p-4 shadow-lg">
+              <div className="text-center mb-2">
+                <div className="text-xs lg:text-sm font-bold tracking-widest">MORE</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm lg:text-base font-bold min-w-[8.25em] tracking-wider">
+                  {!isLoading && projects[currentSlideIndex % projects.length]?.title}
+                </div>
+              </div>
+            </div>
+            <div className="w-full absolute top-[50%] -translate-y-full -left-2 flex justify-center items-center">
+              <img src="/images/icons/icons_more_arrow.png" alt="" />
+            </div>
+          </div>
 
           {/* 自定義分頁指示器 */}
           <div className="swiper-pagination-custom absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2"></div>
@@ -355,11 +459,11 @@ const HotProjects: React.FC = () => {
 
         @media (max-width: 1023px) {
           .hot-projects .swiper-slide-active {
-            width: 80% !important;
+            width: 70% !important;
           }
           
           .hot-projects .swiper-slide-next {
-            width: 20% !important;
+            width: 30% !important;
             margin-left: 0;
           }
         }

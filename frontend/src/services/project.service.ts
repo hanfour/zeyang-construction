@@ -16,8 +16,12 @@ class ProjectService {
     return api.get<PaginatedResponse<Project>>(`/projects?${params.toString()}`);
   }
 
-  async getProject(slug: string): Promise<ApiResponse<{ project: Project }>> {
-    return api.get<{ project: Project }>(`/projects/${slug}`);
+  async getProject(identifier: string): Promise<ApiResponse<{ project: Project }>> {
+    return api.get<{ project: Project }>(`/projects/${identifier}`);
+  }
+
+  async getProjectBySlug(slug: string): Promise<ApiResponse<{ project: Project }>> {
+    return api.get<{ project: Project }>(`/projects/slug/${slug}`);
   }
 
   async getFeaturedProjects(limit: number = 6): Promise<ApiResponse<{ items: Project[] }>> {

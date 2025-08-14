@@ -1,4 +1,4 @@
-const { query, findOne, transaction } = require('../config/database');
+const { query, findOne, transaction, paginate } = require('../config/database');
 const { sendEmail } = require('../utils/emailService');
 const logger = require('../utils/logger');
 
@@ -83,20 +83,20 @@ class ContactService {
           u1.username as readByName,
           u2.username as repliedByName
         FROM contacts c
-        LEFT JOIN users u1 ON c.repliedBy = u1.id
-        LEFT JOIN users u2 ON c.repliedBy = u2.id
+        LEFT JOIN users u1 ON c.read_by = u1.id
+        LEFT JOIN users u2 ON c.replied_by = u2.id
         WHERE 1=1
       `;
       
       const params = [];
       
       if (is_read !== undefined) {
-        sql += ' AND c.isRead = ?';
+        sql += ' AND c.is_read = ?';
         params.push(is_read);
       }
       
       if (is_replied !== undefined) {
-        sql += ' AND c.isReplied = ?';
+        sql += ' AND c.is_replied = ?';
         params.push(is_replied);
       }
       
@@ -121,11 +121,7 @@ class ContactService {
         params.push(dateTo);
       }
       
-      // Count total
-      const countSql = sql.replace(/SELECT[\s\S]*?FROM/, 'SELECT COUNT(*) as total FROM');
-      const [{ total }] = await query(countSql, params);
-      
-      // Add ordering and pagination
+      // Add ordering
       const validColumns = ['created_at', 'name', 'email', 'is_read', 'is_replied'];
       const validDirs = ['ASC', 'DESC'];
       
@@ -135,23 +131,8 @@ class ContactService {
         sql += ' ORDER BY c.created_at DESC';
       }
       
-      const offset = (page - 1) * limit;
-      sql += ' LIMIT ? OFFSET ?';
-      params.push(limit, offset);
-      
-      const contacts = await query(sql, params);
-      
-      return {
-        items: contacts,
-        pagination: {
-          total,
-          page,
-          limit,
-          pages: Math.ceil(total / limit),
-          hasNext: page * limit < total,
-          hasPrev: page > 1
-        }
-      };
+      // Use the paginate utility function
+      return await paginate(sql, params, page, limit);
     } catch (error) {
       logger.error('Error fetching contacts:', error);
       throw new Error('Failed to fetch contacts');
@@ -167,8 +148,8 @@ class ContactService {
           u1.username as readByName,
           u2.username as repliedByName
          FROM contacts c
-         LEFT JOIN users u1 ON c.repliedBy = u1.id
-         LEFT JOIN users u2 ON c.repliedBy = u2.id
+         LEFT JOIN users u1 ON c.read_by = u1.id
+         LEFT JOIN users u2 ON c.replied_by = u2.id
          WHERE c.id = ?`,
         [id]
       );
@@ -184,7 +165,7 @@ class ContactService {
   static async markAsRead(id, userId) {
     try {
       const result = await query(
-        'UPDATE contacts SET isRead = true WHERE id = ? AND isRead = false',
+        'UPDATE contacts SET is_read = true WHERE id = ? AND is_read = false',
         [id]
       );
       
@@ -204,7 +185,7 @@ class ContactService {
     try {
       const placeholders = ids.map(() => '?').join(',');
       const result = await query(
-        `UPDATE contacts SET isRead = true WHERE id IN (${placeholders}) AND isRead = false`,
+        `UPDATE contacts SET is_read = true WHERE id IN (${placeholders}) AND is_read = false`,
         ids
       );
       
@@ -230,7 +211,7 @@ class ContactService {
         
         // Update contact status
         await connection.execute(
-          'UPDATE contacts SET isReplied = true, repliedBy = ?, repliedAt = NOW(), notes = ? WHERE id = ?',
+          'UPDATE contacts SET is_replied = true, replied_by = ?, replied_at = NOW(), notes = ? WHERE id = ?',
           [userId, replyData.notes || null, id]
         );
         
@@ -289,8 +270,8 @@ class ContactService {
       const stats = await query(
         `SELECT 
           COUNT(*) as total,
-          SUM(isRead) as read_count,
-          SUM(isReplied) as replied_count,
+          SUM(is_read) as read_count,
+          SUM(is_replied) as replied_count,
           COUNT(DISTINCT source) as sources,
           DATE(created_at) as date,
           COUNT(*) as daily_count
@@ -304,9 +285,9 @@ class ContactService {
       const summary = await findOne(
         `SELECT 
           COUNT(*) as total,
-          SUM(isRead) as read_count,
-          SUM(isReplied) as replied_count,
-          SUM(CASE WHEN isRead = false THEN 1 ELSE 0 END) as unread_count
+          SUM(is_read) as read_count,
+          SUM(is_replied) as replied_count,
+          SUM(CASE WHEN is_read = false THEN 1 ELSE 0 END) as unread_count
          FROM contacts
          WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)`,
         [days]

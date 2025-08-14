@@ -47,7 +47,7 @@ const LoginPage: React.FC = () => {
           <div className="mx-auto w-full max-w-sm lg:w-96">
             <div>
               <Link to="/" className="text-3xl font-bold text-primary-600">
-                EstateHub
+                澤暘建設
               </Link>
               <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
                 登入您的帳號
@@ -119,7 +119,7 @@ const LoginPage: React.FC = () => {
 
               <div className="mt-6">
                 <p className="text-sm text-gray-600 text-center">
-                  預設管理員帳號：admin / admin123
+                  預設管理員帳號：admin / admin123456
                 </p>
               </div>
             </div>

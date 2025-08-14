@@ -42,8 +42,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(compression());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '300mb' }));
+app.use(express.urlencoded({ extended: true, limit: '300mb' }));
 app.use(morgan('combined', { stream: logger.stream }));
 
 // Apply rate limiting to all routes (except in test environment)

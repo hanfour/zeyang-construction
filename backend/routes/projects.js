@@ -10,15 +10,15 @@ const { USER_ROLES, SUCCESS_MESSAGES, PROJECT_CATEGORIES, PROJECT_STATUS } = req
 
 // Validation rules
 const createProjectValidation = [
-  body('name').notEmpty().withMessage('Name is required').trim(),
-  body('type').notEmpty().withMessage('Type is required')
-    .isIn(Object.values(PROJECT_CATEGORIES)).withMessage('Invalid type'),
+  body('title').notEmpty().withMessage('Title is required').trim(),
+  body('category').notEmpty().withMessage('Category is required')
+    .isIn(['住宅', '商業', '辦公室', '公共建築', '其他']).withMessage('Invalid category'),
   body('location').notEmpty().withMessage('Location is required').trim(),
   body('status').optional()
     .isIn(Object.values(PROJECT_STATUS)).withMessage('Invalid status'),
-  body('yearStarted').optional().isInt({ min: 1900, max: 2100 }).withMessage('Invalid year'),
-  body('displayOrder').optional().isInt({ min: 0 }).withMessage('Invalid display order'),
-  body('isFeatured').optional().isBoolean().withMessage('Invalid featured status'),
+  body('year').optional().isInt({ min: 1900, max: 2100 }).withMessage('Invalid year'),
+  body('display_order').optional().isInt({ min: 0 }).withMessage('Invalid display order'),
+  body('is_featured').optional().isBoolean().withMessage('Invalid featured status'),
   body('tags').optional().isArray().withMessage('Tags must be an array'),
   body('features').optional().custom(value => {
     if (Array.isArray(value)) return true;
@@ -29,14 +29,14 @@ const createProjectValidation = [
 
 const updateProjectValidation = [
   param('identifier').notEmpty(),
-  body('name').optional().trim(),
-  body('type').optional()
-    .isIn(Object.values(PROJECT_CATEGORIES)).withMessage('Invalid type'),
+  body('title').optional().trim(),
+  body('category').optional()
+    .isIn(['住宅', '商業', '辦公室', '公共建築', '其他']).withMessage('Invalid category'),
   body('status').optional()
     .isIn(Object.values(PROJECT_STATUS)).withMessage('Invalid status'),
-  body('yearStarted').optional().isInt({ min: 1900, max: 2100 }).withMessage('Invalid year'),
-  body('displayOrder').optional().isInt({ min: 0 }).withMessage('Invalid display order'),
-  body('isFeatured').optional().isBoolean().withMessage('Invalid featured status'),
+  body('year').optional().isInt({ min: 1900, max: 2100 }).withMessage('Invalid year'),
+  body('display_order').optional().isInt({ min: 0 }).withMessage('Invalid display order'),
+  body('is_featured').optional().isBoolean().withMessage('Invalid featured status'),
   body('tags').optional().isArray().withMessage('Tags must be an array'),
   handleValidationErrors
 ];

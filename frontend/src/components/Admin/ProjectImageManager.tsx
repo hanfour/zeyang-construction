@@ -11,6 +11,7 @@ import {
 import { StarIcon } from '@heroicons/react/24/solid';
 import projectService from '@/services/project.service';
 import { ProjectImage } from '@/types';
+import { getImageUrl, getMediumImageUrl, getThumbnailUrl } from '@/utils/image';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
@@ -98,8 +99,8 @@ const ProjectImageManager: React.FC<ProjectImageManagerProps> = ({
         
         // Fetch updated images list
         const imagesResponse = await projectService.getProject(projectUuid);
-        if (imagesResponse.success && imagesResponse.data?.images) {
-          onImagesChange(imagesResponse.data.images);
+        if (imagesResponse.success && imagesResponse.data?.project.images) {
+          onImagesChange(imagesResponse.data.project.images);
         }
         
         if (failedCount > 0) {
@@ -253,7 +254,7 @@ const ProjectImageManager: React.FC<ProjectImageManagerProps> = ({
                   <img
                     src={preview.preview}
                     alt={`Preview ${index + 1}`}
-                    className="h-20 w-full object-cover rounded-lg"
+                    className="h-32 w-full object-scale-down rounded-lg border border-gray-100"
                   />
                   <button
                     type="button"
@@ -320,16 +321,16 @@ const ProjectImageManager: React.FC<ProjectImageManagerProps> = ({
           </p>
         </div>
       )}
-
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
       {/* Main Image */}
       {mainImage && (
-        <div className="mb-6">
+        <div className="mb-6 md:mb-0">
           <h4 className="text-sm font-medium text-gray-700 mb-2">主圖</h4>
-          <div className="relative group">
+          <div className="relative group bg-slate-50 overflow-hidden">
             <img
-              src={mainImage.file_path}
+              src={getImageUrl(mainImage.file_path)}
               alt={mainImage.alt_text || '主圖'}
-              className="h-48 w-full object-cover rounded-lg"
+              className="w-full aspect-square object-scale-down rounded-lg"
             />
             <div className="absolute top-2 left-2">
               <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-yellow-100 text-yellow-800">
@@ -345,7 +346,7 @@ const ProjectImageManager: React.FC<ProjectImageManagerProps> = ({
       {galleryImages.length > 0 && (
         <div>
           <h4 className="text-sm font-medium text-gray-700 mb-2">相簿圖片</h4>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4">
             {galleryImages.map((image) => (
               <div
                 key={image.id}
@@ -359,9 +360,9 @@ const ProjectImageManager: React.FC<ProjectImageManagerProps> = ({
                 onDrop={(e) => handleDrop(e, image.id)}
               >
                 <img
-                  src={image.file_path}
+                  src={getMediumImageUrl(image)}
                   alt={image.alt_text || `圖片 ${image.id}`}
-                  className="h-32 w-full object-cover rounded-lg cursor-move"
+                  className="h-32 w-full object-scale-down rounded-lg cursor-move border border-gray-100"
                   onClick={() => toggleImageSelection(image.id)}
                 />
                 
@@ -407,6 +408,7 @@ const ProjectImageManager: React.FC<ProjectImageManagerProps> = ({
           </div>
         </div>
       )}
+      </div>
 
       {/* Empty State */}
       {images.length === 0 && previewImages.length === 0 && (

@@ -79,21 +79,34 @@ const HeroSection: React.FC = () => {
       masks.forEach((mask, index) => {
         const block = blocks[index];
         
-        gsap.to(mask, {
-          left: '100%',
-          duration: 0.8,
-          ease: 'power2.inOut',
+        // 創建動畫時間軸
+        const tl = gsap.timeline({
           scrollTrigger: {
             trigger: block,
-            start: 'top 80%', // 當區塊頂部到達視窗 80% 位置時觸發
+            start: 'top 80%',
+            end: 'bottom 20%',
             toggleActions: 'play none none reverse',
             onEnter: () => {
               block.classList.add('show');
             },
+            onLeave: () => {
+              block.classList.remove('show');
+            },
+            onEnterBack: () => {
+              block.classList.add('show');
+            },
             onLeaveBack: () => {
               block.classList.remove('show');
-            }
+            },
+            // 啟用重新觸發，確保動畫可以重複播放
+            refreshPriority: 1
           }
+        });
+
+        tl.to(mask, {
+          left: '100%',
+          duration: 0.8,
+          ease: 'power2.inOut'
         });
       });
     }
@@ -112,7 +125,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section ref={sectionRef} className="section-hero w-full min-h-screen bg-white flex">
+    <section ref={sectionRef} className="section-hero w-full min-h-screen py-8 md:pb-24 bg-white flex">
       {/* 左側文字 + 垂直線條 */}
       <div ref={heroLeftRef} className="hero-left w-2/12 lg:w-3/12 relative flex flex-col items-center justify-center gap-12 lg:gap-24 pt-24 lg:pt-32">
         <div className="flex items-center gap-8">
@@ -120,7 +133,7 @@ const HeroSection: React.FC = () => {
           <div className="flex flex-col items-center gap-6">
             <div 
               ref={heroSubtitleRef} 
-              className="hero-subtitle text-sm md:text-base font-normal text-black"
+              className="text-sub-title-mobile lg:text-sub-title-desktop font-normal text-black"
               style={{ 
                 writingMode: 'vertical-rl',
                 letterSpacing: '0.05em',
@@ -131,7 +144,7 @@ const HeroSection: React.FC = () => {
             </div>
             <h1 
               ref={heroTitleRef} 
-              className="hero-title text-2xl md:text-[32px] font-bold text-black"
+              className="text-main-large-title-mobile lg:text-main-large-title-desktop font-bold text-black"
               style={{ 
                 writingMode: 'vertical-rl',
                 letterSpacing: '0.1em',
@@ -146,7 +159,7 @@ const HeroSection: React.FC = () => {
         {/* 垂直線條 - 固定在右側邊界 */}
         <div 
           ref={heroLineRef} 
-          className="hero-line w-[2px] bg-black"
+          className="hero-line w-[2px] bg-primary-more"
           style={{ 
             willChange: 'height',
             transformOrigin: 'top'
@@ -155,42 +168,65 @@ const HeroSection: React.FC = () => {
       </div>
 
       {/* 右側內容 */}
-      <div ref={heroRightRef} className="hero-right flex-1 flex flex-col">
-        {[0, 1, 2, 3].map((index) => (
-          <div
-            key={index}
-            ref={(el) => setBlockRef(el, index)}
-            className="hero-block w-full h-[25vh] lg:h-[50vh] relative overflow-hidden"
-          >
-            {/* 背景圖片層 */}
-            <div 
-              className={`w-full h-full bg-cover bg-center ${
-                index === 0 ? 'bg-gradient-to-br from-amber-100 to-amber-200' :
-                index === 1 ? 'bg-gradient-to-br from-gray-100 to-gray-200' :
-                index === 2 ? 'bg-gradient-to-br from-green-100 to-green-200' :
-                'bg-gradient-to-br from-slate-100 to-slate-200'
-              }`}
-            >
-              {/* 如果有圖片，可以使用以下代碼 */}
-              {/* <img 
-                src={`/images/hero-block-${index + 1}.jpg`} 
-                alt={`區塊 ${index + 1}`}
-                className="w-full h-full object-cover"
-              /> */}
-            </div>
-            
-            {/* 白色遮罩層 */}
+      <div ref={heroRightRef} className="hero-right flex-1 flex flex-col gap-1">
+        {[0, 1, 2, 3].map((index) => {
+          const isEven = index % 2 === 0;
+          const textData = [
+            { title: '尺度生活', subtitle: '獨具品味‧美感靈魂' },
+            { title: '城市遠見 ', subtitle: '市心角地‧緊鄰捷運' },
+            { title: '永續共好', subtitle: '永續自然‧情感連結' },
+            { title: '負責務實 ', subtitle: '講究細節‧安心品質' }
+          ];
+          
+          return (
             <div
-              ref={(el) => setMaskRef(el, index)}
-              className="absolute inset-y-0 bg-white z-10"
-              style={{
-                willChange: 'left',
-                left: 0,
-                right: 0
-              }}
-            />
-          </div>
-        ))}
+              key={index}
+              ref={(el) => setBlockRef(el, index)}
+              className="hero-block w-full h-[25vh] lg:h-[50vh] relative overflow-hidden"
+            >
+              {/* 背景圖片層 */}
+              <div 
+                className={`w-full h-full bg-cover bg-center`}
+              >
+                {/* 如果有圖片，可以使用以下代碼 */}
+                <img 
+                  src={`/images/index/feature-${index + 1}.jpg`} 
+                  alt={`區塊 ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* 文字區塊 - 在圖片上方 */}
+              <div className="absolute inset-0 flex items-center z-5">
+                <div className={`${
+                  isEven 
+                    ? 'ml-[15%]' // 單數圖片靠左（index 0, 2）
+                    : 'ml-auto mr-[15%]' // 雙數圖片靠右（index 1, 3）
+                }`}>
+                  <div className="text-white">
+                    <h3 className="text-main-title-mobile lg:text-main-title-desktop font-bold mb-2 lg:mb-4 drop-shadow-md">
+                      {textData[index].title}
+                    </h3>
+                    <p className="text-sub-title-mobile lg:text-sub-title-desktop font-normal opacity-90 drop-shadow-lg">
+                      {textData[index].subtitle}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 白色遮罩層 */}
+              <div
+                ref={(el) => setMaskRef(el, index)}
+                className="absolute inset-y-0 bg-white z-10"
+                style={{
+                  willChange: 'left',
+                  left: 0,
+                  right: 0
+                }}
+              />
+            </div>
+          );
+        })}
       </div>
     </section>
   );

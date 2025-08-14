@@ -11,8 +11,8 @@ class ProjectImageService {
     try {
       // Get project ID
       const project = await findOne(
-        'SELECT id, identifier FROM projects WHERE identifier = ? AND is_active = true',
-        [identifier]
+        'SELECT id, uuid FROM projects WHERE (uuid = ? OR slug = ?) AND is_active = true',
+        [identifier, identifier]
       );
       
       if (!project) {
@@ -21,9 +21,9 @@ class ProjectImageService {
       
       let sql = `
         SELECT * FROM project_images 
-        WHERE project_id = ? AND is_active = true
+        WHERE project_uuid = ? AND is_active = true
       `;
-      const params = [project.id];
+      const params = [project.uuid];
       
       if (imageType) {
         sql += ' AND image_type = ?';
@@ -36,8 +36,22 @@ class ProjectImageService {
       
       // Parse JSON fields
       images.forEach(img => {
-        if (img.dimensions) img.dimensions = JSON.parse(img.dimensions);
-        if (img.thumbnails) img.thumbnails = JSON.parse(img.thumbnails);
+        if (img.dimensions && typeof img.dimensions === 'string') {
+          try {
+            img.dimensions = JSON.parse(img.dimensions);
+          } catch (e) {
+            logger.error('Failed to parse dimensions JSON:', e);
+            img.dimensions = {};
+          }
+        }
+        if (img.thumbnails && typeof img.thumbnails === 'string') {
+          try {
+            img.thumbnails = JSON.parse(img.thumbnails);
+          } catch (e) {
+            logger.error('Failed to parse thumbnails JSON:', e);
+            img.thumbnails = {};
+          }
+        }
       });
       
       return images;

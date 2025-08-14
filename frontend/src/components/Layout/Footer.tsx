@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
       <div className="mx-auto">
         <div className="flex flex-col lg:flex-row">
           {/* Left Section */}
-          <div className="flex-1 flex flex-col lg:flex-row bg-[#c6c6c6] gap-16 pt-8 lg:pt-24 pb-8 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32">
+          <div className="flex-1 flex flex-col 2xl:flex-row bg-[#c6c6c6] gap-16 pt-8 lg:pt-24 pb-8 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32">
             {/* Logo */}
             <div className="flex-1 mb-8 lg:mb-0">
               <div className="flex items-center justify-center lg:justify-start">

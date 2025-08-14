@@ -38,6 +38,7 @@ const AdminProjects: React.FC = () => {
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [projectImages, setProjectImages] = useState<ProjectImage[]>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
   const [formImages, setFormImages] = useState<ProjectImage[]>([]);
   const [newImages, setNewImages] = useState<LocalImage[]>([]);
   const [formData, setFormData] = useState<ProjectFormData>({
@@ -443,10 +444,26 @@ const AdminProjects: React.FC = () => {
                       <StarIcon className="h-5 w-5" />
                     </button>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setSelectedProject(project);
-                        setProjectImages(project.images || []);
                         setImageModalOpen(true);
+                        setLoadingImages(true);
+                        
+                        // 重新獲取專案完整資訊，包括最新的圖片列表
+                        try {
+                          const response = await projectService.getProject(project.uuid);
+                          if (response.success && response.data?.project.images) {
+                            setProjectImages(response.data.project.images);
+                          } else {
+                            setProjectImages([]);
+                          }
+                        } catch (error) {
+                          console.error('Failed to fetch project images:', error);
+                          toast.error('載入圖片失敗，顯示快取圖片');
+                          setProjectImages(project.images || []);
+                        } finally {
+                          setLoadingImages(false);
+                        }
                       }}
                       className="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-md"
                       title="管理圖片"
@@ -841,7 +858,12 @@ const AdminProjects: React.FC = () => {
       </Dialog>
 
       {/* Image Management Modal */}
-      <Dialog open={imageModalOpen} onClose={() => setImageModalOpen(false)} className="relative z-50">
+      <Dialog open={imageModalOpen} onClose={() => {
+        setImageModalOpen(false);
+        setLoadingImages(false);
+        setSelectedProject(null);
+        setProjectImages([]);
+      }} className="relative z-50">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="mx-auto max-w-4xl w-full bg-white rounded-lg shadow-xl" style={{ maxHeight: '75dvh' }}>
@@ -850,28 +872,40 @@ const AdminProjects: React.FC = () => {
                 {selectedProject?.title} - 圖片管理
               </Dialog.Title>
               
-              <ProjectImageManager
-                projectUuid={selectedProject?.uuid}
-                images={projectImages}
-                onImagesChange={(images) => {
-                  setProjectImages(images);
-                  // Update the project in the list
-                  if (selectedProject) {
-                    const updatedProjects = projects.map(p => 
-                      p.id === selectedProject.id 
-                        ? { ...p, images, image_count: images.length }
-                        : p
-                    );
-                    setProjects(updatedProjects);
-                  }
-                }}
-                maxFiles={20}
-              />
+              {loadingImages ? (
+                <div className="flex items-center justify-center py-8">
+                  <LoadingSpinner size="medium" />
+                  <span className="ml-2 text-gray-600">載入圖片中...</span>
+                </div>
+              ) : (
+                <ProjectImageManager
+                  projectUuid={selectedProject?.uuid}
+                  images={projectImages}
+                  onImagesChange={(images) => {
+                    setProjectImages(images);
+                    // Update the project in the list
+                    if (selectedProject) {
+                      const updatedProjects = projects.map(p => 
+                        p.id === selectedProject.id 
+                          ? { ...p, images, image_count: images.length }
+                          : p
+                      );
+                      setProjects(updatedProjects);
+                    }
+                  }}
+                  maxFiles={20}
+                />
+              )}
               
               <div className="mt-6 flex justify-end">
                 <button
                   type="button"
-                  onClick={() => setImageModalOpen(false)}
+                  onClick={() => {
+                    setImageModalOpen(false);
+                    setLoadingImages(false);
+                    setSelectedProject(null);
+                    setProjectImages([]);
+                  }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 >
                   關閉

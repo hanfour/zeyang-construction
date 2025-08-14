@@ -186,10 +186,10 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isOpen, onClose }) => {
                           className="block group"
                         >
                           <div className="flex flex-col items-end">
-                            <h3 className="text-white text-base lg:text-2xl xl:text-4xl font-medium mb-2 group-hover:translate-x-4 transition-transform duration-300 text-right">
+                            <h3 className="text-white text-main-title-mobile lg:text-main-title-desktop font-medium mb-2 group-hover:translate-x-4 transition-transform duration-300 text-right">
                               {item.title}
                             </h3>
-                            <p className="text-black text-xs xl:text-sm uppercase tracking-wider text-right w-full">
+                            <p className="text-black text-content-mobile lg:text-content-desktop uppercase tracking-wider text-right w-full">
                               {item.subtitle}
                             </p>
                           </div>
@@ -210,9 +210,9 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isOpen, onClose }) => {
                     <div className="w-full h-full bg-gradient-to-br from-neutral-300 to-neutral-400 relative">
                       <motion.img 
                         key={`image-${animationKey}`}
-                        src="/images/building-hero.jpg" 
-                        alt="澤暘建築" 
-                        className="h-full w-full object-cover"
+                        src="/images/澤暘建設.webp" 
+                        alt="澤暘建設" 
+                        className="h-full w-full object-cover object-[50%_50%]"
                         initial={{ 
                           filter: 'grayscale(100%)' 
                         }}

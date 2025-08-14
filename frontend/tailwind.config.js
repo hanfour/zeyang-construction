@@ -12,6 +12,7 @@ module.exports = {
           light: '#E6C9A8',
           dark: '#B8875A',
           gold: '#C5985B',
+          more: '#c8a063',
           50: '#FAF8F5',
           100: '#F5F0E8',
           200: '#EBE1D1',
@@ -71,7 +72,48 @@ module.exports = {
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
       },
+      fontSize: {
+        // 大型主標題 (築夢、精工、永續、經典)
+        'main-large-title-mobile': ['1.875rem', { lineHeight: '1.2', letterSpacing: '0.02em' }], // text-3xl
+        'main-large-title-desktop': ['4rem', { lineHeight: '1.1', letterSpacing: '0.02em' }], // text-6xl
+
+        // 主標題 (築夢、精工、永續、經典)
+        'main-title-mobile': ['1.25rem', { lineHeight: '1.2', letterSpacing: '0.02em' }], // text-xl
+        'main-title-desktop': ['2.25rem', { lineHeight: '1.1', letterSpacing: '0.02em' }], // text-4xl
+        
+        // 副標題 (section 描述標題)
+        'sub-title-mobile': ['1rem', { lineHeight: '1.4', letterSpacing: '0.01em' }], // text-base
+        'sub-title-desktop': ['1.125rem', { lineHeight: '1.3', letterSpacing: '0.01em' }], // text-lg
+        
+        // 內容文字
+        'content-mobile': ['0.75rem', { lineHeight: '1.6' }], // text-xs
+        'content-desktop': ['0.875rem', { lineHeight: '1.6' }], // text-sm
+        
+        // 大型內容文字 (重要段落)
+        'content-large-mobile': ['1rem', { lineHeight: '1.6' }], // text-base
+        'content-large-desktop': ['1.125rem', { lineHeight: '1.6' }], // text-lg
+      },
+      textShadow: {
+        'sm': '1px 1px 2px rgba(0, 0, 0, 0.375)',
+        'DEFAULT': '2px 2px 4px rgba(0, 0, 0, 0.1)',
+        'md': '3px 3px 6px rgba(0, 0, 0, 0.15)',
+        'lg': '4px 4px 8px rgba(0, 0, 0, 0.25)',
+        'xl': '5px 5px 10px rgba(0, 0, 0, 0.35)',
+        '2xl': '8px 8px 16px rgba(0, 0, 0, 0.45)',
+        'none': 'none',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ matchUtilities, theme }) {
+      matchUtilities(
+        {
+          'text-shadow': (value) => ({
+            textShadow: value,
+          }),
+        },
+        { values: theme('textShadow') }
+      )
+    },
+  ],
 }

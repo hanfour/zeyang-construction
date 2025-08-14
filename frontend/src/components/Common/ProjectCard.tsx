@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPinIcon, HomeIcon } from '@heroicons/react/24/outline';
 import { Project } from '@/types';
+import { getImageUrl, getMediumImageUrl, getPlaceholderImageUrl } from '@/utils/image';
 import clsx from 'clsx';
 
 interface ProjectCardProps {
@@ -26,8 +27,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
     completed: '已完工',
   };
 
-  const mainImage = project.images?.find(img => img.image_type === 'main') || project.images?.[0];
-  const imageUrl = mainImage ? `/uploads/${mainImage.file_path}` : '/images/placeholder.jpg';
+  // Use main_image from API or fallback to placeholder
+  const imageUrl = project.main_image 
+    ? getMediumImageUrl(project.main_image) || getImageUrl(project.main_image.file_path)
+    : getPlaceholderImageUrl();
+  const altText = project.title;
 
   return (
     <Link
@@ -37,7 +41,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
       <div className="aspect-[4/3] overflow-hidden bg-gray-200">
         <img
           src={imageUrl}
-          alt={mainImage?.alt_text || project.title}
+          alt={altText}
           className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
@@ -77,9 +81,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
           </div>
         </div>
         
-        {project.price_range && (
-          <p className="mt-4 text-lg font-semibold text-primary-600">
-            {project.price_range}
+        {project.year && (
+          <p className="mt-4 text-sm text-gray-600">
+            建造年份：{project.year}
           </p>
         )}
         

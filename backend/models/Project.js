@@ -5,9 +5,9 @@ class Project {
   // Get all projects with filters
   static async findAll(filters = {}, options = {}) {
     const {
-      type: category,
+      category,
       status,
-      isFeatured: is_featured,
+      is_featured,
       search
     } = filters;
     
@@ -23,25 +23,40 @@ class Project {
         p.id,
         p.uuid,
         p.slug,
-        p.title as name,
-        p.subtitle as nameEn,
-        p.category as type,
+        p.title,
+        p.subtitle,
+        p.category,
         p.status,
         p.location,
+        p.base_address,
         p.year,
         p.area,
-        p.is_featured as isFeatured,
-        p.view_count as viewCount,
+        p.floor_plan_info,
+        p.unit_count,
+        p.display_order,
+        p.is_featured,
+        p.view_count,
+        p.facebook_page,
+        p.booking_phone,
+        p.info_website,
+        p.meta_title,
+        p.meta_description,
         p.created_at,
         p.updated_at,
         u1.username as created_by_name,
         u2.username as updated_by_name,
         COUNT(DISTINCT pi.id) as image_count,
-        GROUP_CONCAT(DISTINCT t.name) as tags
+        GROUP_CONCAT(DISTINCT t.name) as tags,
+        (SELECT file_path FROM project_images 
+         WHERE project_uuid = p.uuid AND image_type = 'main' AND is_active = true 
+         ORDER BY display_order LIMIT 1) as main_image_path,
+        (SELECT thumbnails FROM project_images 
+         WHERE project_uuid = p.uuid AND image_type = 'main' AND is_active = true 
+         ORDER BY display_order LIMIT 1) as main_image_thumbnails
       FROM projects p
       LEFT JOIN users u1 ON p.created_by = u1.id
       LEFT JOIN users u2 ON p.updated_by = u2.id
-      LEFT JOIN project_images pi ON p.uuid = pi.project_uuid
+      LEFT JOIN project_images pi ON p.uuid = pi.project_uuid AND pi.is_active = true
       LEFT JOIN project_tags pt ON p.uuid = pt.project_uuid
       LEFT JOIN tags t ON pt.tag_id = t.id
       WHERE 1=1
@@ -120,7 +135,7 @@ class Project {
     const [{ total }] = await query(countSql, countParams);
     const projects = await query(sql, params);
     
-    // Parse tags and features
+    // Parse tags, features, and main image data
     projects.forEach(project => {
       project.tags = project.tags ? project.tags.split(',') : [];
       if (project.features) {
@@ -137,6 +152,27 @@ class Project {
           project.featuresEn = [];
         }
       }
+      
+      // Parse main image thumbnails
+      if (project.main_image_thumbnails && typeof project.main_image_thumbnails === 'string') {
+        try {
+          project.main_image_thumbnails = JSON.parse(project.main_image_thumbnails);
+        } catch (e) {
+          project.main_image_thumbnails = {};
+        }
+      }
+      
+      // Create main_image object for easier frontend access
+      if (project.main_image_path) {
+        project.main_image = {
+          file_path: project.main_image_path,
+          thumbnails: project.main_image_thumbnails || {}
+        };
+      }
+      
+      // Clean up temporary fields
+      delete project.main_image_path;
+      delete project.main_image_thumbnails;
     });
     
     return {
@@ -152,7 +188,7 @@ class Project {
     };
   }
   
-  // Find project by identifier
+  // Find project by identifier (UUID or slug)
   static async findByIdentifier(identifier) {
     const sql = `
       SELECT 
@@ -162,18 +198,18 @@ class Project {
       FROM projects p
       LEFT JOIN users u1 ON p.created_by = u1.id
       LEFT JOIN users u2 ON p.updated_by = u2.id
-      WHERE p.slug = ?
+      WHERE p.slug = ? OR p.uuid = ?
     `;
     
-    const project = await findOne(sql, [identifier]);
+    const project = await findOne(sql, [identifier, identifier]);
     
     if (!project) return null;
     
     // Get images
     const images = await query(
       `SELECT * FROM project_images 
-       WHERE project_uuid = ? 
-       ORDER BY id`,
+       WHERE project_uuid = ? AND is_active = true
+       ORDER BY image_type, display_order, id`,
       [project.uuid]
     );
     
@@ -185,7 +221,25 @@ class Project {
       [project.uuid]
     );
     
-    // Parse JSON fields
+    // Parse JSON fields for images
+    images.forEach(img => {
+      if (img.dimensions && typeof img.dimensions === 'string') {
+        try {
+          img.dimensions = JSON.parse(img.dimensions);
+        } catch (e) {
+          img.dimensions = {};
+        }
+      }
+      if (img.thumbnails && typeof img.thumbnails === 'string') {
+        try {
+          img.thumbnails = JSON.parse(img.thumbnails);
+        } catch (e) {
+          img.thumbnails = {};
+        }
+      }
+    });
+    
+    // Parse JSON fields for project
     if (project.features) {
       try {
         project.features = JSON.parse(project.features);
@@ -212,62 +266,57 @@ class Project {
   static async create(data, userId) {
     return await transaction(async (connection) => {
       const {
-        name,
-        nameEn,
-        type: category,
+        title,
+        subtitle,
+        category,
         status = 'planning',
         description,
-        descriptionEn,
+        detail_content,
         location,
-        locationEn,
-        price,
-        priceMin,
-        priceMax,
+        base_address,
+        year,
         area,
-        areaMin,
-        areaMax,
-        developer,
-        developerEn,
-        architect,
-        architectEn,
-        yearStarted,
-        yearCompleted,
-        units,
-        floors,
-        features,
-        featuresEn,
-        mainImage,
-        videoUrl,
-        website,
-        brochureUrl,
-        isFeatured: is_featured = false,
-        displayOrder = 0,
+        floor_plan_info,
+        unit_count,
+        facebook_page,
+        booking_phone,
+        info_website,
+        is_featured = false,
+        display_order = 0,
         tags = []
       } = data;
       
       // Generate unique identifiers
       const uuid = require('crypto').randomUUID();
-      const slug = `${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+      const slug = `${title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
       
       // Insert project with database schema fields
       const [projectResult] = await connection.execute(
         `INSERT INTO projects (
-          uuid, slug, title, subtitle, category, status, location, year, area,
-          view_count, is_active, is_featured, created_by, updated_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          uuid, slug, title, subtitle, category, status, location, base_address, year, area,
+          floor_plan_info, unit_count, display_order, view_count, is_active, is_featured,
+          facebook_page, booking_phone, info_website, created_by, updated_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           uuid,
           slug,
-          name,
-          nameEn || null,
+          title,
+          subtitle || null,
           category,
           status,
           location,
-          yearStarted || null,
+          base_address || null,
+          year || null,
           area || null,
+          floor_plan_info || null,
+          unit_count || null,
+          display_order || 0,
           0,
           true,
           is_featured ? 1 : 0,
+          facebook_page || null,
+          booking_phone || null,
+          info_website || null,
           userId,
           userId
         ]
@@ -319,8 +368,8 @@ class Project {
     return await transaction(async (connection) => {
       // Check if project exists
       const [existing] = await connection.execute(
-        'SELECT id, uuid FROM projects WHERE slug = ?',
-        [identifier]
+        'SELECT id, uuid FROM projects WHERE slug = ? OR uuid = ?',
+        [identifier, identifier]
       );
       
       if (existing.length === 0) {
@@ -436,8 +485,8 @@ class Project {
   
   // Delete project
   static async delete(identifier) {
-    const sql = 'DELETE FROM projects WHERE slug = ?';
-    const result = await query(sql, [identifier]);
+    const sql = 'DELETE FROM projects WHERE slug = ? OR uuid = ?';
+    const result = await query(sql, [identifier, identifier]);
     
     if (result.affectedRows === 0) {
       throw new Error('Project not found');
@@ -452,8 +501,8 @@ class Project {
   static async updateStatus(identifier, status, userId) {
     const result = await query(
       `UPDATE projects SET status = ?, updated_by = ?, updated_at = NOW() 
-       WHERE slug = ?`,
-      [status, userId, identifier]
+       WHERE slug = ? OR uuid = ?`,
+      [status, userId, identifier, identifier]
     );
     
     if (result.affectedRows === 0) {
@@ -466,8 +515,8 @@ class Project {
   // Toggle featured status
   static async toggleFeatured(identifier, userId) {
     const project = await findOne(
-      'SELECT id, is_featured as isFeatured FROM projects WHERE slug = ?',
-      [identifier]
+      'SELECT id, is_featured as isFeatured FROM projects WHERE slug = ? OR uuid = ?',
+      [identifier, identifier]
     );
     
     if (!project) {
@@ -485,8 +534,8 @@ class Project {
   // Increment view count
   static async incrementViewCount(identifier) {
     const result = await query(
-      'UPDATE projects SET view_count = view_count + 1 WHERE slug = ?',
-      [identifier]
+      'UPDATE projects SET view_count = view_count + 1 WHERE slug = ? OR uuid = ?',
+      [identifier, identifier]
     );
     
     if (result.affectedRows === 0) {

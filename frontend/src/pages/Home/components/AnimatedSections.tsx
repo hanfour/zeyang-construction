@@ -4,6 +4,66 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// 統一管理的內容數據
+const sectionData = {
+  dream: {
+    title: '築夢。',
+    subtitle: '築一座能安放幸福的家',
+    content: [
+      '建築的起點，從一磚一瓦開始，用心描繪出對未來的想像',
+      '從晨光灑落的餐桌，到深夜仍亮著的燈火',
+      '從家人間的歡聲笑語，到細水長流的溫馨',
+      '家的模樣，就是幸福的真實模樣'
+    ],
+    image: '/images/index/quote-dream.jpg',
+    imageAlt: '築夢背景',
+    imagePosition: '85%_100%'
+  },
+  craft: {
+    title: '精工。',
+    subtitle: '品質不是口號，而是實實在在的堅持',
+    content: [
+      '真正的好，是無需多說的',
+      '我們融合傳統工藝與現代技術',
+      '用時間雕琢、用專業驗證',
+      '磨練出澤暘建築',
+      '都是品質的最好證明'
+    ],
+    image: '/images/index/quote-fine.jpg',
+    imageAlt: '精工',
+    imagePosition: '100%_100%'
+  },
+  sustain: {
+    title: '永續。',
+    subtitle: '不是為了今天，而是為了更好的明天',
+    content: [
+      '用一座綠建築，善待土地，善待未來',
+      '光影流動的窗、呼吸自然氣息的牆',
+      '讓自然與家同框，森活與未來共生',
+      '永續，不是一種趨勢，而是一種選擇',
+      '讓家更舒適宜居，讓日子學會深呼吸'
+    ],
+    image: '/images/index/quote-green.jpg',
+    imageAlt: '永續',
+    imagePosition: 'center'
+  },
+  classic: {
+    title: '經典。',
+    subtitle: '所謂雋永，是一種動人的生活體驗',
+    content: [
+      '經典，從不僅是建築的模樣',
+      '而是它細膩譜寫的生活詩篇',
+      '從居住體驗到情感連結',
+      '透過我們雕琢的每一個建築細節',
+      '讓美與實用兼得的',
+      '在時光中淬鍊雋永人生感動'
+    ],
+    image: '/images/index/quote-classic.jpg',
+    imageAlt: '經典',
+    imagePosition: '100%_100%'
+  }
+};
+
 const AnimatedSections: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -298,26 +358,40 @@ const AnimatedSections: React.FC = () => {
   return (
     <>
       {/* 桌機版：使用固定容器 */}
-      <div className="hidden md:block w-full">
+      <div className="hidden md:block w-full pb-24">
         <div ref={containerRef} className="relative w-full h-screen overflow-hidden">
           {/* 築夢區塊 */}
           <div ref={dreamSectionDesktopRef} className="section-dream absolute inset-0">
             <div ref={dreamBgDesktopRef} className="absolute inset-0 w-full h-full">
               <img 
-                src="https://picsum.photos/seed/dream/1920/1080" 
-                alt="築夢背景" 
-                className="w-full h-full object-cover"
+                src={sectionData.dream.image}
+                alt={sectionData.dream.imageAlt}
+                className={`w-full h-full object-cover object-[${sectionData.dream.imagePosition}]`}
               />
-              {/* <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-amber-100" /> */}
             </div>
             <div ref={dreamContentDesktopRef} className="relative h-full flex items-center justify-center z-10">
-              <div className="text-center px-6">
-                <h1 className="text-6xl lg:text-7xl font-bold text-gray-900 mb-6">
-                  築夢
-                </h1>
-                <h2 className="text-xl lg:text-2xl text-gray-700 mb-8 max-w-2xl mx-auto">
-                  建築夢想，創造永恆價值
-                </h2>
+              <div className="flex items-center -ml-12">
+                {/* 左側垂直文字 */}
+                <div className="flex-shrink-0 mr-16 -translate-y-9">
+                  <h1 className="text-main-large-title-mobile lg:text-main-large-title-desktop font-bold text-white [writing-mode:vertical-rl] [text-orientation:upright]">
+                    {sectionData.dream.title}
+                  </h1>
+                </div>
+                
+                {/* 右側水平文字區塊 */}
+                <div className="flex-1 max-w-3xl">
+                  <h2 className="text-sub-title-mobile lg:text-sub-title-desktop font-bold text-white mb-8">
+                    {sectionData.dream.subtitle}
+                  </h2>
+                  <div className="text-content-mobile lg:text-content-desktop text-white leading-relaxed">
+                    {sectionData.dream.content.map((line, index) => (
+                      <React.Fragment key={index}>
+                        {line}
+                        {index < sectionData.dream.content.length - 1 && <br/>}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -326,19 +400,33 @@ const AnimatedSections: React.FC = () => {
           <div ref={craftSectionDesktopRef} className="section-craft absolute left-0 top-0 w-1/2 h-full">
             <div className="relative w-full h-full bg-white pb-32">
               <img 
-                src="https://picsum.photos/seed/craft/1920/1080" 
-                alt="精工" 
-                className="w-full h-full object-cover"
+                src={sectionData.craft.image}
+                alt={sectionData.craft.imageAlt}
+                className={`w-full h-full object-cover object-[${sectionData.craft.imagePosition}]`}
               />
-              {/* <div className="absolute inset-0 bg-gradient-to-br from-gray-200/80 to-gray-300/80" /> */}
-              <div className="absolute inset-0 flex items-center justify-center z-10">
-                <div className="craft-content text-center text-white p-8">
-                  <h2 className="text-5xl font-bold mb-4">
-                    精工
-                  </h2>
-                  <p className="text-lg max-w-md mx-auto">
-                    每一個細節都是我們對品質的承諾
-                  </p>
+              <div className="absolute inset-0 flex items-center justify-center z-10 px-8">
+                <div className="flex items-center">
+                  {/* 左側垂直文字 */}
+                  <div className="flex-shrink-0 mr-12" style={{ transform: 'translateY(-10em)' }}>
+                    <h1 className="text-main-large-title-mobile lg:text-main-large-title-desktop font-bold text-black [writing-mode:vertical-rl] [text-orientation:upright]">
+                      {sectionData.craft.title}
+                    </h1>
+                  </div>
+                  
+                  {/* 右側水平文字區塊 */}
+                  <div className="flex-1 max-w-lg">
+                    <h2 className="text-sub-title-mobile lg:text-sub-title-desktop font-bold text-black mb-6">
+                      {sectionData.craft.subtitle}
+                    </h2>
+                    <div className="text-content-mobile lg:text-content-desktop text-black leading-relaxed">
+                      {sectionData.craft.content.map((line, index) => (
+                        <React.Fragment key={index}>
+                          {line}
+                          {index < sectionData.craft.content.length - 1 && <br/>}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -346,58 +434,63 @@ const AnimatedSections: React.FC = () => {
 
           {/* 永續區塊 */}
           <div ref={sustainSectionDesktopRef} className="section-sustain absolute right-0 top-0 w-1/2 h-full pb-4">
-            <div className="relative w-full h-full flex items-end">
-              <div className="relative w-full flex flex-col justify-center items-center">
-                <div className="flex items-center justify-center p-8">
-                  <div className="text-center">
-                    <h2 className="text-5xl font-bold text-gray-900 mb-4">
-                      永續
-                    </h2>
-                    <p className="text-lg text-gray-700 max-w-md mx-auto">
-                      以綠色建築理念，為下一代打造永續生活環境
-                    </p>
-                  </div>
-                </div>
-                <div className="relative overflow-hidden flex justify-center items-center">
-                  <div className="sustain-image relative inset-0 w-full max-w-[50%] aspect-video">
-                    <img 
-                      src="https://picsum.photos/seed/sustain/1920/1080" 
-                      alt="永續" 
-                      className="w-full object-cover"
-                    />
-                    {/* <div className="absolute inset-0 bg-gradient-to-br from-green-100/80 to-green-200/80" /> */}
-                  </div>
+            <div className="relative w-full h-full flex flex-col items-center justify-end gap-12">
+              <div className="text-center px-8 max-w-lg">
+                <h2 className="text-main-large-title-mobile lg:text-main-large-title-desktop font-bold text-black mb-8">
+                  {sectionData.sustain.title}
+                </h2>
+                <h3 className="text-sub-title-mobile lg:text-sub-title-desktop font-bold text-black mb-6">
+                  {sectionData.sustain.subtitle}
+                </h3>
+                <div className="text-content-mobile lg:text-content-desktop text-black leading-relaxed">
+                  {sectionData.sustain.content.map((line, index) => (
+                    <React.Fragment key={index}>
+                      {line}
+                      {index < sectionData.sustain.content.length - 1 && <br/>}
+                    </React.Fragment>
+                  ))}
                 </div>
               </div>
+              <div className="relative overflow-hidden flex justify-center items-center">
+                  <div className="sustain-image relative inset-0 w-full max-w-[50%] aspect-video">
+                    <img 
+                      src={sectionData.sustain.image}
+                      alt={sectionData.sustain.imageAlt}
+                      className="w-full object-cover"
+                    />
+                  </div>
+                </div>
             </div>
           </div>
 
           {/* 經典區塊 */}
           <div ref={classicSectionDesktopRef} className="section-classic absolute inset-0">
-            <div className="relative w-full h-full bg-gray-900 overflow-hidden">
+            <div className="relative w-full h-full bg-white overflow-hidden">
               <div className="absolute inset-0 flex items-center justify-center">
                 <img 
                   ref={classicImageDesktopRef}
-                  src="https://picsum.photos/seed/classic/1920/1080" 
-                  alt="經典" 
-                  className="w-4/5 h-4/5 object-cover"
+                  src={sectionData.classic.image}
+                  alt={sectionData.classic.imageAlt}
+                  className={`w-11/12 h-11/12 object-cover object-[${sectionData.classic.imagePosition}]`}
                 />
               </div>
-              <div ref={classicLeftTextDesktopRef} className="absolute bottom-10 left-10 text-white">
-                <h3 className="text-4xl font-bold mb-2">
-                  經典傳承
+              <div ref={classicLeftTextDesktopRef} className="absolute bottom-10 left-10 text-black">
+                <h2 className="text-main-large-title-mobile lg:text-main-large-title-desktop font-bold text-black mb-8">
+                  {sectionData.classic.title}
+                </h2>
+                <h3 className="text-sub-title-mobile lg:text-sub-title-desktop font-bold text-black mb-6">
+                  {sectionData.classic.subtitle}
                 </h3>
-                <p className="text-lg max-w-sm">
-                  歷久彌新的建築美學
-                </p>
               </div>
-              <div ref={classicRightTextDesktopRef} className="absolute top-10 right-10 text-white text-right">
-                <h3 className="text-4xl font-bold mb-2">
-                  永恆價值
-                </h3>
-                <p className="text-lg max-w-sm ml-auto">
-                  每個作品都是時代的印記
-                </p>
+              <div ref={classicRightTextDesktopRef} className="absolute top-32 right-48 text-black text-left">
+                <div className="text-content-mobile lg:text-content-desktop text-white text-shadow-sm leading-relaxed">
+                  {sectionData.classic.content.map((line, index) => (
+                    <React.Fragment key={index}>
+                      {line}
+                      {index < sectionData.classic.content.length - 1 && <br/>}
+                    </React.Fragment>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -405,28 +498,40 @@ const AnimatedSections: React.FC = () => {
       </div>
 
       {/* 手機版：獨立區塊 */}
-      <div className="md:hidden w-full">
+      <div className="md:hidden w-full pb-16">
         {/* 築夢區塊 */}
         <div ref={dreamSectionMobileRef} className="section-dream relative h-screen">
           <div ref={dreamBgMobileRef} className="absolute inset-0 w-full h-full">
             <img 
-              src="https://picsum.photos/seed/dream/1920/1080" 
-              alt="築夢背景" 
-              className="w-full h-full object-cover"
+              src={sectionData.dream.image}
+              alt={sectionData.dream.imageAlt}
+              className={`w-full h-full object-cover object-[${sectionData.dream.imagePosition}]`}
             />
             <div className="absolute inset-0 bg-gradient-to-br from-amber-50/30 to-amber-100/30" />
           </div>
-          <div ref={dreamContentMobileRef} className="relative h-full flex items-center justify-center z-10">
-            <div className="text-center px-6">
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6 drop-shadow-lg">
-                築夢
-              </h1>
-              <h2 className="text-base sm:text-lg text-white mb-8 max-w-2xl mx-auto drop-shadow-lg">
-                建築夢想，創造永恆價值
-              </h2>
-              <button className="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300">
-                探索更多
-              </button>
+          <div ref={dreamContentMobileRef} className="relative h-full flex items-center justify-center z-10 px-6">
+            <div className="flex items-center">
+              {/* 左側垂直文字 */}
+              <div className="flex-shrink-0 mr-8" style={{ transform: 'translateY(-2em)' }}>
+                <h1 className="text-main-large-title-mobile font-bold text-white drop-shadow-lg [writing-mode:vertical-rl] [text-orientation:upright]">
+                  {sectionData.dream.title}
+                </h1>
+              </div>
+              
+              {/* 右側水平文字區塊 */}
+              <div className="flex-1">
+                <h2 className="text-sub-title-mobile font-bold text-white mb-6 drop-shadow-lg">
+                  {sectionData.dream.subtitle}
+                </h2>
+                <div className="text-content-mobile text-white leading-relaxed drop-shadow-lg">
+                  {sectionData.dream.content.map((line, index) => (
+                    <React.Fragment key={index}>
+                      {line}
+                      {index < sectionData.dream.content.length - 1 && <br/>}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -435,19 +540,34 @@ const AnimatedSections: React.FC = () => {
         <div ref={craftSectionMobileRef} className="section-craft relative h-screen">
           <div className="relative w-full h-full bg-gray-100">
             <img 
-              src="https://picsum.photos/seed/craft/1920/1080" 
-              alt="精工" 
-              className="w-full h-full object-cover"
+              src={sectionData.craft.image}
+              alt={sectionData.craft.imageAlt}
+              className={`w-full h-full object-cover object-[${sectionData.craft.imagePosition}]`}
             />
             <div className="absolute inset-0 bg-gradient-to-br from-gray-200/60 to-gray-300/60" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="craft-content text-center text-white p-8">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                  精工
-                </h2>
-                <p className="text-sm sm:text-base max-w-md mx-auto">
-                  每一個細節都是我們對品質的承諾
-                </p>
+            <div className="absolute inset-0 flex items-center justify-center px-6">
+              <div className="flex items-center">
+                {/* 左側垂直文字 */}
+                <div className="flex-shrink-0 mr-6" style={{ transform: 'translateY(-5em)' }}>
+                  <h1 className="text-main-large-title-mobile font-bold text-black [writing-mode:vertical-rl] [text-orientation:upright]">
+                    {sectionData.craft.title}
+                  </h1>
+                </div>
+                
+                {/* 右側水平文字區塊 */}
+                <div className="flex-1">
+                  <h2 className="text-sub-title-mobile font-bold text-black mb-4">
+                    {sectionData.craft.subtitle}
+                  </h2>
+                  <div className="text-content-mobile text-black leading-relaxed">
+                    {sectionData.craft.content.map((line, index) => (
+                      <React.Fragment key={index}>
+                        {line}
+                        {index < sectionData.craft.content.length - 1 && <br/>}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -455,25 +575,30 @@ const AnimatedSections: React.FC = () => {
 
         {/* 永續區塊 */}
         <div ref={sustainSectionMobileRef} className="section-sustain relative h-screen bg-green-50">
-          <div className="relative w-full h-full flex flex-col">
-            <div className="h-1/2 flex items-center justify-center p-8">
-              <div className="text-center">
-                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-                  永續
-                </h2>
-                <p className="text-sm sm:text-base text-gray-700 max-w-md mx-auto">
-                  以綠色建築理念，為下一代打造永續生活環境
-                </p>
+          <div className="relative w-full h-full flex flex-col items-center justify-center px-6 gap-12">
+            <div className="text-center">
+              <h2 className="text-main-large-title-mobile font-bold text-black mb-6">
+                {sectionData.sustain.title}
+              </h2>
+              <h3 className="text-sub-title-mobile font-bold text-black mb-4">
+                {sectionData.sustain.subtitle}
+              </h3>
+              <div className="text-content-mobile text-black leading-relaxed">
+                {sectionData.sustain.content.map((line, index) => (
+                  <React.Fragment key={index}>
+                    {line}
+                    {index < sectionData.sustain.content.length - 1 && <br/>}
+                  </React.Fragment>
+                ))}
               </div>
             </div>
-            <div className="h-1/2 relative overflow-hidden">
+            <div className="w-full h-1/2 relative overflow-hidden">
               <div className="sustain-image absolute inset-0 w-full h-full">
                 <img 
-                  src="https://picsum.photos/seed/sustain/1920/1080" 
-                  alt="永續" 
+                  src={sectionData.sustain.image}
+                  alt={sectionData.sustain.imageAlt}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-br from-green-100/60 to-green-200/60" />
               </div>
             </div>
           </div>
@@ -481,33 +606,34 @@ const AnimatedSections: React.FC = () => {
 
         {/* 經典區塊 */}
         <div ref={classicSectionMobileRef} className="section-classic relative h-screen">
-          <div className="relative w-full h-full bg-gray-900 overflow-hidden">
+          <div className="relative w-full h-full overflow-hidden">
             <div className="absolute inset-0">
               <img 
                 ref={classicImageMobileRef}
-                src="https://picsum.photos/seed/classic/1920/1080" 
-                alt="經典" 
-                className="w-full h-full object-cover"
+                src={sectionData.classic.image}
+                alt={sectionData.classic.imageAlt}
+                className="w-full h-full object-cover object-[62%_100%]"
               />
-              <div className="absolute inset-0 bg-black/30" />
             </div>
-            <div ref={classicLeftTextMobileRef} className="absolute inset-0 flex items-center justify-center text-white z-10">
+            <div ref={classicLeftTextMobileRef} className="absolute inset-0 flex items-center justify-center text-black z-10">
               <div className="text-center px-6">
-                <h3 className="text-2xl sm:text-3xl font-bold mb-2">
-                  經典傳承
+                <h2 className="text-main-large-title-mobile font-bold text-black mb-8">
+                  {sectionData.classic.title}
+                </h2>
+                <h3 className="text-sub-title-mobile font-bold text-black mb-6">
+                  {sectionData.classic.subtitle}
                 </h3>
-                <p className="text-sm sm:text-base max-w-sm">
-                  歷久彌新的建築美學
-                </p>
               </div>
             </div>
-            <div ref={classicRightTextMobileRef} className="absolute bottom-10 left-0 right-0 text-white text-center z-10 px-6">
-              <h3 className="text-2xl sm:text-3xl font-bold mb-2">
-                永恆價值
-              </h3>
-              <p className="text-sm sm:text-base max-w-sm mx-auto">
-                每個作品都是時代的印記
-              </p>
+            <div ref={classicRightTextMobileRef} className="absolute bottom-10 left-0 right-0 text-black text-center z-10 px-6">
+              <div className="text-content-mobile text-black leading-relaxed">
+                {sectionData.classic.content.map((line, index) => (
+                  <React.Fragment key={index}>
+                    {line}
+                    {index < sectionData.classic.content.length - 1 && <br/>}
+                  </React.Fragment>
+                ))}
+              </div>
             </div>
           </div>
         </div>

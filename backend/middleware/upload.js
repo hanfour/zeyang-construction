@@ -54,13 +54,16 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Create multer instance
+// Create multer instance with optimizations for large files
 const upload = multer({
   storage,
   fileFilter,
   limits: {
     fileSize: UPLOAD.MAX_FILE_SIZE,
-    files: 10 // Maximum 10 files per upload
+    files: 10, // Maximum 10 files per upload
+    fieldSize: 2 * 1024 * 1024, // 2MB field size
+    fieldNameSize: 100, // 100 bytes field name size
+    headerPairs: 2000 // Increase header pairs for large uploads
   }
 });
 
@@ -72,7 +75,7 @@ const handleMulterError = (err, req, res, next) => {
     
     switch (err.code) {
       case 'LIMIT_FILE_SIZE':
-        message = `File too large. Maximum size is ${UPLOAD.MAX_FILE_SIZE / 1024 / 1024}MB`;
+        message = `File too large. Maximum size is ${Math.floor(UPLOAD.MAX_FILE_SIZE / 1024 / 1024)}MB`;
         code = ERROR_CODES.FILE_TOO_LARGE;
         break;
       case 'LIMIT_FILE_COUNT':

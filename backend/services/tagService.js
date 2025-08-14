@@ -16,7 +16,7 @@ class TagService {
       let sql = `
         SELECT 
           t.*,
-          COUNT(pt.project_id) as project_count
+          COUNT(pt.project_uuid) as project_count
         FROM tags t
         LEFT JOIN project_tags pt ON t.id = pt.tag_id
       `;
@@ -61,10 +61,10 @@ class TagService {
       const tag = await findOne(
         `SELECT 
           t.*,
-          COUNT(pt.project_id) as project_count
+          COUNT(pt.project_uuid) as project_count
          FROM tags t
          LEFT JOIN project_tags pt ON t.id = pt.tag_id
-         WHERE t.id = ? OR t.identifier = ?
+         WHERE t.id = ? OR t.slug = ?
          GROUP BY t.id`,
         [identifier, identifier]
       );
@@ -76,9 +76,9 @@ class TagService {
         `SELECT 
           p.id, p.identifier, p.name, p.type, p.status, p.location
          FROM projects p
-         JOIN project_tags pt ON p.id = pt.project_id
+         JOIN project_tags pt ON p.uuid = pt.project_uuid
          WHERE pt.tag_id = ?
-         ORDER BY p.displayOrder, p.created_at DESC`,
+         ORDER BY p.display_order, p.created_at DESC`,
         [tag.id]
       );
       
@@ -111,12 +111,12 @@ class TagService {
       }
       
       // Generate unique slug
-      const identifier = await generateUniqueSlug(name, 'tags', 'identifier');
+      const identifier = await generateUniqueSlug(name, 'tags', 'slug');
       
       // Create tag
       const result = await query(
-        'INSERT INTO tags (name, identifier, nameEn, category) VALUES (?, ?, ?, ?)',
-        [name, identifier, nameEn || name, category || 'other']
+        'INSERT INTO tags (name, slug, description) VALUES (?, ?, ?)',
+        [name, identifier, data.description || '']
       );
       
       logger.info('Tag created', { tagId: result.insertId, name, identifier });
@@ -139,7 +139,7 @@ class TagService {
   static async updateTag(identifier, data) {
     try {
       const tag = await findOne(
-        'SELECT * FROM tags WHERE id = ? OR identifier = ?',
+        'SELECT * FROM tags WHERE id = ? OR slug = ?',
         [identifier, identifier]
       );
       
@@ -169,8 +169,8 @@ class TagService {
         updateParams.push(name);
         
         // Update slug if name changed
-        const newIdentifier = await generateUniqueSlug(name, 'tags', 'identifier', tag.id);
-        updateFields.push('identifier = ?');
+        const newIdentifier = await generateUniqueSlug(name, 'tags', 'slug', tag.id);
+        updateFields.push('slug = ?');
         updateParams.push(newIdentifier);
       }
       
@@ -211,7 +211,7 @@ class TagService {
   static async deleteTag(identifier) {
     return await transaction(async (connection) => {
       const tag = await findOne(
-        'SELECT * FROM tags WHERE id = ? OR identifier = ?',
+        'SELECT * FROM tags WHERE id = ? OR slug = ?',
         [identifier, identifier]
       );
       
@@ -261,26 +261,26 @@ class TagService {
       
       // Get projects using source tag
       const [sourceProjects] = await connection.execute(
-        'SELECT project_id FROM project_tags WHERE tag_id = ?',
+        'SELECT project_uuid FROM project_tags WHERE tag_id = ?',
         [sourceId]
       );
       
       // Move projects to target tag (avoiding duplicates)
       for (const project of sourceProjects) {
         await connection.execute(
-          'INSERT IGNORE INTO project_tags (project_id, tag_id) VALUES (?, ?)',
-          [project.project_id, targetId]
+          'INSERT IGNORE INTO project_tags (project_uuid, tag_id) VALUES (?, ?)',
+          [project.project_uuid, targetId]
         );
       }
       
       // Update usage count
       const [countResult] = await connection.execute(
-        'SELECT COUNT(DISTINCT project_id) as newCount FROM project_tags WHERE tag_id = ?',
+        'SELECT COUNT(DISTINCT project_uuid) as newCount FROM project_tags WHERE tag_id = ?',
         [targetId]
       );
       
       await connection.execute(
-        'UPDATE tags SET usageCount = ? WHERE id = ?',
+        'UPDATE tags SET usage_count = ? WHERE id = ?',
         [countResult[0].newCount, targetId]
       );
       
@@ -308,10 +308,10 @@ class TagService {
       const tags = await query(
         `SELECT 
           t.*,
-          COUNT(DISTINCT pt.project_id) as project_count
+          COUNT(DISTINCT pt.project_uuid) as project_count
          FROM tags t
          JOIN project_tags pt ON t.id = pt.tag_id
-         JOIN projects p ON pt.project_id = p.id
+         JOIN projects p ON pt.project_uuid = p.uuid
          GROUP BY t.id
          HAVING project_count > 0
          ORDER BY project_count DESC, t.name
@@ -358,10 +358,10 @@ class TagService {
       // Update all tag usage counts based on actual usage
       await query(
         `UPDATE tags t
-         SET usageCount = (
-           SELECT COUNT(DISTINCT pt.project_id)
+         SET usage_count = (
+           SELECT COUNT(DISTINCT pt.project_uuid)
            FROM project_tags pt
-           JOIN projects p ON pt.project_id = p.id
+           JOIN projects p ON pt.project_uuid = p.uuid
            WHERE pt.tag_id = t.id
          )`
       );

@@ -2,14 +2,17 @@ openapi: 3.0.0
 info:
   title: EstateHub API
   description: EstateHub 房地產專案管理系統 API 文檔
-  version: 1.0.0
+  version: 2.0.0
   contact:
     name: API Support
     email: dev@estatehub.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 servers:
-  - url: http://localhost:5000/api
+  - url: http://localhost:5001/api
     description: Development server
-  - url: https://api.estatehub.com/v1
+  - url: https://api.estatehub.com/api
     description: Production server
 components:
   securitySchemes:
@@ -66,28 +69,243 @@ components:
       properties:
         id:
           type: integer
-        uuid:
+          description: 專案 ID
+        identifier:
           type: string
-        slug:
+          description: 專案識別碼
+        name:
           type: string
-        title:
+          description: 專案名稱
+        nameEn:
           type: string
-        category:
+          description: 英文名稱
+        type:
           type: string
-          enum: [住宅, 商業, 辦公室, 公共建築, 其他]
+          enum: [residential, commercial, mixed, other]
+          description: 專案類型
         status:
           type: string
-          enum: [planning, pre_sale, on_sale, sold_out, completed]
+          enum: [planning, in_progress, completed, on_hold]
+          description: 專案狀態
+        description:
+          type: string
+          description: 專案描述
+        descriptionEn:
+          type: string
+          description: 英文描述
         location:
           type: string
-        is_featured:
+          description: 位置
+        locationEn:
+          type: string
+          description: 英文位置
+        price:
+          type: number
+          description: 價格
+        priceMin:
+          type: number
+          description: 最低價格
+        priceMax:
+          type: number
+          description: 最高價格
+        area:
+          type: number
+          description: 面積
+        areaMin:
+          type: number
+          description: 最小面積
+        areaMax:
+          type: number
+          description: 最大面積
+        developer:
+          type: string
+          description: 開發商
+        architect:
+          type: string
+          description: 建築師
+        yearStarted:
+          type: integer
+          description: 開工年份
+        yearCompleted:
+          type: integer
+          description: 完工年份
+        units:
+          type: integer
+          description: 戶數
+        floors:
+          type: integer
+          description: 樓層數
+        features:
+          type: object
+          description: 特色功能
+        featuresEn:
+          type: object
+          description: 英文特色功能
+        mainImage:
+          type: string
+          description: 主圖片 URL
+        videoUrl:
+          type: string
+          description: 影片 URL
+        website:
+          type: string
+          description: 官網 URL
+        brochureUrl:
+          type: string
+          description: 手冊 URL
+        isFeatured:
           type: boolean
+          description: 是否為精選
+        displayOrder:
+          type: integer
+          description: 顯示順序
+        viewCount:
+          type: integer
+          description: 瀏覽次數
+        created_at:
+          type: string
+          format: date-time
+          description: 建立時間
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新時間
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 標籤 ID
+        identifier:
+          type: string
+          description: 標籤識別碼
+        name:
+          type: string
+          description: 標籤名稱
+        nameEn:
+          type: string
+          description: 英文名稱
+        category:
+          type: string
+          enum: [style, feature, location, type, other]
+          description: 標籤分類
+        description:
+          type: string
+          description: 描述
+        color:
+          type: string
+          description: 顏色代碼
+        icon:
+          type: string
+          description: 圖標
+        usageCount:
+          type: integer
+          description: 使用次數
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 聯絡 ID
+        name:
+          type: string
+          description: 姓名
+        email:
+          type: string
+          description: 電子郵件
+        phone:
+          type: string
+          description: 電話
+        company:
+          type: string
+          description: 公司
+        subject:
+          type: string
+          description: 主旨
+        message:
+          type: string
+          description: 訊息內容
+        projectId:
+          type: integer
+          description: 關聯專案 ID
+        source:
+          type: string
+          description: 來源
+        isRead:
+          type: boolean
+          description: 是否已讀
+        isReplied:
+          type: boolean
+          description: 是否已回覆
+        created_at:
+          type: string
+          format: date-time
+          description: 建立時間
+    ProjectImage:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 圖片 ID
+        project_id:
+          type: integer
+          description: 專案 ID
+        filename:
+          type: string
+          description: 檔案名稱
+        originalName:
+          type: string
+          description: 原始檔案名稱
+        path:
+          type: string
+          description: 檔案路徑
+        url:
+          type: string
+          description: 圖片 URL
+        thumbnailUrl:
+          type: string
+          description: 縮圖 URL
+        alt:
+          type: string
+          description: 替代文字
+        caption:
+          type: string
+          description: 圖片說明
+        isMain:
+          type: boolean
+          description: 是否為主圖
+        displayOrder:
+          type: integer
+          description: 顯示順序
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: 總筆數
+        page:
+          type: integer
+          description: 目前頁數
+        limit:
+          type: integer
+          description: 每頁筆數
+        pages:
+          type: integer
+          description: 總頁數
+        hasNext:
+          type: boolean
+          description: 是否有下一頁
+        hasPrev:
+          type: boolean
+          description: 是否有上一頁
 paths:
+  # 認證相關端點
   /auth/login:
     post:
       tags:
         - Authentication
-      summary: User login
+      summary: 用戶登入
+      description: 使用用戶名/電子郵件和密碼進行登入
       requestBody:
         required: true
         content:
@@ -100,11 +318,15 @@ paths:
               properties:
                 username:
                   type: string
+                  description: 用戶名或電子郵件
+                  example: "admin"
                 password:
                   type: string
+                  description: 密碼
+                  example: "admin123"
       responses:
         200:
-          description: Login successful
+          description: 登入成功
           content:
             application/json:
               schema:
@@ -119,24 +341,98 @@ paths:
                             $ref: '#/components/schemas/User'
                           accessToken:
                             type: string
+                            description: 存取令牌
                           refreshToken:
                             type: string
+                            description: 刷新令牌
         401:
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /auth/me:
-    get:
+          $ref: '#/components/responses/Unauthorized'
+        429:
+          description: 請求過於頻繁
+
+  /auth/register:
+    post:
       tags:
         - Authentication
-      summary: Get current user
+      summary: 用戶註冊
+      description: 註冊新用戶帳號
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 50
+                  example: "newuser"
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                password:
+                  type: string
+                  minLength: 8
+                  example: "SecurePass123!"
+      responses:
+        201:
+          description: 註冊成功
+        409:
+          description: 用戶已存在
+        422:
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: 刷新令牌
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        200:
+          description: 令牌刷新成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: 用戶登出
       security:
         - bearerAuth: []
       responses:
         200:
-          description: User information
+          description: 登出成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: 取得當前用戶資訊
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 用戶資訊
           content:
             application/json:
               schema:
@@ -150,40 +446,100 @@ paths:
                           user:
                             $ref: '#/components/schemas/User'
         401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/change-password:
+    put:
+      tags:
+        - Authentication
+      summary: 變更密碼
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+                  minLength: 8
+      responses:
+        200:
+          description: 密碼變更成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        422:
+          $ref: '#/components/responses/ValidationError'
+
+  # 專案相關端點
   /projects:
     get:
       tags:
         - Projects
-      summary: Get project list
+      summary: 取得專案列表
+      description: 取得專案列表，支援分頁、篩選和排序
       parameters:
         - in: query
           name: page
           schema:
             type: integer
+            minimum: 1
             default: 1
+          description: 頁碼
         - in: query
           name: limit
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
             default: 20
+          description: 每頁筆數
         - in: query
-          name: category
+          name: type
           schema:
             type: string
-            enum: [住宅, 商業, 辦公室, 公共建築, 其他]
+            enum: [residential, commercial, mixed, other]
+          description: 專案類型
         - in: query
           name: status
           schema:
             type: string
-            enum: [planning, pre_sale, on_sale, sold_out, completed]
+            enum: [planning, in_progress, completed, on_hold]
+          description: 專案狀態
+        - in: query
+          name: isFeatured
+          schema:
+            type: boolean
+          description: 是否為精選專案
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: 搜尋關鍵字
+        - in: query
+          name: orderBy
+          schema:
+            type: string
+            enum: [displayOrder, created_at, updated_at, viewCount, name]
+            default: displayOrder
+          description: 排序欄位
+        - in: query
+          name: orderDir
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+          description: 排序方向
       responses:
         200:
-          description: Project list
+          description: 專案列表
           content:
             application/json:
               schema:
@@ -199,26 +555,877 @@ paths:
                             items:
                               $ref: '#/components/schemas/Project'
                           pagination:
+                            $ref: '#/components/schemas/Pagination'
+    
+    post:
+      tags:
+        - Projects
+      summary: 建立新專案
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - category
+                - location
+              properties:
+                title:
+                  type: string
+                  description: 專案標題
+                category:
+                  type: string
+                  enum: [住宅, 商業, 辦公室, 公共建築, 其他]
+                  description: 專案分類
+                location:
+                  type: string
+                  description: 專案位置
+                status:
+                  type: string
+                  enum: [planning, pre_sale, on_sale, sold_out, completed]
+                year:
+                  type: integer
+                  minimum: 1900
+                  maximum: 2100
+                is_featured:
+                  type: boolean
+                tags:
+                  type: array
+                  items:
+                    type: string
+                features:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        201:
+          description: 專案建立成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        422:
+          $ref: '#/components/responses/ValidationError'
+
+  /projects/featured:
+    get:
+      tags:
+        - Projects
+      summary: 取得精選專案
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 6
+          description: 限制筆數
+      responses:
+        200:
+          description: 精選專案列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Project'
+
+  /projects/search:
+    get:
+      tags:
+        - Projects
+      summary: 搜尋專案
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+            minLength: 2
+          description: 搜尋關鍵字
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        200:
+          description: 搜尋結果
+        400:
+          description: 搜尋關鍵字過短
+
+  /projects/{identifier}:
+    get:
+      tags:
+        - Projects
+      summary: 取得單一專案
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+          description: 專案識別碼或 UUID
+      responses:
+        200:
+          description: 專案詳細資訊
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          project:
+                            $ref: '#/components/schemas/Project'
+        404:
+          $ref: '#/components/responses/NotFound'
+    
+    put:
+      tags:
+        - Projects
+      summary: 更新專案
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                category:
+                  type: string
+                  enum: [住宅, 商業, 辦公室, 公共建築, 其他]
+                status:
+                  type: string
+                  enum: [planning, pre_sale, on_sale, sold_out, completed]
+                year:
+                  type: integer
+                is_featured:
+                  type: boolean
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: 專案更新成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+    
+    delete:
+      tags:
+        - Projects
+      summary: 刪除專案
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: hard
+          schema:
+            type: boolean
+            default: false
+          description: 是否永久刪除
+      responses:
+        200:
+          description: 專案刪除成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{identifier}/related:
+    get:
+      tags:
+        - Projects
+      summary: 取得相關專案
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 4
+      responses:
+        200:
+          description: 相關專案列表
+
+  /projects/{identifier}/status:
+    patch:
+      tags:
+        - Projects
+      summary: 更新專案狀態
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [planning, pre_sale, on_sale, sold_out, completed]
+      responses:
+        200:
+          description: 狀態更新成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /projects/{identifier}/feature:
+    post:
+      tags:
+        - Projects
+      summary: 切換精選狀態
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 精選狀態切換成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /projects/reorder:
+    put:
+      tags:
+        - Projects
+      summary: 批量更新專案顯示順序
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orders
+              properties:
+                orders:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - identifier
+                      - displayOrder
+                    properties:
+                      identifier:
+                        type: string
+                      displayOrder:
+                        type: integer
+                        minimum: 0
+      responses:
+        200:
+          description: 順序更新成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+  # 標籤管理端點
+  /tags:
+    get:
+      tags:
+        - Tags
+      summary: 取得標籤列表
+      parameters:
+        - in: query
+          name: orderBy
+          schema:
+            type: string
+            enum: [usageCount, name]
+            default: usageCount
+        - in: query
+          name: orderDir
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: DESC
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [style, feature, location, type, other]
+      responses:
+        200:
+          description: 標籤列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Tag'
+    
+    post:
+      tags:
+        - Tags
+      summary: 建立新標籤
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+                description:
+                  type: string
+                  maxLength: 200
+      responses:
+        201:
+          description: 標籤建立成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /tags/popular:
+    get:
+      tags:
+        - Tags
+      summary: 取得熱門標籤
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        200:
+          description: 熱門標籤列表
+
+  /tags/search:
+    get:
+      tags:
+        - Tags
+      summary: 搜尋標籤
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        200:
+          description: 搜尋結果
+        400:
+          description: 搜尋關鍵字不能為空
+
+  /tags/{identifier}:
+    get:
+      tags:
+        - Tags
+      summary: 取得單一標籤
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 標籤詳細資訊
+        404:
+          $ref: '#/components/responses/NotFound'
+    
+    put:
+      tags:
+        - Tags
+      summary: 更新標籤
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+                description:
+                  type: string
+                  maxLength: 200
+      responses:
+        200:
+          description: 標籤更新成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+    
+    delete:
+      tags:
+        - Tags
+      summary: 刪除標籤
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 標籤刪除成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  # 聯絡我們端點
+  /contacts:
+    get:
+      tags:
+        - Contacts
+      summary: 取得聯絡訊息列表
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: isRead
+          schema:
+            type: boolean
+        - in: query
+          name: isReplied
+          schema:
+            type: boolean
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: dateFrom
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: dateTo
+          schema:
+            type: string
+            format: date
+      responses:
+        200:
+          description: 聯絡訊息列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Contact'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+    
+    post:
+      tags:
+        - Contacts
+      summary: 提交聯絡表單
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - message
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                email:
+                  type: string
+                  format: email
+                  maxLength: 100
+                phone:
+                  type: string
+                  maxLength: 50
+                company:
+                  type: string
+                  maxLength: 100
+                subject:
+                  type: string
+                  maxLength: 200
+                message:
+                  type: string
+                  minLength: 10
+                  maxLength: 2000
+                source:
+                  type: string
+      responses:
+        201:
+          description: 表單提交成功
+        422:
+          $ref: '#/components/responses/ValidationError'
+        429:
+          description: 請求過於頻繁
+
+  /contacts/statistics:
+    get:
+      tags:
+        - Contacts
+      summary: 取得聯絡統計資料
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+      responses:
+        200:
+          description: 統計資料
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /contacts/{id}:
+    get:
+      tags:
+        - Contacts
+      summary: 取得單一聯絡訊息
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 聯絡訊息詳情
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+    
+    delete:
+      tags:
+        - Contacts
+      summary: 刪除聯絡訊息
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 聯絡訊息刪除成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /contacts/{id}/read:
+    put:
+      tags:
+        - Contacts
+      summary: 標記為已讀
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 標記成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /contacts/{id}/reply:
+    put:
+      tags:
+        - Contacts
+      summary: 回覆聯絡訊息
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: 回覆內容
+                notes:
+                  type: string
+                  description: 內部備註
+      responses:
+        200:
+          description: 回覆成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # 系統相關端點
+  /system/health:
+    get:
+      tags:
+        - System
+      summary: 健康檢查
+      responses:
+        200:
+          description: 系統狀態
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: healthy
+                          timestamp:
+                            type: string
+                            format: date-time
+                          environment:
+                            type: string
+                          database:
+                            type: string
+                            enum: [connected, disconnected]
+                          uptime:
+                            type: number
+
+  /system/info:
+    get:
+      tags:
+        - System
+      summary: 取得系統資訊
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 系統資訊
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          version:
+                            type: string
+                          nodeVersion:
+                            type: string
+                          uptime:
+                            type: number
+                          memory:
                             type: object
-                            properties:
-                              total:
-                                type: integer
-                              page:
-                                type: integer
-                              limit:
-                                type: integer
-                              pages:
-                                type: integer
-                              hasNext:
-                                type: boolean
-                              hasPrev:
-                                type: boolean
+                          cpu:
+                            type: object
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  responses:
+    Unauthorized:
+      description: 未授權
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: 權限不足
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: 資源未找到
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: 驗證錯誤
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Error'
+              - type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          type: string
+                        message:
+                          type: string
+
 tags:
   - name: Authentication
-    description: User authentication endpoints
+    description: 用戶認證端點
   - name: Projects
-    description: Project management endpoints
+    description: 專案管理端點
+  - name: Tags
+    description: 標籤管理端點
   - name: Contacts
-    description: Contact form endpoints
+    description: 聯絡表單端點
   - name: System
-    description: System management endpoints
+    description: 系統管理端點

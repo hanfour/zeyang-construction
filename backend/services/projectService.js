@@ -42,7 +42,7 @@ class ProjectService {
   static async createProject(data, userId) {
     try {
       // Validate required fields
-      const requiredFields = ['name', 'type', 'location'];
+      const requiredFields = ['title', 'category', 'location'];
       for (const field of requiredFields) {
         if (!data[field]) {
           throw new Error(`${field} is required`);
@@ -52,8 +52,8 @@ class ProjectService {
       // Create project
       const result = await Project.create(data, userId);
       
-      // Return created project
-      return await this.getProject(result.identifier, false);
+      // Return created project  
+      return await this.getProject(result.slug, false);
     } catch (error) {
       logger.error('Error creating project:', error);
       throw error;
@@ -92,14 +92,14 @@ class ProjectService {
         // Delete all associated images
         for (const image of project.images) {
           try {
-            await deleteImageSet(project.identifier, image.file_name);
+            await deleteImageSet(project.uuid, image.file_name);
           } catch (err) {
             logger.error('Failed to delete image:', err);
           }
         }
         
-        // Hard delete from database
-        await query('DELETE FROM projects WHERE identifier = ?', [project.identifier]);
+        // Hard delete from database  
+        await query('DELETE FROM projects WHERE uuid = ?', [project.uuid]);
       } else {
         // Soft delete
         await Project.delete(identifier);
@@ -159,24 +159,24 @@ class ProjectService {
         return [];
       }
       
-      // Find projects in same type and location
+      // Find projects in same category and location
       const sql = `
         SELECT p.*
         FROM projects p
-        WHERE p.identifier != ?
-        AND (p.type = ? OR p.location = ?)
+        WHERE p.uuid != ?
+        AND (p.category = ? OR p.location = ?)
         ORDER BY 
-          CASE WHEN p.type = ? THEN 1 ELSE 0 END DESC,
+          CASE WHEN p.category = ? THEN 1 ELSE 0 END DESC,
           CASE WHEN p.location = ? THEN 1 ELSE 0 END DESC,
-          p.viewCount DESC
+          p.view_count DESC
         LIMIT ?
       `;
       
       const related = await query(sql, [
-        project.identifier,
-        project.type,
+        project.uuid,
+        project.category,
         project.location,
-        project.type,
+        project.category,
         project.location,
         limit
       ]);
@@ -222,8 +222,8 @@ class ProjectService {
       
       return {
         project: {
-          identifier: project.identifier,
-          name: project.name
+          uuid: project.uuid,
+          title: project.title
         },
         period: days,
         totals,
@@ -243,8 +243,8 @@ class ProjectService {
       for (const { identifier, displayOrder } of orders) {
         updates.push(
           query(
-            'UPDATE projects SET displayOrder = ?, updated_by = ? WHERE identifier = ?',
-            [displayOrder, userId, identifier]
+            'UPDATE projects SET display_order = ?, updated_by = ? WHERE slug = ? OR uuid = ?',
+            [displayOrder, userId, identifier, identifier]
           )
         );
       }

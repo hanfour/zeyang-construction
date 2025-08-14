@@ -189,7 +189,7 @@ const ProjectImageUploader: React.FC<ProjectImageUploaderProps> = ({
                   <img
                     src={image.preview}
                     alt={`Preview ${index + 1}`}
-                    className="w-full h-full object-cover rounded-lg cursor-move"
+                    className="w-full h-full object-scale-down rounded-lg cursor-move"
                   />
                 </div>
                 
