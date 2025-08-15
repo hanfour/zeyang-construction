@@ -23,7 +23,7 @@ const TeamPage: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       bio: '擁有超過 20 年的房地產開發經驗，致力於打造創新且永續的建築專案。',
       linkedin: '#',
-      email: 'ceo@estatehub.com'
+      email: 'ceo@ZeYang.com'
     },
     {
       id: 2,
@@ -33,7 +33,7 @@ const TeamPage: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       bio: '專精於專案管理與營運優化，確保每個專案都能準時且高品質地完成。',
       linkedin: '#',
-      email: 'coo@estatehub.com'
+      email: 'coo@ZeYang.com'
     },
     {
       id: 3,
@@ -51,7 +51,7 @@ const TeamPage: React.FC = () => {
       department: '行銷團隊',
       image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80',
       bio: '深耕房地產行銷領域 15 年，精通數位行銷與品牌策略規劃。',
-      email: 'marketing@estatehub.com'
+      email: 'marketing@ZeYang.com'
     },
     {
       id: 5,
@@ -69,7 +69,7 @@ const TeamPage: React.FC = () => {
       department: '財務團隊',
       image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1061&q=80',
       bio: '資深財務專家，確保公司財務健康並為投資者創造最大價值。',
-      email: 'cfo@estatehub.com'
+      email: 'cfo@ZeYang.com'
     }
   ];
 
@@ -83,8 +83,8 @@ const TeamPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>品牌團隊 - EstateHub</title>
-        <meta name="description" content="認識 EstateHub 的專業團隊，了解我們的核心成員和專業背景。" />
+        <title>品牌團隊 - ZeYang</title>
+        <meta name="description" content="認識 ZeYang 的專業團隊，了解我們的核心成員和專業背景。" />
       </Helmet>
 
       {/* Hero Section */}
@@ -102,7 +102,7 @@ const TeamPage: React.FC = () => {
               品牌團隊
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-300 max-w-3xl mx-auto">
-              EstateHub 擁有業界最優秀的專業團隊，結合豐富經驗與創新思維，
+              ZeYang 擁有業界最優秀的專業團隊，結合豐富經驗與創新思維，
               為客戶打造最理想的房地產專案。
             </p>
           </div>
@@ -196,7 +196,7 @@ const TeamPage: React.FC = () => {
             加入我們的團隊
           </h2>
           <p className="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
-            如果您對房地產充滿熱情，歡迎加入 EstateHub，與我們一起創造更美好的未來
+            如果您對房地產充滿熱情，歡迎加入 ZeYang，與我們一起創造更美好的未來
           </p>
           <a
             href="/contact"

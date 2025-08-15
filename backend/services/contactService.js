@@ -216,11 +216,7 @@ class ContactService {
         );
         
         // Send reply email
-        await sendEmail({
-          to: contact.email,
-          subject: `Re: ${contact.subject || 'Your inquiry'}`,
-          html: replyData.message
-        });
+        await this.sendReplyEmail(contact, replyData.message);
         
         logger.info('Contact replied', { contactId: id, userId });
         
@@ -334,52 +330,133 @@ class ContactService {
   
   // Send admin notification email
   static async sendAdminNotification(contactData) {
-    const adminEmails = process.env.ADMIN_EMAILS?.split(',') || ['admin@estatehub.com'];
+    try {
+      // Get SMTP config to check if notifications should be sent
+      const SettingsService = require('./settingsService');
+      const smtpConfig = await SettingsService.getSmtpConfig();
+      
+      if (!smtpConfig || !smtpConfig.enabled || !smtpConfig.sendAdminNotifications) {
+        logger.info('Admin notifications disabled, skipping email');
+        return;
+      }
+      
+      const adminEmails = smtpConfig.adminEmails?.length > 0 
+        ? smtpConfig.adminEmails 
+        : (process.env.ADMIN_EMAILS?.split(',') || ['admin@ZeYang.com']);
     
-    const emailContent = `
-      <h2>新的聯絡表單提交</h2>
-      <p><strong>姓名：</strong> ${contactData.name}</p>
-      <p><strong>Email：</strong> ${contactData.email}</p>
-      <p><strong>電話：</strong> ${contactData.phone || '未提供'}</p>
-      <p><strong>公司：</strong> ${contactData.company || '未提供'}</p>
-      <p><strong>主旨：</strong> ${contactData.subject || '未提供'}</p>
-      <p><strong>訊息：</strong></p>
-      <p>${contactData.message.replace(/\n/g, '<br>')}</p>
-      <p><strong>來源：</strong> ${contactData.source || '網站'}</p>
-      <hr>
-      <p>請登入後台查看詳細資訊並回覆。</p>
-    `;
-    
-    for (const adminEmail of adminEmails) {
-      await sendEmail({
-        to: adminEmail,
-        subject: `[EstateHub] 新聯絡表單 - ${contactData.name}`,
-        html: emailContent
-      });
+      const emailContent = `
+        <h2>新的聯絡表單提交</h2>
+        <p><strong>姓名：</strong> ${contactData.name}</p>
+        <p><strong>Email：</strong> ${contactData.email}</p>
+        <p><strong>電話：</strong> ${contactData.phone || '未提供'}</p>
+        <p><strong>公司：</strong> ${contactData.company || '未提供'}</p>
+        <p><strong>主旨：</strong> ${contactData.subject || '未提供'}</p>
+        <p><strong>訊息：</strong></p>
+        <div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #007bff; margin: 15px 0;">
+          ${contactData.message.replace(/\n/g, '<br>')}
+        </div>
+        <p><strong>來源：</strong> ${contactData.source || '網站'}</p>
+        <p><strong>提交時間：</strong> ${new Date().toLocaleString('zh-TW')}</p>
+        <hr>
+        <p>請登入後台查看詳細資訊並回覆。</p>
+      `;
+      
+      for (const adminEmail of adminEmails) {
+        if (adminEmail.trim()) {
+          await sendEmail({
+            to: adminEmail.trim(),
+            subject: `[ZeYang] 新聯絡表單 - ${contactData.name}`,
+            html: emailContent
+          });
+        }
+      }
+    } catch (error) {
+      logger.error('Failed to send admin notification:', error);
+      // Don't throw error to prevent contact form submission failure
     }
   }
   
   // Send user confirmation email
   static async sendUserConfirmation(contactData) {
-    const emailContent = `
-      <h2>感謝您的來信</h2>
-      <p>親愛的 ${contactData.name}，</p>
-      <p>我們已收到您的訊息，將會盡快回覆您。</p>
-      <p>以下是您提交的內容：</p>
-      <hr>
-      <p><strong>訊息：</strong></p>
-      <p>${contactData.message.replace(/\n/g, '<br>')}</p>
-      <hr>
-      <p>如有緊急事項，請直接致電我們的客服專線。</p>
-      <p>祝您有美好的一天！</p>
-      <p>EstateHub 團隊</p>
-    `;
-    
-    await sendEmail({
-      to: contactData.email,
-      subject: '感謝您的來信 - EstateHub',
-      html: emailContent
-    });
+    try {
+      // Get SMTP config to check if confirmations should be sent
+      const SettingsService = require('./settingsService');
+      const smtpConfig = await SettingsService.getSmtpConfig();
+      
+      if (!smtpConfig || !smtpConfig.enabled || !smtpConfig.sendUserConfirmations) {
+        logger.info('User confirmations disabled, skipping email');
+        return;
+      }
+      
+      const emailContent = `
+        <h2>感謝您的來信</h2>
+        <p>親愛的 ${contactData.name}，</p>
+        <p>我們已收到您的訊息，將會盡快回覆您。</p>
+        <p>以下是您提交的內容：</p>
+        <hr>
+        <div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #28a745; margin: 15px 0;">
+          <p><strong>主旨：</strong> ${contactData.subject || '(未指定)'}</p>
+          <p><strong>訊息：</strong></p>
+          <p>${contactData.message.replace(/\n/g, '<br>')}</p>
+        </div>
+        <hr>
+        <p>如有緊急事項，請直接致電我們的客服專線。</p>
+        <p>祝您有美好的一天！</p>
+        <p><strong>ZeYang 團隊</strong></p>
+      `;
+      
+      await sendEmail({
+        to: contactData.email,
+        subject: '感謝您的來信 - ZeYang',
+        html: emailContent
+      });
+    } catch (error) {
+      logger.error('Failed to send user confirmation:', error);
+      // Don't throw error to prevent contact form submission failure
+    }
+  }
+  
+  // Send reply email to contact
+  static async sendReplyEmail(contact, replyMessage) {
+    try {
+      // Get SMTP config to check if replies should be sent
+      const SettingsService = require('./settingsService');
+      const smtpConfig = await SettingsService.getSmtpConfig();
+      
+      if (!smtpConfig || !smtpConfig.enabled) {
+        logger.info('SMTP disabled, skipping reply email');
+        return;
+      }
+      
+      const emailContent = `
+        <h2>回覆：${contact.subject || '您的詢問'}</h2>
+        <p>親愛的 ${contact.name}，</p>
+        <p>感謝您聯絡我們。以下是我們針對您詢問的回覆：</p>
+        <hr>
+        <div style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #007bff; margin: 20px 0;">
+          ${replyMessage.replace(/\n/g, '<br>')}
+        </div>
+        <hr>
+        <p><strong>您的原始訊息：</strong></p>
+        <div style="background-color: #f1f3f4; padding: 15px; border-left: 3px solid #6c757d; margin: 15px 0; font-style: italic;">
+          ${contact.message.replace(/\n/g, '<br>')}
+        </div>
+        <p>如有其他問題，歡迎隨時與我們聯絡。</p>
+        <p>祝您有美好的一天！</p>
+        <p><strong>ZeYang 團隊</strong></p>
+      `;
+      
+      await sendEmail({
+        to: contact.email,
+        subject: `Re: ${contact.subject || 'Your inquiry'} - ZeYang`,
+        html: emailContent
+      });
+      
+      logger.info('Reply email sent successfully', { contactId: contact.id, email: contact.email });
+    } catch (error) {
+      logger.error('Failed to send reply email:', error);
+      throw error; // Throw error to indicate reply failure
+    }
   }
 }
 

@@ -50,7 +50,7 @@ File upload tests need proper multipart form handling in the test environment.
 ### With Real MySQL Database:
 ```bash
 # Ensure MySQL is running and test database exists
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS estatehub_test;"
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS ZeYang_test;"
 
 # Run migrations
 npm run db:migrate

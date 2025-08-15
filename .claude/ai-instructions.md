@@ -3,7 +3,7 @@
 ### 1. 提供上下文
 開始對話時說明：
 - "請參考 .claude 目錄的文件"
-- "基於 EstateHub 專案架構"
+- "基於 ZeYang 專案架構"
 - "遵循 coding-standards.md"
 
 ### 2. 具體的請求格式

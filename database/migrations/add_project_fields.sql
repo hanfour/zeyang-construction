@@ -1,7 +1,7 @@
 -- Add new fields to projects table
 -- Date: 2025-01-23
 
-USE estatehub_db;
+USE ZeYang_db;
 
 -- Add new fixed fields to projects table
 ALTER TABLE projects

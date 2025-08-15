@@ -38,7 +38,7 @@ test('API 基本資訊', async () => {
     .get('/')
     .expect(200);
 
-  expect(response.body.message).toBe('EstateHub API Server');
+  expect(response.body.message).toBe('ZeYang API Server');
   expect(response.body.version).toBe('1.0.0');
 });
 

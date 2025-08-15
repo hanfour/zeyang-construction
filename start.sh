@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Starting EstateHub Development Environment..."
+echo "🚀 Starting ZeYang Development Environment..."
 
 # MySQL credentials
 MYSQL_USER="root"
@@ -18,7 +18,7 @@ fi
 echo "✅ MySQL is running"
 
 # Check if database exists
-if ! mysql -u $MYSQL_USER -p$MYSQL_PASS -e "USE estatehub" 2>/dev/null; then
+if ! mysql -u $MYSQL_USER -p$MYSQL_PASS -e "USE ZeYang" 2>/dev/null; then
     echo "📦 Creating database..."
     mysql -u $MYSQL_USER -p$MYSQL_PASS < database/init.sql
     echo "✅ Database created"

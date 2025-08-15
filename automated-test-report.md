@@ -1,9 +1,9 @@
-# BuildSight 自動化測試報告
+# 專案：ZeYang 自動化測試報告
 
 ## 執行摘要
 
 日期：2025-07-28
-專案：BuildSight (原 EstateHub)
+專案：ZeYang
 測試執行者：自動化測試系統
 
 ## 測試覆蓋率總覽

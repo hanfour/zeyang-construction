@@ -1,7 +1,7 @@
--- Sample data for EstateHub
+-- Sample data for ZeYang
 -- This file contains sample projects and data for testing
 
-USE estatehub_db;
+USE ZeYang_db;
 
 -- Insert sample projects
 INSERT INTO projects (slug, title, subtitle, category, status, location, year, area, price_range, display_order, is_featured, meta_title, meta_description, created_by, updated_by) VALUES

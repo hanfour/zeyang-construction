@@ -144,15 +144,15 @@ describe('Authentication Flow Tests', () => {
       expect(decodedAccess).toHaveProperty('userId');
       expect(decodedAccess).toHaveProperty('iat');
       expect(decodedAccess).toHaveProperty('exp');
-      expect(decodedAccess).toHaveProperty('iss', 'EstateHub');
-      expect(decodedAccess).toHaveProperty('aud', 'estatehub-users');
+      expect(decodedAccess).toHaveProperty('iss', 'ZeYang');
+      expect(decodedAccess).toHaveProperty('aud', 'ZeYang-users');
 
       // Check refresh token claims
       expect(decodedRefresh).toHaveProperty('userId');
       expect(decodedRefresh).toHaveProperty('iat');
       expect(decodedRefresh).toHaveProperty('exp');
-      expect(decodedRefresh).toHaveProperty('iss', 'EstateHub');
-      expect(decodedRefresh).toHaveProperty('aud', 'estatehub-users');
+      expect(decodedRefresh).toHaveProperty('iss', 'ZeYang');
+      expect(decodedRefresh).toHaveProperty('aud', 'ZeYang-users');
 
       // Verify refresh token has longer expiry
       expect(decodedRefresh.exp - decodedRefresh.iat).toBeGreaterThan(

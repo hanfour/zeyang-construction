@@ -18,5 +18,5 @@ bcrypt.hash(password, 10, (err, hash) => {
   console.log('Password:', password);
   console.log('Hash:', hash);
   console.log('\nSQL Insert:');
-  console.log(`INSERT INTO users (username, password, email, role) VALUES ('admin', '${hash}', 'admin@estatehub.com', 'admin');`);
+  console.log(`INSERT INTO users (username, password, email, role) VALUES ('admin', '${hash}', 'admin@ZeYang.com', 'admin');`);
 });

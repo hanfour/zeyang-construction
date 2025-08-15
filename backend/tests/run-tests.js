@@ -118,7 +118,7 @@ const report = {
   environment: {
     nodeVersion: process.version,
     platform: process.platform,
-    testDatabase: process.env.DB_NAME || 'estatehub_test'
+    testDatabase: process.env.DB_NAME || 'ZeYang_test'
   },
   summary: {
     totalTests: totalPassed + totalFailed,

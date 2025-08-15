@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Database migration script for BuildSight
+# Database migration script for ZeYang
 # This script applies the new project fields migration
 
 echo "Starting database migration..."
@@ -15,7 +15,7 @@ fi
 DB_HOST="127.0.0.1"
 DB_USER="root"
 DB_PASS="123456"
-DB_NAME="estatehub_db"
+DB_NAME="ZeYang_db"
 
 # Prompt for password if not set
 if [ -z "$DB_PASS" ]; then

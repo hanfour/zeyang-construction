@@ -8,6 +8,7 @@ import {
   BuildingOfficeIcon,
   EnvelopeIcon,
   TagIcon,
+  CogIcon,
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,6 +19,7 @@ const navigation = [
   { name: '專案管理', href: '/admin/projects', icon: BuildingOfficeIcon },
   { name: '聯絡表單', href: '/admin/contacts', icon: EnvelopeIcon },
   { name: '標籤管理', href: '/admin/tags', icon: TagIcon },
+  { name: '系統設定', href: '/admin/settings/email', icon: CogIcon },
 ];
 
 const AdminLayout: React.FC = () => {
@@ -51,7 +53,7 @@ const AdminLayout: React.FC = () => {
             
             <div className="h-0 flex-1 overflow-y-auto pt-5 pb-4">
               <div className="flex flex-shrink-0 items-center px-4">
-                <span className="text-2xl font-bold text-white">EstateHub</span>
+                <span className="text-2xl font-bold text-white">ZeYang</span>
               </div>
               <nav className="mt-8 space-y-1 px-2">
                 {navigation.map((item) => (

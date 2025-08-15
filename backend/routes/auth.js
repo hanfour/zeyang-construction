@@ -47,8 +47,8 @@ const generateTokens = (userId) => {
     process.env.JWT_SECRET,
     { 
       expiresIn: process.env.JWT_EXPIRES_IN || '24h',
-      issuer: 'EstateHub',
-      audience: 'estatehub-users'
+      issuer: 'ZeYang',
+      audience: 'ZeYang-users'
     }
   );
   
@@ -57,8 +57,8 @@ const generateTokens = (userId) => {
     process.env.REFRESH_SECRET,
     { 
       expiresIn: process.env.REFRESH_EXPIRES_IN || '7d',
-      issuer: 'EstateHub',
-      audience: 'estatehub-users'
+      issuer: 'ZeYang',
+      audience: 'ZeYang-users'
     }
   );
   

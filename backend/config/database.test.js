@@ -22,7 +22,7 @@ if (USE_MOCK) {
     port: process.env.DB_PORT || 3306,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'estatehub_test',
+    database: process.env.DB_NAME || 'ZeYang_test',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,

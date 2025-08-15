@@ -1,13 +1,13 @@
--- EstateHub Database Initialization Script
+-- ZeYang Database Initialization Script
 -- Version: 1.0.0
 -- Date: 2024-01-20
 
 -- Create database
-CREATE DATABASE IF NOT EXISTS estatehub_db
+CREATE DATABASE IF NOT EXISTS ZeYang_db
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE estatehub_db;
+USE ZeYang_db;
 
 -- 1. Users table
 CREATE TABLE IF NOT EXISTS users (
@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS project_statistics (
 -- Insert default admin user (password: Admin@123)
 -- Note: This is the bcrypt hash for 'Admin@123'
 INSERT INTO users (username, password, email, role) VALUES 
-('admin', '$2a$10$Vxh2r7J5xYZu6.BmQBwJqOm0KxdKLJv.gYNnF8.iLqxZ8Kv0YXMK6', 'admin@estatehub.com', 'admin');
+('admin', '$2a$10$Vxh2r7J5xYZu6.BmQBwJqOm0KxdKLJv.gYNnF8.iLqxZ8Kv0YXMK6', 'admin@ZeYang.com', 'admin');
 
 -- Insert sample tags
 INSERT INTO tags (name, slug) VALUES 
@@ -246,5 +246,5 @@ END//
 DELIMITER ;
 
 -- Grant permissions (adjust as needed)
--- GRANT ALL PRIVILEGES ON estatehub_db.* TO 'estatehub'@'localhost';
+-- GRANT ALL PRIVILEGES ON ZeYang_db.* TO 'ZeYang'@'localhost';
 -- FLUSH PRIVILEGES;

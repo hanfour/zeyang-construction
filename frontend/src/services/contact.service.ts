@@ -28,8 +28,8 @@ class ContactService {
     return api.put(`/contacts/${id}/read`);
   }
 
-  async replyToContact(id: number, message: string, notes?: string): Promise<ApiResponse> {
-    return api.put(`/contacts/${id}/reply`, { message, notes });
+  async replyToContact(id: number, data: { message: string; notes?: string }): Promise<ApiResponse> {
+    return api.put(`/contacts/${id}/reply`, data);
   }
 
   async updateNotes(id: number, notes: string): Promise<ApiResponse> {

@@ -22,7 +22,7 @@ describe('簡單 API 測試', () => {
         .get('/')
         .expect(200);
 
-      expect(response.body).toHaveProperty('message', 'EstateHub API Server');
+      expect(response.body).toHaveProperty('message', 'ZeYang API Server');
       expect(response.body).toHaveProperty('version', '1.0.0');
     });
   });

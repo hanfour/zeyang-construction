@@ -2,7 +2,7 @@
 
 ## 測試環境
 - MySQL 版本：8.0+
-- 資料庫：estatehub_test
+- 資料庫：ZeYang_test
 - 測試時間：2025-07-24
 
 ## 測試結果總覽

@@ -1,11 +1,11 @@
-# EstateHub API 完整測試指南
+# ZeYang API 完整測試指南
 
 > 版本：2.0.0  
 > 更新日期：2025-08-14
 
 ## 概述
 
-EstateHub API 是一個房地產專案管理系統的 RESTful API，提供完整的專案管理、用戶認證、標籤管理和聯絡表單功能。
+ZeYang API 是一個房地產專案管理系統的 RESTful API，提供完整的專案管理、用戶認證、標籤管理和聯絡表單功能。
 
 ## 環境設置
 
@@ -26,7 +26,7 @@ cp .env.example .env
 DB_HOST=localhost
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
-DB_NAME=estatehub
+DB_NAME=ZeYang
 
 # JWT 配置
 JWT_SECRET=your-super-secret-jwt-key
@@ -47,7 +47,7 @@ ALLOWED_ORIGINS=http://localhost:3000
 mysql -u root -p < database/init.sql
 
 # 載入範例資料（可選）
-mysql -u root -p estatehub < database/seeds/sample-data.sql
+mysql -u root -p ZeYang < database/seeds/sample-data.sql
 ```
 
 ### 4. 啟動服務

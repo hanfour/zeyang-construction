@@ -18,11 +18,11 @@ brew services start mysql
 mysql -u root -p
 
 # 創建資料庫
-CREATE DATABASE estatehub_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE ZeYang_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 # 創建測試用戶（可選）
 CREATE USER 'test_user'@'localhost' IDENTIFIED BY 'test_password';
-GRANT ALL PRIVILEGES ON estatehub_test.* TO 'test_user'@'localhost';
+GRANT ALL PRIVILEGES ON ZeYang_test.* TO 'test_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -35,7 +35,7 @@ PORT=3001
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=你的密碼
-DB_NAME=estatehub_test
+DB_NAME=ZeYang_test
 DB_PORT=3306
 JWT_SECRET=test-jwt-secret
 JWT_EXPIRES_IN=1d
@@ -45,7 +45,7 @@ EOL
 
 # 運行遷移
 cd backend
-mysql -u root -p estatehub_test < database/schema.sql
+mysql -u root -p ZeYang_test < database/schema.sql
 ```
 
 ### 4. 運行測試
@@ -63,7 +63,7 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: estatehub_test
+      MYSQL_DATABASE: ZeYang_test
     ports:
       - "3307:3306"
     volumes:
@@ -112,7 +112,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: estatehub_test
+          MYSQL_DATABASE: ZeYang_test
         ports:
           - 3306:3306
         options: >-
@@ -137,14 +137,14 @@ jobs:
     - name: Setup database
       run: |
         cd backend
-        mysql -h 127.0.0.1 -u root -proot estatehub_test < database/schema.sql
+        mysql -h 127.0.0.1 -u root -proot ZeYang_test < database/schema.sql
         
     - name: Run tests
       env:
         DB_HOST: 127.0.0.1
         DB_USER: root
         DB_PASSWORD: root
-        DB_NAME: estatehub_test
+        DB_NAME: ZeYang_test
         NODE_ENV: test
       run: |
         cd backend
@@ -164,10 +164,10 @@ if ! mysqladmin ping -h localhost --silent; then
 fi
 
 # 創建測試資料庫
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS estatehub_test;"
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS ZeYang_test;"
 
 # 導入 schema
-mysql -u root -p estatehub_test < database/schema.sql
+mysql -u root -p ZeYang_test < database/schema.sql
 
 # 運行測試
 npm test

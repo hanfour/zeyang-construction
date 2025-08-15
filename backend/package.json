@@ -1,7 +1,7 @@
 {
-  "name": "estatehub-backend",
+  "name": "ZeYang-backend",
   "version": "1.0.0",
-  "description": "EstateHub Backend API Server",
+  "description": "ZeYang Backend API Server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

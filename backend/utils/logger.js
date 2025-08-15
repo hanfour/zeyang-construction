@@ -20,7 +20,7 @@ const logFormat = winston.format.combine(
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: logFormat,
-  defaultMeta: { service: 'estatehub-backend' },
+  defaultMeta: { service: 'ZeYang-backend' },
   transports: process.env.NODE_ENV === 'test' ? [] : [
     // Error logs
     new winston.transports.File({

@@ -23,7 +23,7 @@ const AboutPage: React.FC = () => {
   ];
 
   const milestones = [
-    { year: '2015', event: 'EstateHub 品牌成立' },
+    { year: '2015', event: 'ZeYang 品牌成立' },
     { year: '2017', event: '完成第一個百億級專案' },
     { year: '2019', event: '榮獲最佳房地產開發商獎' },
     { year: '2021', event: '推出智慧建築系列專案' },
@@ -33,8 +33,8 @@ const AboutPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>關於品牌 - EstateHub</title>
-        <meta name="description" content="了解 EstateHub 的品牌故事、企業理念和發展歷程。" />
+        <title>關於品牌 - ZeYang</title>
+        <meta name="description" content="了解 ZeYang 的品牌故事、企業理念和發展歷程。" />
       </Helmet>
 
       {/* Hero Section */}
@@ -42,10 +42,10 @@ const AboutPage: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-              關於 EstateHub
+              關於 ZeYang
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">
-              自 2015 年成立以來，EstateHub 致力於打造最優質的房地產專案，
+              自 2015 年成立以來，ZeYang 致力於打造最優質的房地產專案，
               結合創新設計與永續理念，為客戶創造理想的生活空間。
             </p>
           </div>
@@ -101,7 +101,7 @@ const AboutPage: React.FC = () => {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">發展歷程</h2>
             <p className="mt-4 text-lg text-gray-600">
-              見證 EstateHub 的成長與蛻變
+              見證 ZeYang 的成長與蛻變
             </p>
           </div>
           <div className="max-w-4xl mx-auto">
@@ -129,7 +129,7 @@ const AboutPage: React.FC = () => {
             與我們一起打造未來
           </h2>
           <p className="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
-            無論您是尋找理想住所還是投資機會，EstateHub 都是您最佳的選擇
+            無論您是尋找理想住所還是投資機會，ZeYang 都是您最佳的選擇
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a

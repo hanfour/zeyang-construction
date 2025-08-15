@@ -22,8 +22,8 @@ function generateTestToken(user = {}) {
     process.env.JWT_SECRET || 'test-secret',
     { 
       expiresIn: '1h',
-      issuer: 'EstateHub',
-      audience: 'estatehub-users'
+      issuer: 'ZeYang',
+      audience: 'ZeYang-users'
     }
   );
 }

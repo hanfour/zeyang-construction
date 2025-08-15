@@ -111,8 +111,8 @@ const DevelopmentPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>開發專區 - EstateHub</title>
-        <meta name="description" content="了解 EstateHub 正在開發的大型專案，包含商業、住宅、複合式開發案。" />
+        <title>開發專區 - ZeYang</title>
+        <meta name="description" content="了解 ZeYang 正在開發的大型專案，包含商業、住宅、複合式開發案。" />
       </Helmet>
 
       {/* Hero Section */}
@@ -130,7 +130,7 @@ const DevelopmentPage: React.FC = () => {
               開發專區
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-300 max-w-3xl mx-auto">
-              EstateHub 正在進行的大型開發案，涵蓋住宅、商業、辦公等多元類型，
+              ZeYang 正在進行的大型開發案，涵蓋住宅、商業、辦公等多元類型，
               為城市發展注入新活力。
             </p>
           </div>
@@ -236,7 +236,7 @@ const DevelopmentPage: React.FC = () => {
             投資未來，共創價值
           </h2>
           <p className="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
-            EstateHub 的開發專案不僅創造優質的生活與工作空間，更為投資者帶來長期穩定的回報
+            ZeYang 的開發專案不僅創造優質的生活與工作空間，更為投資者帶來長期穩定的回報
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a

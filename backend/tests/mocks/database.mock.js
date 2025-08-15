@@ -68,7 +68,7 @@ function handleSelect(sql, params) {
   }
   
   if (sqlLower.includes('select database()')) {
-    return [[{ 'DATABASE()': 'estatehub_test' }]];
+    return [[{ 'DATABASE()': 'ZeYang_test' }]];
   }
   
   // Handle project queries

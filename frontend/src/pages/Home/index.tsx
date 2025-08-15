@@ -13,8 +13,8 @@ const HomePage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>EstateHub - 專業的房地產展示平台</title>
-        <meta name="description" content="探索最優質的房地產專案，從豪華住宅到商業大樓，找到您理想的投資機會。" />
+        <title>ZeYang - 匠心築夢築澤暘之境</title>
+        <meta name="description" content="澤暘建設秉持「誠信築基、匠心營造」之核心精神，深耕台灣土地多年，以深厚的在地情感，精雕細琢每一建築細節，追求完美居住體驗。澤暘建設相信，好的住宅不僅是建築本身，更是生活價值的延伸與呈現。未來，我們將持續致力於創造符合現代人需求、兼具舒適與美感的生活空間，與每位住戶一同築夢未來。" />
       </Helmet>
       <Hero />
       {/* 統一的動畫區塊：築夢、精工、永續、經典 */}

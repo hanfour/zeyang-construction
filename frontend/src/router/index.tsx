@@ -12,7 +12,8 @@ const HomePage = lazy(() => import('@/pages/Home'));
 const AboutPage = lazy(() => import('@/pages/About'));
 const TeamPage = lazy(() => import('@/pages/Team'));
 const ProjectsPage = lazy(() => import('@/pages/Projects'));
-const ProjectDetailPage = lazy(() => import('@/pages/ProjectDetail'));
+// Temporarily comment out ProjectDetail until it's implemented
+// const ProjectDetailPage = lazy(() => import('@/pages/ProjectDetail'));
 const DevelopmentPage = lazy(() => import('@/pages/Development'));
 const ContactPage = lazy(() => import('@/pages/Contact'));
 const LoginPage = lazy(() => import('@/pages/Login'));
@@ -22,6 +23,7 @@ const AdminDashboard = lazy(() => import('@/pages/Admin/Dashboard'));
 const AdminProjects = lazy(() => import('@/pages/Admin/Projects'));
 const AdminContacts = lazy(() => import('@/pages/Admin/Contacts'));
 const AdminTags = lazy(() => import('@/pages/Admin/Tags'));
+const AdminEmailSettings = lazy(() => import('@/pages/Admin/Settings/Email'));
 
 // Admin loading component
 const AdminLoading = () => (
@@ -67,7 +69,12 @@ const Router = () => {
         } />
         <Route path="projects/:slug" element={
           <Suspense fallback={<LoadingSpinner fullScreen />}>
-            <ProjectDetailPage />
+            <div className="container mx-auto px-4 py-8">
+              <div className="text-center">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">專案詳情頁面</h1>
+                <p className="text-gray-600">此頁面正在開發中...</p>
+              </div>
+            </div>
           </Suspense>
         } />
         <Route path="development" element={
@@ -117,6 +124,11 @@ const Router = () => {
         <Route path="tags" element={
           <Suspense fallback={<AdminLoading />}>
             <AdminTags />
+          </Suspense>
+        } />
+        <Route path="settings/email" element={
+          <Suspense fallback={<AdminLoading />}>
+            <AdminEmailSettings />
           </Suspense>
         } />
       </Route>

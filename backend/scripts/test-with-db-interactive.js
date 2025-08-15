@@ -33,7 +33,7 @@ async function getDBConfig() {
     port: parseInt(port),
     user,
     password,
-    database: 'estatehub_test',
+    database: 'ZeYang_test',
     multipleStatements: true
   };
 }
@@ -53,11 +53,11 @@ async function setupTestDatabase(config) {
     });
     
     // 創建測試資料庫
-    await connection.execute('CREATE DATABASE IF NOT EXISTS estatehub_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+    await connection.execute('CREATE DATABASE IF NOT EXISTS ZeYang_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
     console.log('✅ 資料庫創建成功');
     
     // 切換到測試資料庫
-    await connection.changeUser({ database: 'estatehub_test' });
+    await connection.changeUser({ database: 'ZeYang_test' });
     
     // 讀取並執行 schema
     const schemaPath = path.join(__dirname, '../database/schema.sql');
@@ -80,7 +80,7 @@ PORT=3001
 DB_HOST=${config.host}
 DB_USER=${config.user}
 DB_PASSWORD=${config.password}
-DB_NAME=estatehub_test
+DB_NAME=ZeYang_test
 DB_PORT=${config.port}
 
 # JWT
@@ -174,7 +174,7 @@ async function generateReport() {
 
 // 主函數
 async function main() {
-  console.log('🚀 BuildSight 互動式自動化測試\n');
+  console.log('🚀 ZeYang 互動式自動化測試\n');
   
   try {
     // 1. 獲取資料庫配置

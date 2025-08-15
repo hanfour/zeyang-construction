@@ -1,12 +1,12 @@
-# EstateHub - 房地產專案管理系統
+# ZeYang - 澤暘品牌管理系統
 
 ## 專案基本資訊
 
-- **專案名稱**: EstateHub
-- **專案類型**: 全端網站應用程式（房地產展示與管理系統）
+- **專案名稱**: ZeYang
+- **專案類型**: 全端網站應用程式（澤暘品牌與管理系統）
 - **開發語言**: JavaScript (Node.js + React)
 - **資料庫**: MySQL 8.0+
-- **目標用戶**: 房地產公司、建築開發商
+- **目標用戶**: 澤暘品牌
 - **核心功能**: 專案展示、後台管理、圖片處理、聯絡表單
 
 ## 系統架構
@@ -305,7 +305,7 @@ CREATE TABLE project_statistics (
 ## API 規格
 
 ### 基礎設定
-- **Base URL**: `https://api.estatehub.com/v1`
+- **Base URL**: `https://api.ZeYang.com/v1`
 - **認證方式**: Bearer Token (JWT) / API Key
 - **回應格式**: JSON
 - **字元編碼**: UTF-8
@@ -529,9 +529,9 @@ CLIENT_URL=http://localhost:3000
 # 資料庫
 DB_HOST=localhost
 DB_PORT=3306
-DB_USER=estatehub
+DB_USER=ZeYang
 DB_PASSWORD=secure_password
-DB_NAME=estatehub_db
+DB_NAME=ZeYang_db
 
 # 安全設定
 JWT_SECRET=your-super-secret-jwt-key
@@ -547,7 +547,7 @@ ALLOWED_MIME_TYPES=image/jpeg,image/png,image/gif,image/webp
 # 郵件服務
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=noreply@estatehub.com
+SMTP_USER=noreply@ZeYang.com
 SMTP_PASS=email_password
 
 # 第三方服務
@@ -693,9 +693,9 @@ npm run docs:generate
 ## 聯絡資訊
 
 - 專案負責人: Hanfour
-- 技術支援: dev@estatehub.com
+- 技術支援: dev@ZeYang.com
 - 文件更新: 2024-01-20
 
 ---
 
-**注意**: 本文件為 EstateHub 系統的完整技術規格書，請妥善保管並定期更新。
+**注意**: 本文件為 ZeYang 系統的完整技術規格書，請妥善保管並定期更新。

@@ -1,4 +1,4 @@
--- EstateHub Database Schema
+-- ZeYang Database Schema
 -- Version: 1.0.0
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -201,11 +201,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- Insert default admin user (password: Admin123!)
 INSERT IGNORE INTO `users` (`username`, `email`, `password`, `role`) 
-VALUES ('admin', 'admin@estatehub.com', '$2a$10$YourHashedPasswordHere', 'admin');
+VALUES ('admin', 'admin@ZeYang.com', '$2a$10$YourHashedPasswordHere', 'admin');
 
 -- Insert default settings
 INSERT IGNORE INTO `settings` (`key`, `value`, `type`, `category`) VALUES
-('site_name', 'EstateHub', 'string', 'general'),
+('site_name', 'ZeYang', 'string', 'general'),
 ('items_per_page', '20', 'number', 'general'),
 ('enable_registration', 'true', 'boolean', 'auth'),
 ('max_upload_size', '268435456', 'number', 'upload');

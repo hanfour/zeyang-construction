@@ -1,4 +1,4 @@
-# BuildSight API 修復報告
+# ZeYang API 修復報告
 
 **修復日期**: 2025-07-24  
 **影響範圍**: 標籤管理 API、認證 API  

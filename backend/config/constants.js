@@ -70,8 +70,8 @@ module.exports = {
   // JWT
   JWT: {
     ALGORITHM: 'HS256',
-    ISSUER: 'EstateHub',
-    AUDIENCE: 'estatehub-users'
+    ISSUER: 'ZeYang',
+    AUDIENCE: 'ZeYang-users'
   },
 
   // Rate limiting

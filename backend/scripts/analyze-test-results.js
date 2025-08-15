@@ -6,7 +6,7 @@ const { execSync } = require('child_process');
 process.env.DB_HOST = '127.0.0.1';
 process.env.DB_USER = 'root';
 process.env.DB_PASSWORD = '123456';
-process.env.DB_NAME = 'estatehub_test';
+process.env.DB_NAME = 'ZeYang_test';
 
 console.log('📊 分析測試結果...\n');
 

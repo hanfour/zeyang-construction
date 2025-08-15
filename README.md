@@ -1,11 +1,11 @@
 <div align="center">
-  <img src="frontend/public/images/logo-full-brand.svg" alt="EstateHub Logo" width="300" height="100" />
+  <img src="frontend/public/images/logo-full-brand.svg" alt="ZeYang Logo" width="300" height="100" />
   
-  # EstateHub
-  ### 🏢 現代化房地產專案管理系統
+  # ZeYang
+  ### 澤暘品牌官網
   
   <p align="center">
-    一個功能完整、現代化的房地產專案展示與管理平台
+    提供完整企業資訊，讓潛在客戶能輕鬆查詢澤暘品牌的專業背景。
   </p>
 </div>
 
@@ -13,9 +13,8 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-green)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 
-## 🏢 專案簡介
-
-EstateHub 是一個現代化的房地產專案管理系統，提供完整的專案展示、管理和客戶關係管理解決方案。系統由 React + Node.js + MySQL 開發，具備現代化的用戶界面和強大的後台管理功能。
+## 澤暘建設簡介
+澤暘建設秉持「誠信築基、匠心營造」之核心精神，深耕台灣土地多年，以深厚的在地情感，精雕細琢每一建築細節，追求完美居住體驗。澤暘建設相信，好的住宅不僅是建築本身，更是生活價值的延伸與呈現。未來，我們將持續致力於創造符合現代人需求、兼具舒適與美感的生活空間，與每位住戶一同築夢未來。
 
 ### ✨ 核心特色
 
@@ -102,7 +101,7 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
-DB_NAME=estatehub
+DB_NAME=ZeYang
 
 # JWT 安全配置
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
@@ -135,7 +134,7 @@ VITE_API_BASE_URL=http://localhost:5000
 VITE_API_PREFIX=/api
 
 # 應用配置
-VITE_APP_NAME=EstateHub
+VITE_APP_NAME=ZeYang
 VITE_APP_VERSION=2.0.0
 ```
 
@@ -152,7 +151,7 @@ VITE_APP_VERSION=2.0.0
 mysql -u root -p < database/init.sql
 
 # 3. 載入範例資料（可選）
-mysql -u root -p estatehub < database/seeds/sample-data.sql
+mysql -u root -p ZeYang < database/seeds/sample-data.sql
 ```
 
 #### 使用腳本初始化
@@ -167,7 +166,7 @@ mysql -u root -p estatehub < database/seeds/sample-data.sql
 docker-compose up -d mysql
 
 # 等待資料庫啟動完成
-docker-compose exec mysql mysql -u root -p estatehub < database/init.sql
+docker-compose exec mysql mysql -u root -p ZeYang < database/init.sql
 ```
 
 ### 4️⃣ 啟動服務
@@ -394,7 +393,7 @@ npm run dev:frontend  # 啟動前端應用
 ./database/run-migration.sh
 
 # 執行特定遷移
-mysql -u root -p estatehub < database/migrations/your-migration.sql
+mysql -u root -p ZeYang < database/migrations/your-migration.sql
 
 # 重設資料庫（警告：會清空所有資料）
 npm run db:reset
@@ -447,8 +446,8 @@ npm run build
 npm start
 
 # Docker 構建
-docker build -t estatehub .
-docker run -p 5000:5000 estatehub
+docker build -t ZeYang .
+docker run -p 5000:5000 ZeYang
 
 # Docker Compose 部署
 docker-compose up -d
@@ -544,7 +543,7 @@ docker-compose up -d
 
 ## 📝 貢獻指南
 
-歡迎參與 EstateHub 專案的開發！請閱讀以下指南：
+歡迎參與 ZeYang 專案的開發！請閱讀以下指南：
 
 ### 提交 Issues
 如果您發現了 Bug 或有新功能建議，請在 GitHub Issues 中提交。
@@ -561,10 +560,10 @@ docker-compose up -d
 
 ## 📞 支持與聯絡
 
-- **技術支持**: [GitHub Issues](https://github.com/your-repo/estatehub/issues)
-- **功能建議**: [GitHub Discussions](https://github.com/your-repo/estatehub/discussions)
-- **安全問題**: security@estatehub.com
-- **商業合作**: business@estatehub.com
+- **技術支持**: [GitHub Issues](https://github.com/your-repo/ZeYang/issues)
+- **功能建議**: [GitHub Discussions](https://github.com/your-repo/ZeYang/discussions)
+- **安全問題**: security@ZeYang.com
+- **商業合作**: business@ZeYang.com
 
 ## 📜 相關文檔
 
@@ -591,6 +590,6 @@ docker-compose up -d
 ---
 
 <div align="center">
-  <p>🏢 <strong>EstateHub</strong> - 當代房地產專案管理解決方案</p>
+  <p>🏢 <strong>ZeYang</strong> - 當代房地產專案管理解決方案</p>
   <p>由 ❤️ 和 ☕ 在台灣製作</p>
 </div>

@@ -32,6 +32,9 @@ const AdminContacts: React.FC = () => {
   const [viewingContact, setViewingContact] = useState<Contact | null>(null);
   const [deleteConfirmIds, setDeleteConfirmIds] = useState<number[]>([]);
   const [notes, setNotes] = useState('');
+  const [replyingContact, setReplyingContact] = useState<Contact | null>(null);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [replyNotes, setReplyNotes] = useState('');
 
   useEffect(() => {
     const filters: ContactFilters = {
@@ -134,6 +137,52 @@ const AdminContacts: React.FC = () => {
       setViewingContact({ ...viewingContact, notes });
     } catch (error) {
       toast.error('更新備註失敗');
+    }
+  };
+
+  const handleReply = (contact: Contact) => {
+    setReplyingContact(contact);
+    setReplyMessage('');
+    setReplyNotes('');
+  };
+
+  const handleSendReply = async () => {
+    if (!replyingContact || !replyMessage.trim()) {
+      toast.error('請輸入回覆內容');
+      return;
+    }
+
+    try {
+      await contactService.replyToContact(replyingContact.id, {
+        message: replyMessage,
+        notes: replyNotes
+      });
+      
+      toast.success('回覆已發送');
+      
+      // Update the contact in the list
+      setContacts(contacts.map(c => 
+        c.id === replyingContact.id 
+          ? { ...c, is_replied: true, replied_at: new Date().toISOString(), notes: replyNotes || c.notes }
+          : c
+      ));
+      
+      // Update viewing contact if it's the same one
+      if (viewingContact?.id === replyingContact.id) {
+        setViewingContact({ 
+          ...viewingContact, 
+          is_replied: true, 
+          replied_at: new Date().toISOString(),
+          notes: replyNotes || viewingContact.notes
+        });
+      }
+      
+      setReplyingContact(null);
+      setReplyMessage('');
+      setReplyNotes('');
+    } catch (error) {
+      toast.error('發送回覆失敗');
+      console.error('Reply error:', error);
     }
   };
 
@@ -531,13 +580,22 @@ const AdminContacts: React.FC = () => {
                   聯絡表單詳情
                   <div className="flex items-center space-x-2">
                     {!viewingContact.is_replied && (
-                      <button
-                        onClick={() => handleMarkAsReplied(viewingContact.id)}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                      >
-                        <CheckCircleIcon className="h-4 w-4 mr-1" />
-                        標記已回覆
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleReply(viewingContact)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        >
+                          <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1" />
+                          回覆
+                        </button>
+                        <button
+                          onClick={() => handleMarkAsReplied(viewingContact.id)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                        >
+                          <CheckCircleIcon className="h-4 w-4 mr-1" />
+                          標記已回覆
+                        </button>
+                      </>
                     )}
                   </div>
                 </Dialog.Title>
@@ -648,6 +706,84 @@ const AdminContacts: React.FC = () => {
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                   >
                     關閉
+                  </button>
+                </div>
+              </div>
+            )}
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* Reply Modal */}
+      <Dialog open={!!replyingContact} onClose={() => setReplyingContact(null)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto max-w-2xl w-full bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+            {replyingContact && (
+              <div className="p-6">
+                <Dialog.Title className="text-lg font-medium text-gray-900 mb-4">
+                  回覆聯絡表單 - {replyingContact.name}
+                </Dialog.Title>
+                
+                <div className="space-y-4">
+                  {/* Original Message */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="text-sm font-medium text-gray-900 mb-2">原始訊息</h3>
+                    <div className="text-sm text-gray-700">
+                      <p><strong>來自:</strong> {replyingContact.name} ({replyingContact.email})</p>
+                      {replyingContact.subject && <p><strong>主旨:</strong> {replyingContact.subject}</p>}
+                      <div className="mt-2 p-3 bg-white border border-gray-200 rounded">
+                        <p className="whitespace-pre-wrap">{replyingContact.message}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Reply Message */}
+                  <div>
+                    <label htmlFor="reply-message" className="block text-sm font-medium text-gray-700 mb-2">
+                      回覆內容 <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      id="reply-message"
+                      value={replyMessage}
+                      onChange={(e) => setReplyMessage(e.target.value)}
+                      rows={8}
+                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      placeholder="請輸入您的回覆..."
+                      required
+                    />
+                  </div>
+
+                  {/* Notes */}
+                  <div>
+                    <label htmlFor="reply-notes" className="block text-sm font-medium text-gray-700 mb-2">
+                      內部備註
+                    </label>
+                    <textarea
+                      id="reply-notes"
+                      value={replyNotes}
+                      onChange={(e) => setReplyNotes(e.target.value)}
+                      rows={3}
+                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      placeholder="新增內部備註（選填）..."
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    onClick={() => setReplyingContact(null)}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={handleSendReply}
+                    disabled={!replyMessage.trim()}
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChatBubbleLeftRightIcon className="h-4 w-4 mr-2 inline" />
+                    發送回覆
                   </button>
                 </div>
               </div>

@@ -3,7 +3,7 @@
   "environment": {
     "nodeVersion": "v18.20.4",
     "platform": "darwin",
-    "testDatabase": "estatehub_test"
+    "testDatabase": "ZeYang_test"
   },
   "summary": {
     "totalTests": 106,

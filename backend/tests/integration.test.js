@@ -21,7 +21,7 @@ describe('API Integration Tests', () => {
         .get('/')
         .expect(200);
 
-      expect(response.body.message).toBe('EstateHub API Server');
+      expect(response.body.message).toBe('ZeYang API Server');
       expect(response.body.version).toBe('1.0.0');
     });
 
@@ -87,7 +87,7 @@ describe('Test Summary', () => {
     console.log('\n=== 測試環境資訊 ===');
     console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
     console.log(`測試端口: ${process.env.PORT || 3001}`);
-    console.log(`資料庫: ${process.env.DB_NAME || 'estatehub_test'}`);
+    console.log(`資料庫: ${process.env.DB_NAME || 'ZeYang_test'}`);
     console.log('==================\n');
     
     expect(process.env.NODE_ENV).toBe('test');

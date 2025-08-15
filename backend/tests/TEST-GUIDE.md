@@ -14,7 +14,7 @@ npm install
 ```bash
 # 1. 確保 MySQL 服務正在運行
 # 2. 創建測試資料庫
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS estatehub_test;"
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS ZeYang_test;"
 
 # 3. 複製並配置測試環境變數
 cp .env.test.example .env.test

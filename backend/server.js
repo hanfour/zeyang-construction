@@ -20,6 +20,7 @@ const adminRoutes = require('./routes/admin');
 const tagRoutes = require('./routes/tags');
 const statisticsRoutes = require('./routes/statistics');
 const systemRoutes = require('./routes/system');
+const settingsRoutes = require('./routes/settings');
 
 // Import services
 const logger = require('./utils/logger');
@@ -63,6 +64,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/system', systemRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Swagger Documentation
 if (process.env.ENABLE_SWAGGER === 'true') {
@@ -85,7 +87,7 @@ app.get('/health', (req, res) => {
 // Root route
 app.get('/', (req, res) => {
   res.json({
-    message: 'EstateHub API Server',
+    message: 'ZeYang API Server',
     version: '1.0.0',
     documentation: process.env.ENABLE_SWAGGER === 'true' ? '/api-docs' : null
   });

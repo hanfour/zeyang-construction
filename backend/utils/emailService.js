@@ -1,22 +1,68 @@
 const nodemailer = require('nodemailer');
 const logger = require('./logger');
 
-// Create transporter
-const createTransporter = () => {
-  const config = {
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_PORT === '465',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  };
+// Create transporter with dynamic config
+const createTransporter = async (customConfig = null) => {
+  let config;
   
-  // In development, use ethereal email for testing
-  if (process.env.NODE_ENV === 'development' && !process.env.SMTP_HOST) {
+  if (customConfig) {
+    // Use provided config (for testing SMTP settings)
+    config = {
+      host: customConfig.host,
+      port: customConfig.port || 587,
+      secure: customConfig.secure || false,
+      auth: {
+        user: customConfig.auth?.user || customConfig.username,
+        pass: customConfig.auth?.pass || customConfig.password
+      }
+    };
+  } else {
+    // Try to get SMTP config from database settings
+    try {
+      const SettingsService = require('../services/settingsService');
+      const smtpConfig = await SettingsService.getSmtpConfig();
+      
+      if (smtpConfig && smtpConfig.enabled) {
+        config = {
+          host: smtpConfig.host,
+          port: smtpConfig.port || 587,
+          secure: smtpConfig.secure || false,
+          auth: {
+            user: smtpConfig.username,
+            pass: smtpConfig.password
+          }
+        };
+      } else {
+        // Fallback to environment variables
+        config = {
+          host: process.env.SMTP_HOST,
+          port: parseInt(process.env.SMTP_PORT) || 587,
+          secure: process.env.SMTP_PORT === '465',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+          }
+        };
+      }
+    } catch (error) {
+      logger.warn('Failed to load SMTP settings from database, using environment variables:', error);
+      // Fallback to environment variables
+      config = {
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT) || 587,
+        secure: process.env.SMTP_PORT === '465',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS
+        }
+      };
+    }
+  }
+  
+  // In development, use ethereal email for testing if no SMTP configured
+  if (process.env.NODE_ENV === 'development' && !config.host) {
     logger.info('Using Ethereal Email for development');
-    return nodemailer.createTransport({
+    return nodemailer.createTransporter({
       host: 'smtp.ethereal.email',
       port: 587,
       auth: {
@@ -26,11 +72,59 @@ const createTransporter = () => {
     });
   }
   
-  return nodemailer.createTransport(config);
+  return nodemailer.createTransporter(config);
+};
+
+// Test SMTP connection
+const testSmtpConnection = async (config) => {
+  try {
+    const transporter = await createTransporter(config);
+    await transporter.verify();
+    
+    // Send a test email if requested
+    if (config.testEmail) {
+      const testMessage = {
+        from: `${config.fromName || 'ZeYang'} <${config.from}>`,
+        to: config.testEmail,
+        subject: 'SMTP Configuration Test - ZeYang',
+        html: `
+          <h2>SMTP Test Successful</h2>
+          <p>Your SMTP configuration is working correctly!</p>
+          <p>This test email was sent from ZeYang at ${new Date().toLocaleString()}.</p>
+          <p>Configuration details:</p>
+          <ul>
+            <li>Host: ${config.host}</li>
+            <li>Port: ${config.port}</li>
+            <li>Secure: ${config.secure ? 'Yes' : 'No'}</li>
+            <li>Username: ${config.auth?.user || config.username}</li>
+          </ul>
+        `
+      };
+      
+      const info = await transporter.sendMail(testMessage);
+      
+      return {
+        success: true,
+        message: 'SMTP connection verified and test email sent',
+        messageId: info.messageId
+      };
+    }
+    
+    return {
+      success: true,
+      message: 'SMTP connection verified successfully'
+    };
+  } catch (error) {
+    logger.error('SMTP connection test failed:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
 };
 
 // Email template wrapper
-const wrapEmailTemplate = (content, title = 'EstateHub') => {
+const wrapEmailTemplate = (content, title = 'ZeYang') => {
   return `
 <!DOCTYPE html>
 <html>
@@ -101,14 +195,14 @@ const wrapEmailTemplate = (content, title = 'EstateHub') => {
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">EstateHub</div>
+      <div class="logo">ZeYang</div>
     </div>
     <div class="content">
       ${content}
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} EstateHub. All rights reserved.</p>
-      <p>This email was sent from EstateHub system. Please do not reply to this email.</p>
+      <p>© ${new Date().getFullYear()} ZeYang. All rights reserved.</p>
+      <p>This email was sent from ZeYang system. Please do not reply to this email.</p>
     </div>
   </div>
 </body>
@@ -124,10 +218,23 @@ const sendEmail = async (options) => {
       logger.info('Skipping email send in test environment', { to: options.to, subject: options.subject });
       return { messageId: 'test-message-id', success: true };
     }
-    const transporter = createTransporter();
     
-    // Default from address
-    const from = options.from || `EstateHub <${process.env.SMTP_USER || 'noreply@estatehub.com'}>`;
+    const transporter = await createTransporter();
+    
+    // Get SMTP config for from address
+    let from = options.from;
+    if (!from) {
+      try {
+        const SettingsService = require('../services/settingsService');
+        const smtpConfig = await SettingsService.getSmtpConfig();
+        if (smtpConfig && smtpConfig.from) {
+          from = `${smtpConfig.fromName || 'ZeYang'} <${smtpConfig.from}>`;
+        }
+      } catch (error) {
+        // Fallback to environment or default
+        from = `ZeYang <${process.env.SMTP_USER || 'noreply@ZeYang.com'}>`;
+      }
+    }
     
     // Prepare email options
     const mailOptions = {
@@ -211,15 +318,15 @@ const sendBulkEmails = async (recipients, template, variables = {}) => {
 // Email templates
 const emailTemplates = {
   welcomeUser: {
-    subject: 'Welcome to EstateHub',
+    subject: 'Welcome to ZeYang',
     content: `
-      <h2>Welcome to EstateHub!</h2>
+      <h2>Welcome to ZeYang!</h2>
       <p>Dear {{name}},</p>
-      <p>Thank you for joining EstateHub. We're excited to have you as part of our community.</p>
+      <p>Thank you for joining ZeYang. We're excited to have you as part of our community.</p>
       <p>You can now access all our premium features and explore the best real estate projects.</p>
       <a href="{{loginUrl}}" class="button">Login to Your Account</a>
       <p>If you have any questions, please don't hesitate to contact us.</p>
-      <p>Best regards,<br>The EstateHub Team</p>
+      <p>Best regards,<br>The ZeYang Team</p>
     `
   },
   
@@ -232,7 +339,7 @@ const emailTemplates = {
       <a href="{{resetUrl}}" class="button">Reset Password</a>
       <p>This link will expire in 1 hour for security reasons.</p>
       <p>If you didn't request this password reset, please ignore this email.</p>
-      <p>Best regards,<br>The EstateHub Team</p>
+      <p>Best regards,<br>The ZeYang Team</p>
     `
   },
   
@@ -244,7 +351,7 @@ const emailTemplates = {
       <p>Thank you for your interest in <strong>{{projectName}}</strong>.</p>
       <p>Our team will review your inquiry and get back to you within 24 hours.</p>
       <p>In the meantime, feel free to browse our other projects or contact us directly if you have any urgent questions.</p>
-      <p>Best regards,<br>The EstateHub Team</p>
+      <p>Best regards,<br>The ZeYang Team</p>
     `
   }
 };
@@ -252,6 +359,7 @@ const emailTemplates = {
 module.exports = {
   sendEmail,
   sendBulkEmails,
+  testSmtpConnection,
   emailTemplates,
   wrapEmailTemplate
 };

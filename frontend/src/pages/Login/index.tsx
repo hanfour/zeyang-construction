@@ -38,7 +38,7 @@ const LoginPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>登入 - EstateHub</title>
+        <title>登入 - ZeYang</title>
       </Helmet>
       
       <div className="min-h-screen flex">

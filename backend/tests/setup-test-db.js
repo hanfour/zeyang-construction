@@ -25,12 +25,12 @@ async function setupTestDatabase() {
 
     // Create test database if not exists
     await connection.execute(
-      `CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'estatehub_test'}`
+      `CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'ZeYang_test'}`
     );
     console.log(`Database ${process.env.DB_NAME} created or already exists`);
 
     // Use the test database
-    await connection.execute(`USE ${process.env.DB_NAME || 'estatehub_test'}`);
+    await connection.execute(`USE ${process.env.DB_NAME || 'ZeYang_test'}`);
 
     // Read and execute schema file
     const schemaPath = path.join(__dirname, '../database/schema.sql');

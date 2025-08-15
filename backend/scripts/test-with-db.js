@@ -18,7 +18,7 @@ const TEST_DB_CONFIG = {
   host: process.env.DB_HOST || '127.0.0.1', // 使用 IPv4 而非 localhost
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: 'estatehub_test',
+  database: 'ZeYang_test',
   multipleStatements: true,
   port: process.env.DB_PORT || 3306
 };
@@ -38,11 +38,11 @@ async function setupTestDatabase() {
     });
     
     // 創建測試資料庫
-    await connection.execute('CREATE DATABASE IF NOT EXISTS estatehub_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+    await connection.execute('CREATE DATABASE IF NOT EXISTS ZeYang_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
     console.log('✅ 資料庫創建成功');
     
     // 切換到測試資料庫
-    await connection.changeUser({ database: 'estatehub_test' });
+    await connection.changeUser({ database: 'ZeYang_test' });
     
     // 讀取並執行 schema
     const schemaPath = path.join(__dirname, '../database/schema.sql');
@@ -85,7 +85,7 @@ async function runTests() {
   try {
     // 設置環境變數
     process.env.NODE_ENV = 'test';
-    process.env.DB_NAME = 'estatehub_test';
+    process.env.DB_NAME = 'ZeYang_test';
     
     // 運行測試
     execSync('npm test', { 
@@ -107,7 +107,7 @@ async function generateReport() {
   try {
     // 運行測試並輸出 JSON 報告
     execSync('npm test -- --json --outputFile=test-report.json', {
-      env: { ...process.env, NODE_ENV: 'test', DB_NAME: 'estatehub_test' }
+      env: { ...process.env, NODE_ENV: 'test', DB_NAME: 'ZeYang_test' }
     });
     
     // 讀取報告
@@ -139,7 +139,7 @@ async function generateReport() {
 
 // 主函數
 async function main() {
-  console.log('🚀 BuildSight 自動化測試\n');
+  console.log('🚀 ZeYang 自動化測試\n');
   
   try {
     // 1. 檢查 MySQL 連接
