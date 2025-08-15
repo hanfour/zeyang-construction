@@ -9,8 +9,55 @@ const storage = {
   project_images: [],
   project_tags: [],
   tags: [],
-  contacts: []
+  contacts: [],
+  settings: []
 };
+
+// Initialize some default data for testing
+const initializeTestData = () => {
+  // Add default admin user if not exists
+  if (storage.users.length === 0) {
+    storage.users.push({
+      id: 1,
+      username: 'testadmin',
+      email: 'test@ZeYang.com',
+      password: '$2a$10$YourHashedPasswordHere',
+      role: 'admin',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
+    
+    storage.users.push({
+      id: 2,
+      username: 'testeditor',
+      email: 'editor@ZeYang.com',
+      password: '$2a$10$YourHashedPasswordHere',
+      role: 'editor',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
+  }
+
+  // Add default settings if not exists
+  if (storage.settings.length === 0) {
+    storage.settings.push(
+      { key: 'site_name', value: 'ZeYang', type: 'string', category: 'general' },
+      { key: 'items_per_page', value: '20', type: 'number', category: 'general' },
+      { key: 'enable_registration', value: 'true', type: 'boolean', category: 'auth' },
+      { key: 'max_upload_size', value: '268435456', type: 'number', category: 'upload' },
+      { key: 'smtp_enabled', value: 'false', type: 'boolean', category: 'email' },
+      { key: 'smtp_host', value: '', type: 'string', category: 'email' },
+      { key: 'smtp_port', value: '587', type: 'number', category: 'email' },
+      { key: 'smtp_from_email', value: '', type: 'string', category: 'email' },
+      { key: 'admin_notification_emails', value: '', type: 'string', category: 'email' }
+    );
+  }
+};
+
+// Initialize test data
+initializeTestData();
 
 // Mock pool
 const mockPool = {
@@ -148,16 +195,23 @@ function handleSelect(sql, params) {
   if (sqlLower.includes('from users')) {
     let results = [...storage.users];
     
-    if (sqlLower.includes('where username = ?')) {
+    if (sqlLower.includes('where username = ?') && !sqlLower.includes('or email')) {
       results = results.filter(u => u.username === params[0]);
+    } else if (sqlLower.includes('where (username = ? or email = ?)')) {
+      const loginIdentifier = params[0];
+      results = results.filter(u => u.username === loginIdentifier || u.email === loginIdentifier);
+    } else if (sqlLower.includes('where email = ?')) {
+      results = results.filter(u => u.email === params[0]);
     }
     
-    if (sqlLower.includes('where (username = ? or email = ?)')) {
-      results = results.filter(u => u.username === params[0] || u.email === params[0]);
-    }
-    
-    if (sqlLower.includes('and is_active = true')) {
+    if (sqlLower.includes('and is_active = true') || sqlLower.includes('and is_active = 1')) {
       results = results.filter(u => u.is_active === 1 || u.is_active === true);
+    } else if (sqlLower.includes('where') && sqlLower.includes('is_active')) {
+      // Handle direct is_active check
+      const isActiveValue = params.find(p => p === 1 || p === true || p === 0 || p === false);
+      if (isActiveValue !== undefined) {
+        results = results.filter(u => u.is_active === isActiveValue);
+      }
     }
     
     return [results];
@@ -239,6 +293,21 @@ function handleSelect(sql, params) {
         const offset = offsetMatch ? parseInt(offsetMatch[1]) : 0;
         results = results.slice(offset, offset + limit);
       }
+    }
+    
+    return [results];
+  }
+  
+  // Handle settings queries
+  if (sqlLower.includes('from settings')) {
+    let results = [...storage.settings];
+    
+    if (sqlLower.includes('where `key` = ?')) {
+      results = results.filter(s => s.key === params[0]);
+    }
+    
+    if (sqlLower.includes('where category = ?')) {
+      results = results.filter(s => s.category === params[0]);
     }
     
     return [results];
@@ -365,20 +434,59 @@ function handleInsert(sql, params) {
       id: storage.contacts.length + 1,
       name: params[0],
       email: params[1],
-      phone: params[2],
-      subject: params[3],
-      message: params[4],
-      project_id: params[5],
-      ip_address: params[6],
-      user_agent: params[7],
-      is_read: 0,
-      created_at: new Date()
+      phone: params[2] || null,
+      company: params[3] || null,
+      subject: params[4] || null,
+      message: params[5],
+      source: params[6] || 'website',
+      is_read: false,
+      is_replied: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
     
     storage.contacts.push(contact);
     
     return [{
       insertId: contact.id,
+      affectedRows: 1
+    }];
+  }
+  
+  if (sqlLower.includes('into settings')) {
+    const setting = {
+      key: params[0],
+      value: params[1],
+      type: params[2] || 'string',
+      category: params[3] || null,
+      description: params[4] || null,
+      updated_at: new Date().toISOString()
+    };
+    
+    storage.settings.push(setting);
+    
+    return [{
+      affectedRows: 1
+    }];
+  }
+  
+  if (sqlLower.includes('into users')) {
+    const user = {
+      id: storage.users.length + 1,
+      username: params[0],
+      email: params[1],
+      password: params[2],
+      role: params[3] || 'user',
+      is_active: params[4] !== undefined ? params[4] : 1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      last_login_at: null
+    };
+    
+    storage.users.push(user);
+    
+    return [{
+      insertId: user.id,
       affectedRows: 1
     }];
   }
@@ -422,6 +530,32 @@ function handleUpdate(sql, params) {
         // Update fields based on SET clause
         if (sqlLower.includes('is_read')) {
           contact.is_read = params[0];
+        }
+        if (sqlLower.includes('is_replied')) {
+          contact.is_replied = params[0];
+        }
+        if (sqlLower.includes('notes')) {
+          contact.notes = params[0];
+        }
+        contact.updated_at = new Date().toISOString();
+        
+        return [{ affectedRows: 1 }];
+      }
+    }
+  }
+  
+  if (sqlLower.includes('settings set')) {
+    // Find setting by key
+    const whereMatch = sqlLower.match(/where\s+`?key`?\s*=\s*\?/);
+    if (whereMatch) {
+      const key = params[params.length - 1];
+      const setting = storage.settings.find(s => s.key === key);
+      
+      if (setting) {
+        // Update value
+        if (sqlLower.includes('value')) {
+          setting.value = params[0];
+          setting.updated_at = new Date().toISOString();
         }
         
         return [{ affectedRows: 1 }];
@@ -528,8 +662,8 @@ function clearStorage() {
 
 // Initialize with default test users
 function initializeTestUsers() {
-  const bcrypt = require('bcryptjs');
-  const hashedPassword = bcrypt.hashSync('Test123!', 10);
+  // Use pre-hashed password for testing (Test123!)
+  const hashedPassword = '$2a$10$N9qo8uLOickgx2ZMRZoMye1qm8VJ5VK9K8QJzLjKLCEqAoONEK.2u';
   
   storage.users = [
     {
@@ -539,8 +673,9 @@ function initializeTestUsers() {
       password: hashedPassword,
       role: 'admin',
       is_active: 1,
-      created_at: new Date(),
-      updated_at: new Date()
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      last_login_at: null
     },
     {
       id: 2,
@@ -549,8 +684,9 @@ function initializeTestUsers() {
       password: hashedPassword,
       role: 'editor',
       is_active: 1,
-      created_at: new Date(),
-      updated_at: new Date()
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      last_login_at: null
     },
     {
       id: 3,
@@ -559,8 +695,9 @@ function initializeTestUsers() {
       password: hashedPassword,
       role: 'viewer',
       is_active: 1,
-      created_at: new Date(),
-      updated_at: new Date()
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      last_login_at: null
     }
   ];
 }
