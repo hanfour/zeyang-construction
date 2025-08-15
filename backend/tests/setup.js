@@ -2,12 +2,13 @@
 const dotenv = require('dotenv');
 
 // Load test environment variables
-dotenv.config({ path: '.env.test' });
+dotenv.config({ path: '.env.test-mock' });
 
 // Set test environment
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = 'test-mock';
+process.env.USE_MOCK_DB = 'true';
 process.env.DB_HOST = '127.0.0.1';
-process.env.DB_NAME = 'estatehub_test';
+process.env.DB_NAME = 'ZeYang_test';
 process.env.JWT_SECRET = 'test-secret-key';
 
 // Comment out mocks to use real database

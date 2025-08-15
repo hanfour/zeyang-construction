@@ -265,7 +265,7 @@ const HotProjects: React.FC = () => {
             {/* 主標題 - 直式文字 */}
             <h2 
               ref={titleRef}
-              className="text-2xl lg:text-4xl font-bold text-gray-900"
+              className="text-main-title-mobile lg:text-main-title-desktop font-bold text-gray-900"
               style={{ 
                 writingMode: 'vertical-rl',
                 letterSpacing: '0.1em'
@@ -277,7 +277,7 @@ const HotProjects: React.FC = () => {
             {/* 副標題 - 手機版直式 */}
             <p 
               ref={subtitleRef}
-              className="text-sm lg:text-base text-gray-600 max-w-[200px] lg:max-w-none"
+              className="text-content-mobile lg:text-content-desktop text-gray-600 max-w-[200px] lg:max-w-none"
               style={{ 
                 writingMode: 'vertical-rl',
                 letterSpacing: '0.05em',
@@ -371,7 +371,7 @@ const HotProjects: React.FC = () => {
                       {/* 專案資訊覆蓋層 - 隱藏 */}
                       {/* <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-8">
                         <h3 className="text-white text-2xl lg:text-3xl font-bold mb-2">{project.title}</h3>
-                        <p className="text-white/90 text-sm lg:text-base">{project.description}</p>
+                        <p className="text-white/90 text-content-mobile lg:text-content-desktop">{project.description}</p>
                       </div> */}
                     </div>
                   </div>
@@ -412,19 +412,29 @@ const HotProjects: React.FC = () => {
 
           {/* MORE 按鈕 - 只在主要 slider 左下角顯示 */}
           <div ref={moreButtonRef} className="absolute -bottom-4 left-8 z-20">
-            <div className="bg-primary-more text-white p-4 shadow-lg">
-              <div className="text-center mb-2">
-                <div className="text-xs lg:text-sm font-bold tracking-widest">MORE</div>
-              </div>
-              <div className="text-center">
-                <div className="text-sm lg:text-base font-bold min-w-[8.25em] tracking-wider">
-                  {!isLoading && projects[currentSlideIndex % projects.length]?.title}
+            <button 
+              onClick={() => {
+                const currentProject = projects[currentSlideIndex % projects.length];
+                if (currentProject) {
+                  window.location.href = `/projects#project-${currentProject.id}`;
+                }
+              }}
+              className="block hover:scale-105 transition-transform duration-300"
+            >
+              <div className="bg-primary-more text-white p-4 shadow-lg">
+                <div className="text-center mb-2">
+                  <div className="text-xs lg:text-sm font-bold tracking-widest">MORE</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-content-mobile lg:text-content-desktop font-bold min-w-[8.25em] tracking-wider">
+                    {!isLoading && projects[currentSlideIndex % projects.length]?.title}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="w-full absolute top-[50%] -translate-y-full -left-2 flex justify-center items-center">
-              <img src="/images/icons/icons_more_arrow.png" alt="" />
-            </div>
+              <div className="w-full absolute top-[50%] -translate-y-full -left-2 flex justify-center items-center">
+                <img src="/images/icons/icons_more_arrow.png" alt="" />
+              </div>
+            </button>
           </div>
 
           {/* 自定義分頁指示器 */}

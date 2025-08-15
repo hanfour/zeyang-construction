@@ -232,6 +232,27 @@ class ContactService {
     }
   }
   
+  // Update contact notes
+  static async updateNotes(id, notes) {
+    try {
+      const result = await query(
+        'UPDATE contacts SET notes = ? WHERE id = ?',
+        [notes, id]
+      );
+      
+      if (result.affectedRows === 0) {
+        throw new Error('Contact not found');
+      }
+      
+      logger.info('Contact notes updated', { contactId: id });
+      
+      return { success: true };
+    } catch (error) {
+      logger.error('Error updating contact notes:', error);
+      throw error;
+    }
+  }
+
   // Delete contact
   static async deleteContact(id) {
     try {

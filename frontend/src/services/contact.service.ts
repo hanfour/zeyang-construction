@@ -1,5 +1,5 @@
 import api from './api';
-import { Contact, ContactFilters, PaginatedResponse, ApiResponse } from '@/types';
+import { Contact, ContactFilters, PaginatedResponse, ApiResponse, ContactFormData } from '@/types';
 
 class ContactService {
   async getContacts(filters?: ContactFilters): Promise<ApiResponse<PaginatedResponse<Contact>>> {
@@ -16,20 +16,24 @@ class ContactService {
     return api.get<PaginatedResponse<Contact>>(`/contacts?${params.toString()}`);
   }
 
+  async createContact(data: ContactFormData): Promise<ApiResponse<{ contact: Contact }>> {
+    return api.post<{ contact: Contact }>('/contacts', data);
+  }
+
   async getContact(id: number): Promise<ApiResponse<{ contact: Contact }>> {
     return api.get<{ contact: Contact }>(`/contacts/${id}`);
   }
 
   async markAsRead(id: number): Promise<ApiResponse> {
-    return api.patch(`/contacts/${id}/read`);
+    return api.put(`/contacts/${id}/read`);
   }
 
-  async markAsReplied(id: number): Promise<ApiResponse> {
-    return api.patch(`/contacts/${id}/replied`);
+  async replyToContact(id: number, message: string, notes?: string): Promise<ApiResponse> {
+    return api.put(`/contacts/${id}/reply`, { message, notes });
   }
 
   async updateNotes(id: number, notes: string): Promise<ApiResponse> {
-    return api.patch(`/contacts/${id}/notes`, { notes });
+    return api.put(`/contacts/${id}/notes`, { notes });
   }
 
   async deleteContact(id: number): Promise<ApiResponse> {
@@ -37,11 +41,11 @@ class ContactService {
   }
 
   async bulkMarkAsRead(ids: number[]): Promise<ApiResponse> {
-    return api.post('/contacts/bulk/read', { ids });
+    return api.put('/contacts/bulk-read', { ids });
   }
 
   async bulkDelete(ids: number[]): Promise<ApiResponse> {
-    return api.post('/contacts/bulk/delete', { ids });
+    return api.post('/contacts/bulk-delete', { ids });
   }
 
   async exportContacts(filters?: ContactFilters): Promise<Blob> {

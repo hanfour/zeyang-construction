@@ -179,6 +179,25 @@ router.put('/:id/reply',
   })
 );
 
+// Update contact notes (admin only)
+router.put('/:id/notes', 
+  authenticate, 
+  authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
+  [
+    param('id').isInt().withMessage('Invalid contact ID'),
+    body('notes').notEmpty().withMessage('Notes are required').trim(),
+    handleValidationErrors
+  ],
+  asyncHandler(async (req, res) => {
+    await ContactService.updateNotes(parseInt(req.params.id), req.body.notes);
+    
+    res.json({
+      success: true,
+      message: 'Notes updated successfully'
+    });
+  })
+);
+
 // Delete contact (admin only)
 router.delete('/:id', 
   authenticate, 

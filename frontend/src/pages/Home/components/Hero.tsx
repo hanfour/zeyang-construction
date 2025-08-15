@@ -98,10 +98,10 @@ const Hero: React.FC = () => {
                     willChange: 'transform',
                   }}
                 >
-                  <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light tracking-[4px] sm:tracking-[6px] md:tracking-[8px] lg:tracking-[10px] mb-4 sm:mb-6 md:mb-8 drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
+                  <h1 className="text-main-title-mobile lg:text-main-title-desktop font-light tracking-[4px] sm:tracking-[6px] md:tracking-[8px] lg:tracking-[10px] mb-4 sm:mb-6 md:mb-8 drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
                     澤暘建設
                   </h1>
-                  <p className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-[3px] sm:tracking-[4px] md:tracking-[6px] lg:tracking-[8px] opacity-90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
+                  <p className="text-main-large-title-mobile lg:text-main-large-title-desktop  font-bold tracking-[3px] sm:tracking-[4px] md:tracking-[6px] lg:tracking-[8px] opacity-90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
                     誠信築基・匠心營造
                   </p>
                 </div>

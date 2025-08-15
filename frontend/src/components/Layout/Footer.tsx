@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
             <div className="flex-1 space-y-4 lg:space-y-6">
               {/* Links */}
               <div className='flex justify-center lg:justify-end mb-6 lg:mb-32'>
-                <div className="flex flex-wrap gap-1 sm:gap-6 lg:gap-8 items-center text-sm lg:text-base justify-center lg:justify-end">
+                <div className="flex flex-wrap gap-1 sm:gap-6 lg:gap-8 items-center text-content-mobile lg:text-content-desktop justify-center lg:justify-end">
                   <Link to="/about" className="text-neutral-600 hover:text-primary transition-colors">
                     關於澤暘
                   </Link>
@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
               </div>
 
               {/* Phone */}
-              <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-neutral-600 text-center lg:text-right">
+              <div className="text-main-title-mobile lg:text-main-title-desktop font-black text-neutral-600 text-center lg:text-right">
                 <p className="relative inline-block">
                   02-2736-8955
                   <span className="absolute bottom-1 left-0 w-full h-[0.3em] bg-[#c8a063]"></span>
@@ -57,7 +57,7 @@ const Footer: React.FC = () => {
               </div>
 
               {/* Address */}
-              <div className="text-sm lg:text-base text-neutral-600 text-center lg:text-right">
+              <div className="text-content-mobile lg:text-content-desktop text-neutral-600 text-center lg:text-right">
                 <p>台北市大安區安和路二段213號3樓之2</p>
               </div>
 
@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
 
             {/* Vertical Text */}
             <div className="hidden lg:flex flex-col items-center">
-              <div className="text-2xl font-bold text-neutral-700" style={{writingMode: 'vertical-rl', textOrientation: 'mixed', letterSpacing: '0.4em'}}>
+              <div className="text-main-title-mobile lg:text-main-title-desktop font-semibold text-neutral-700" style={{writingMode: 'vertical-rl', textOrientation: 'mixed', letterSpacing: '0.4em'}}>
                 與我們聯繫
               </div>
             </div>

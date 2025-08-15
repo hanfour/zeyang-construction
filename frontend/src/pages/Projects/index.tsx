@@ -1,9 +1,218 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import projectService from '@/services/project.service';
 import { Project } from '@/types';
 import { getImageUrl } from '@/utils/image';
 import MenuButton from '@/components/Layout/MenuButton';
 import NavigationMenu from '@/components/Layout/NavigationMenu';
+import PageBanner from '@/components/Layout/PageBanner';
+import CustomCarousel from '@/components/Carousel/CustomCarousel';
+import { useInView } from 'react-intersection-observer';
+
+// Simple Project Card Component
+const ProjectCard: React.FC<{ 
+  project: Project; 
+  projectDetails: Record<string, Project>;
+  loadingDetails: Set<string>;
+  loadProjectDetails: (uuid: string) => void;
+  isReversed?: boolean;
+}> = React.memo(({ project, projectDetails, loadingDetails, loadProjectDetails, isReversed = false }) => {
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+    rootMargin: '100px 0px',
+  });
+
+  // Load details when in view
+  useEffect(() => {
+    if (inView) {
+      loadProjectDetails(project.uuid);
+    }
+  }, [inView, project.uuid, loadProjectDetails]);
+
+  // Get project data (detailed or basic)
+  const detailedProject = projectDetails[project.uuid];
+  const currentProject = detailedProject || project;
+  const isLoadingMore = loadingDetails.has(project.uuid);
+  
+  // Memoize all available images to prevent recalculation
+  const allImages = useMemo(() => {
+    const images = [];
+    if (currentProject.main_image) {
+      images.push(currentProject.main_image);
+    }
+    if (currentProject.images) {
+      images.push(...currentProject.images);
+    }
+    return images;
+  }, [currentProject.main_image, currentProject.images]);
+
+  return (
+    <div ref={ref} className="group" id={`project-${project.uuid}`}>
+      <div className={`bg-white overflow-hidden duration-300 flex flex-col ${isReversed ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}>
+        {/* Image Section */}
+        {allImages.length > 0 && (
+          <div className={`order-first ${isReversed ? 'lg:order-first' : 'lg:order-last'} relative w-full lg:w-7/12`}>
+            {allImages.length === 1 ? (
+              // Single image display
+              <div className="aspect-[4/3] overflow-hidden">
+                <img 
+                  src={getImageUrl(allImages[0].file_path)} 
+                  alt={`${project.title} 圖片`}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+            ) : (
+              // Multi-image custom carousel
+              <>
+                {/* Mobile: Simple carousel */}
+                <div className="lg:hidden">
+                  <CustomCarousel
+                    images={allImages.map(img => ({
+                      file_path: getImageUrl(img.file_path),
+                      alt: `${project.title} 圖片`
+                    }))}
+                    config={{
+                      container: { 
+                        aspectRatio: '3/4',
+                        alignItems: 'start'
+                      },
+                      activeSlide: { 
+                        aspectRatio: '3/4',
+                        width: '100%'
+                      },
+                      nextSlide: { 
+                        aspectRatio: '3/4',
+                        width: '0%'
+                      },
+                      autoHeight: false,
+                      showNavigation: true,
+                      showPagination: true,
+                      transitionDuration: 300
+                    }}
+                  />
+                </div>
+
+                {/* Desktop: Custom carousel showing current slide + next slide preview */}
+                <div className="hidden lg:block">
+                  <CustomCarousel
+                    images={allImages.map(img => ({
+                      file_path: getImageUrl(img.file_path),
+                      alt: `${project.title} 圖片`
+                    }))}
+                    config={{
+                      container: { 
+                        aspectRatio: '3/4',
+                        alignItems: 'start',
+                        justifyContent: 'between'
+                      },
+                      activeSlide: { 
+                        aspectRatio: '3/4',
+                        width: '7/12'
+                      },
+                      nextSlide: { 
+                        aspectRatio: '3/4',
+                        width: '5/12',
+                        scale: 1
+                      },
+                      autoHeight: false,
+                      showNavigation: false,
+                      showPagination: false,
+                      transitionDuration: 800,
+                      autoPlay: true,
+                      autoPlayInterval: 5000
+                    }}
+                  />
+                </div>
+              </>
+            )}
+            
+            {/* Loading indicator */}
+            {isLoadingMore && (
+              <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded z-20">
+                載入更多圖片...
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Project Info */}
+        <div className="pt-8 lg:p-6 flex-1 flex flex-col justify-end">
+          <div className="mb-4 flex items-end justify-start space-x-8">
+            <h4 className="text-main-title-mobile lg:text-main-title-desktop font-bold text-gray-900 tracking-[0.25em]">
+              {project.title}
+            </h4>
+            <div className="text-sub-title-mobile lg:text-sub-title-desktop text-primary-more font-medium">
+              / {project.year || '---'}
+            </div>
+          </div>
+          
+          {/* Project Details */}
+          <div className="space-y-3 text-content-mobile lg:text-content-desktop">
+            {/* Basic Project Information */}
+            {project.base_address && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">基地位置</span>
+                <span className="font-medium">{project.base_address}</span>
+              </div>
+            )}
+            {project.area && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">基地面積</span>
+                <span className="font-medium">{project.area}</span>
+              </div>
+            )}
+            {project.unit_count && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">總戶數</span>
+                <span className="font-medium">{project.unit_count} 戶</span>
+              </div>
+            )}
+            {project.floor_plan_info && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">格局資訊</span>
+                <span className="font-medium">{project.floor_plan_info}</span>
+              </div>
+            )}
+            {project.booking_phone && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">預約專線</span>
+                <span className="font-medium">{project.booking_phone}</span>
+              </div>
+            )}
+            
+            {/* Status Display */}
+            {project.status && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">專案狀態</span>
+                <span className="font-medium">
+                  {project.status === 'planning' && '規劃中'}
+                  {project.status === 'pre_sale' && '預售'}
+                  {project.status === 'on_sale' && '銷售中'}
+                  {project.status === 'sold_out' && '完銷'}
+                  {project.status === 'completed' && '完工'}
+                </span>
+              </div>
+            )}
+
+            {/* Custom Fields */}
+            {currentProject.custom_fields && currentProject.custom_fields.length > 0 && (
+              <>
+                {currentProject.custom_fields.map((field, index) => (
+                  field.value && (
+                    <div key={index} className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                      <span className="w-[6.25em]">{field.label}</span>
+                      <span className="font-medium">{field.value}</span>
+                    </div>
+                  )
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 const ProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -11,11 +220,47 @@ const ProjectsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  
+  // Simplified lazy loading states
+  const [projectDetails, setProjectDetails] = useState<Record<string, Project>>({});
+  const [loadingDetails, setLoadingDetails] = useState<Set<string>>(new Set());
 
-  const BANNER_HEIGHT = 288; // h-72 = 288px
+  const BANNER_HEIGHT = 288;
 
   useEffect(() => {
-    loadProjects();
+    // Prevent multiple calls during development strict mode
+    let mounted = true;
+    
+    const loadData = async () => {
+      if (mounted) {
+        await loadProjects();
+      }
+    };
+    
+    loadData();
+    
+    // Check if there's a project UUID in the URL hash and scroll to it
+    const handleHashScroll = () => {
+      const hash = window.location.hash;
+      if (hash && hash.startsWith('#project-')) {
+        const projectId = hash.replace('#project-', '');
+        setTimeout(() => {
+          const element = document.getElementById(`project-${projectId}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 1000); // Wait for projects to load
+      }
+    };
+
+    // Check hash on mount and when hash changes
+    handleHashScroll();
+    window.addEventListener('hashchange', handleHashScroll);
+    
+    return () => {
+      mounted = false;
+      window.removeEventListener('hashchange', handleHashScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -25,7 +270,7 @@ const ProjectsPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const loadProjects = async () => {
+  const loadProjects = async (retryCount = 0) => {
     try {
       setLoading(true);
       const response = await projectService.getProjects();
@@ -36,13 +281,60 @@ const ProjectsPage: React.FC = () => {
       } else {
         setError('專案列表載入失敗');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load projects:', err);
-      setError('載入專案時發生錯誤');
+      
+      // Handle rate limiting with retry
+      if (err.response?.status === 429 && retryCount < 2) {
+        console.log(`Rate limited, retrying in ${(retryCount + 1) * 5} seconds...`);
+        setError(`請求過於頻繁，${(retryCount + 1) * 5} 秒後重試...`);
+        
+        setTimeout(() => {
+          loadProjects(retryCount + 1);
+        }, (retryCount + 1) * 5000);
+        return;
+      }
+      
+      if (err.response?.status === 429) {
+        setError('請求過於頻繁，請稍後再試');
+      } else {
+        setError('載入專案時發生錯誤');
+      }
     } finally {
-      setLoading(false);
+      if (!error || !error.includes('重試')) {
+        setLoading(false);
+      }
     }
   };
+
+  // Simplified lazy loading function
+  const loadProjectDetails = useCallback(async (projectUuid: string) => {
+    // Skip if already loaded or loading
+    if (projectDetails[projectUuid] || loadingDetails.has(projectUuid)) {
+      return;
+    }
+
+    try {
+      setLoadingDetails(prev => new Set(prev).add(projectUuid));
+      
+      const response = await projectService.getProject(projectUuid);
+      
+      if (response.success && response.data?.project) {
+        setProjectDetails(prev => ({
+          ...prev,
+          [projectUuid]: response.data!.project
+        }));
+      }
+    } catch (err) {
+      console.error(`Failed to load details for project ${projectUuid}:`, err);
+    } finally {
+      setLoadingDetails(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(projectUuid);
+        return newSet;
+      });
+    }
+  }, [projectDetails, loadingDetails]);
 
   if (loading) {
     return (
@@ -52,45 +344,39 @@ const ProjectsPage: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error && !error.includes('重試')) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-red-600">{error}</div>
+        <div className="text-center">
+          <div className="text-lg text-red-600 mb-4">{error}</div>
+          <button 
+            onClick={() => loadProjects(0)}
+            className="px-4 py-2 bg-[#D19B4C] text-white rounded hover:bg-[#C18B3C] transition-colors"
+          >
+            重新載入
+          </button>
+        </div>
       </div>
     );
   }
 
+  const bannerConfig = {
+    logoSection: {
+      iconSrc: "/images/logo-icon-brand.svg",
+      iconAlt: "澤暘建設",
+      subtitle: "CLASSIC PROJECTS",
+      title: "澤暘作品"
+    },
+    centralContent: {
+      text: "澤暘建築雕琢的不只是生活\n更是一座城市的文化居所，是美學與工藝的時代之作"
+    },
+    backgroundImage: "/images/project/top-bn-project.jpg"
+  };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={{ touchAction: 'pan-y' }}>
       {/* Top Banner Section */}
-      <section 
-        className="relative h-72 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('/images/project/top-bn-project.jpg')"
-        }}
-      >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-        
-        {/* Header */}
-        <div className="relative z-20 p-4 lg:p-12">
-          {/* Logo Section */}
-          <div className="mb-8">
-            <div className="flex items-center">
-              <img 
-                src="/images/logo-icon-brand.svg" 
-                alt="澤暘建設" 
-                className="h-10 w-auto mr-4 filter brightness-0 invert"
-              />
-              <div>
-                <p className="text-white text-sm tracking-wider">CLASSIC PROJECTS</p>
-                <h1 className="text-white text-sm tracking-wider">澤暘作品</h1>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <PageBanner config={bannerConfig}>
         {/* Menu Button */}
         <MenuButton 
           isOpen={isMenuOpen} 
@@ -103,109 +389,29 @@ const ProjectsPage: React.FC = () => {
           isOpen={isMenuOpen} 
           onClose={() => setIsMenuOpen(false)} 
         />
-        
-        {/* Central Content */}
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="text-center text-white px-4">
-            <p className="text-content-mobile lg:text-content-desktop leading-relaxed font-noraml tracking-wide">
-              澤暘建築雕琢的不只是生活<br/>更是一座城市的文化居所，是美學與工藝的時代之作 
-            </p>
-          </div>
-        </div>
-      </section>
+      </PageBanner>
 
       {/* Projects List Section */}
       <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 lg:px-12">
+        <div className="container mx-auto px-4 lg:px-12 relative">
           {/* Section Title */}
-          <div className="mb-16 text-left">
+          <div className="text-left relative lg:absolute top-0 left-0 pl-4 lg:pl-12 z-20 mb-16 lg:mb-0">
             <h2 className="text-gray-400 text-main-large-title-mobile lg:text-main-large-title-desktop font-thin">#PROJECTS</h2>
           </div>
 
           {/* Projects Grid */}
           {projects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
-              {projects.map((project) => {
-                const galleryImages = project.images?.filter(img => img.image_type !== 'main') || [];
-                const leftImage = galleryImages[0];
-                const rightImage = galleryImages[1];
-                
-                return (
-                  <div key={project.uuid} className="group">
-                    {/* Project Card */}
-                    <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                      {/* Main Image */}
-                      {project.main_image && (
-                        <div className="aspect-[4/3] overflow-hidden">
-                          <img 
-                            src={getImageUrl(project.main_image.file_path)} 
-                            alt={`${project.title} 主要圖片`}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        </div>
-                      )}
-                      
-                      {/* Project Info */}
-                      <div className="p-6">
-                        <div className="mb-4">
-                          <h4 className="text-2xl font-bold text-gray-900 mb-2">
-                            {project.title}
-                          </h4>
-                          <div className="text-lg text-[#D19B4C] font-medium">
-                            / {project.year || '---'}
-                          </div>
-                        </div>
-                        
-                        {/* Project Details */}
-                        <div className="space-y-3 text-sm">
-                          {project.base_address && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">基地位置</span>
-                              <span className="font-medium text-gray-900">{project.base_address}</span>
-                            </div>
-                          )}
-                          {project.area && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">基地面積</span>
-                              <span className="font-medium text-gray-900">{project.area}</span>
-                            </div>
-                          )}
-                          {project.unit_count && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">總戶數</span>
-                              <span className="font-medium text-gray-900">{project.unit_count} 戶</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Gallery Images */}
-                        {(leftImage || rightImage) && (
-                          <div className="grid grid-cols-2 gap-2 mt-4">
-                            {leftImage && (
-                              <div className="aspect-[4/3] overflow-hidden rounded">
-                                <img 
-                                  src={getImageUrl(leftImage.file_path)} 
-                                  alt={leftImage.alt_text || `${project.title} 圖片`}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                            )}
-                            {rightImage && (
-                              <div className="aspect-[4/3] overflow-hidden rounded">
-                                <img 
-                                  src={getImageUrl(rightImage.file_path)} 
-                                  alt={rightImage.alt_text || `${project.title} 圖片`}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="flex flex-wrap flex-col gap-8 lg:gap-16">
+              {projects.map((project, index) => (
+                <ProjectCard 
+                  key={project.uuid} 
+                  project={project}
+                  projectDetails={projectDetails}
+                  loadingDetails={loadingDetails}
+                  loadProjectDetails={loadProjectDetails}
+                  isReversed={index % 2 === 1}
+                />
+              ))}
             </div>
           ) : (
             <div className="text-center py-16">

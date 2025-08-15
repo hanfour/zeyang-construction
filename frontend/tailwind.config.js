@@ -13,6 +13,7 @@ module.exports = {
           dark: '#B8875A',
           gold: '#C5985B',
           more: '#c8a063',
+          line: '#c4a26f',
           50: '#FAF8F5',
           100: '#F5F0E8',
           200: '#EBE1D1',
