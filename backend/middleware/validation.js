@@ -85,7 +85,7 @@ const customValidators = {
   },
   
   isValidCategory: (value) => {
-    const validCategories = ['住宅', '商業', '辦公室', '公共建築', '其他'];
+    const validCategories = ['住宅', '商辦', '公共工程', '其他'];
     if (!validCategories.includes(value)) {
       throw new Error(`Category must be one of: ${validCategories.join(', ')}`);
     }

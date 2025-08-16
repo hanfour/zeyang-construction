@@ -145,7 +145,7 @@ CREATE TABLE projects (
     slug VARCHAR(200) UNIQUE NOT NULL,     -- SEO 友善網址
     title VARCHAR(200) NOT NULL,
     subtitle VARCHAR(200),
-    category ENUM('住宅', '商業', '辦公室', '公共建築', '其他') NOT NULL,
+    category ENUM('住宅', '商辦', '公共工程', '其他') NOT NULL,
     status ENUM('planning', 'pre_sale', 'on_sale', 'sold_out', 'completed') DEFAULT 'planning',
     location VARCHAR(200) NOT NULL,
     year INT,

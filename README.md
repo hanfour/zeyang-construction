@@ -1,84 +1,110 @@
 <div align="center">
-  <img src="frontend/public/images/logo-full-brand.svg" alt="ZeYang Logo" width="300" height="100" />
+  <img src="frontend/public/images/logo-full-brand.svg" alt="澤暘建設" width="300" height="100" />
   
-  # ZeYang
-  ### 澤暘品牌官網
-  
+  # 澤暘建設官網
+  ### 誠信築基 · 匠心營造
+
   <p align="center">
-    提供完整企業資訊，讓潛在客戶能輕鬆查詢澤暘品牌的專業背景。
+    現代化房地產企業官網，融合品牌展示與專案管理功能
   </p>
 </div>
 
 ![Version](https://img.shields.io/badge/version-2.0.0-blue)
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-green)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
-## 澤暘建設簡介
-澤暘建設秉持「誠信築基、匠心營造」之核心精神，深耕台灣土地多年，以深厚的在地情感，精雕細琢每一建築細節，追求完美居住體驗。澤暘建設相信，好的住宅不僅是建築本身，更是生活價值的延伸與呈現。未來，我們將持續致力於創造符合現代人需求、兼具舒適與美感的生活空間，與每位住戶一同築夢未來。
+## 🏢 關於澤暘建設
 
-### ✨ 核心特色
+澤暘建設秉持「誠信築基、匠心營造」之核心精神，深耕台灣土地多年，以深厚的在地情感，精雕細琢每一建築細節，追求完美居住體驗。澤暘建設相信，好的住宅不僅是建築本身，更是生活價值的延伸與呈現。
 
-- 🏠 **專案管理**: 完整的房地產專案管理系統
-- 🖼️ **圖片管理**: 多尺寸圖片上傳與自動處理
-- 🏷️ **標籤系統**: 彈性的內容分類與管理
-- 💬 **聯絡管理**: 完整的客戶詢問與回復系統
-- 🔒 **認證系統**: JWT 基礎的安全認證
-- 📊 **統計報表**: 詳細的數據分析與報表
-- 📱 **響應式設計**: 完美支持手機、平板與桌面
-- 🌐 **API 文檔**: 完整的 Swagger API 文檔
+### 🌟 核心理念
+
+- **🏠 HOME OF DREAMS** - 築夢之家，為每個家庭打造理想居住空間
+- **⚒️ PREMIUM STANDARD BUILDING** - 精工鍛造，機能尺度量化家的幸福  
+- **🌱 LIVING IN SUSTAINABLE HARMONY** - 自然森活，與環境共生的永續居住
+- **🏛️ CLASSIC ARCHITECTURE** - 經典建築，傳承時代的建築美學
+
+## ✨ 網站特色
+
+### 🎨 前端功能
+- **📱 響應式設計**: 完美支援桌面、平板與手機裝置
+- **🎬 動態視覺效果**: 使用 GSAP 打造流暢的滾動動畫與視差效果
+- **🖼️ 沉浸式體驗**: 影片背景、圖片輪播與互動式元件
+- **🏠 專案展示**: 動態專案列表、詳細資訊展示與圖片管理
+- **💬 聯絡系統**: 智能聯絡表單與即時訊息處理
+- **🎯 SEO 優化**: React Helmet 管理 meta 標籤與 SEO
+
+### 🛠️ 後端管理
+- **👥 用戶認證**: JWT 基礎的安全登入系統
+- **📊 專案管理**: 完整的房地產專案 CRUD 操作
+- **🖼️ 圖片處理**: 多尺寸圖片自動處理與優化
+- **🏷️ 標籤系統**: 彈性的專案分類與標籤管理
+- **📈 數據統計**: 詳細的訪問統計與分析報表
+- **⚙️ 系統設定**: 郵件服務與系統參數配置
+
+### 🔒 安全防護
+- **🛡️ 資料驗證**: 完整的輸入驗證與清洗機制
+- **🚦 速率限制**: API 請求頻率控制防止濫用
+- **🔐 密碼加密**: bcrypt 加密保護用戶密碼
+- **🌐 CORS 配置**: 精確的跨域資源共享設定
 
 ## 🛠️ 技術架構
 
-### 前端
-- **React 18** - 用戶界面框架
-- **TypeScript** - 類型安全的 JavaScript
-- **Vite** - 快速的構建工具
+### 前端技術
+- **React 18** - 現代化前端框架
+- **TypeScript** - 類型安全的開發體驗
+- **Vite** - 極速的開發與建置工具
 - **Tailwind CSS** - 實用優先的 CSS 框架
-- **React Router** - 客戶端路由
-- **Axios** - HTTP 請求庫
+- **GSAP** - 專業級動畫與視覺效果
+- **React Router Dom** - 單頁應用路由管理
+- **React Hook Form** - 高效能表單處理
+- **Axios** - HTTP 請求處理
+- **Swiper** - 觸控友好的輪播組件
+- **Framer Motion** - 聲明式動畫庫
 
-### 後端
-- **Node.js** - 伺服器端 JavaScript 程序環境
-- **Express.js** - Web 應用框架
-- **MySQL** - 關聯式資料庫
-- **JWT** - JSON Web Token 認證
-- **Sharp** - 圖片處理庫
-- **Winston** - 日誌管理
+### 後端技術
+- **Node.js** - 伺服器端 JavaScript 運行環境
+- **Express.js** - 快速、極簡的 Web 框架
+- **MySQL** - 穩定可靠的關聯式資料庫
+- **JWT** - 安全的身份驗證機制
+- **Sharp** - 高效能圖片處理庫
+- **Winston** - 專業日誌管理系統
+- **Helmet** - 安全標頭中介軟體
+- **Multer** - 檔案上傳處理
+- **Nodemailer** - 郵件服務集成
 
 ### 開發工具
-- **Jest** - 單元測試框架
-- **Swagger** - API 文檔生成
-- **ESLint** - 代碼分析工具
-- **Prettier** - 代碼格式化
+- **Jest** - 現代化測試框架
+- **ESLint** - 代碼品質檢查
+- **Prettier** - 代碼格式化工具
 - **Nodemon** - 開發環境自動重啟
+- **Swagger** - API 文檔自動生成
 
 ## 💻 系統需求
 
-### 基本需求
+### 基本環境
 - **Node.js** ≥ 18.0.0
 - **MySQL** ≥ 8.0
 - **npm** ≥ 8.0 或 **yarn** ≥ 1.22
-- **磁碟空間** ≥ 2GB
-- **記憶體** ≥ 4GB
 
-### 推薦環境
+### 推薦配置
+- **記憶體**: 4GB RAM 以上
+- **硬碟空間**: 2GB 可用空間
 - **作業系統**: Windows 10+, macOS 10.15+, Ubuntu 18.04+
-- **編輯器**: VS Code 搭配 ES6/TypeScript 套件
-- **瀏覽器**: Chrome 90+, Firefox 88+, Safari 14+
-
-### Docker 環境（可選）
-- **Docker** ≥ 20.10
-- **Docker Compose** ≥ 2.0
 
 ## 🚀 快速開始
 
-### 1️⃣ 安裝依賴
+### 1️⃣ 專案安裝
 
 ```bash
-# 安裝依賴（將自動安裝前後端依賴）
-npm run install:all
+# 克隆專案
+git clone <repository-url>
+cd zeyang
 
-# 或手動安裝
+# 安裝根目錄依賴
+npm install
+
 # 安裝後端依賴
 cd backend && npm install
 
@@ -88,508 +114,300 @@ cd ../frontend && npm install
 
 ### 2️⃣ 環境配置
 
-#### 後端配置
+#### 後端環境變數
 ```bash
 cd backend
 cp .env.example .env
 ```
 
-編輯 `backend/.env` 文件：
-```bash
+編輯 `backend/.env`：
+```env
 # 資料庫配置
 DB_HOST=localhost
 DB_PORT=3306
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_NAME=ZeYang
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_NAME=zeyang
 
-# JWT 安全配置
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-REFRESH_SECRET=your-refresh-secret-key-change-this-in-production
-JWT_EXPIRES_IN=24h
-REFRESH_EXPIRES_IN=7d
+# JWT 安全金鑰
+JWT_SECRET=your-jwt-secret-key
+REFRESH_SECRET=your-refresh-secret-key
 
 # 服務配置
 PORT=5000
 NODE_ENV=development
 
-# 功能開關
-ENABLE_SWAGGER=true
-ENABLE_RATE_LIMITING=true
-
-# CORS 配置
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+# 郵件服務配置
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
 ```
 
-#### 前端配置
+#### 前端環境變數
 ```bash
 cd frontend
 cp .env.example .env
 ```
 
-編輯 `frontend/.env` 文件：
-```bash
-# API 配置
+編輯 `frontend/.env`：
+```env
+# API 服務配置
 VITE_API_BASE_URL=http://localhost:5000
 VITE_API_PREFIX=/api
 
 # 應用配置
-VITE_APP_NAME=ZeYang
+VITE_APP_NAME=澤暘建設
 VITE_APP_VERSION=2.0.0
 ```
 
 ### 3️⃣ 資料庫初始化
 
-#### 手動初始化
 ```bash
-# 1. 確保 MySQL 服務已啟動
+# 1. 啟動 MySQL 服務
 # macOS: brew services start mysql
-# Ubuntu: sudo service mysql start
+# Ubuntu: sudo service mysql start  
 # Windows: net start mysql80
 
-# 2. 創建資料庫和表結構
-mysql -u root -p < database/init.sql
+# 2. 建立資料庫
+mysql -u root -p -e "CREATE DATABASE zeyang CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# 3. 載入範例資料（可選）
-mysql -u root -p ZeYang < database/seeds/sample-data.sql
-```
+# 3. 執行初始化腳本
+mysql -u root -p zeyang < database/init.sql
 
-#### 使用腳本初始化
-```bash
-# 自動初始化資料庫和種子資料
-./database/run-migration.sh
-```
-
-#### Docker 初始化（可選）
-```bash
-# 使用 Docker Compose 啟動 MySQL
-docker-compose up -d mysql
-
-# 等待資料庫啟動完成
-docker-compose exec mysql mysql -u root -p ZeYang < database/init.sql
+# 4. 載入範例資料（可選）
+mysql -u root -p zeyang < database/seeds/sample-data.sql
 ```
 
 ### 4️⃣ 啟動服務
 
-#### 💻 開發模式（建議）
+#### 開發模式（推薦）
 ```bash
-# 一鍵啟動前後端服務
-npm run dev
+# 根目錄一鍵啟動
+npm start
+
+# 或分別啟動
+npm run dev:backend   # 後端 API 服務
+npm run dev:frontend  # 前端開發服務
 ```
 
-#### 🔧 手動啟動
+#### 生產模式
 ```bash
-# 終端機 1 - 啟動後端 API 服務
-cd backend
-npm run dev
-
-# 終端機 2 - 啟動前端開發伺服器
-cd frontend
-npm run dev
-```
-
-#### 🚀 生產模式
-```bash
-# 構建前端
-cd frontend
+# 建置前端
 npm run build
 
 # 啟動生產服務
-cd ../backend
-npm run start
+npm run start:prod
 ```
 
-#### 🐳 Docker 啟動（可選）
-```bash
-# 啟動所有服務
-docker-compose up -d
+### 🌐 訪問服務
 
-# 查看服務狀態
-docker-compose ps
-```
+啟動成功後可訪問：
 
-### 🌐 訪問網址
+- **🎨 前端網站**: http://localhost:5173
+- **🔗 後端 API**: http://localhost:5000
+- **📚 API 文檔**: http://localhost:5000/api-docs
+- **💚 健康檢查**: http://localhost:5000/health
 
-啟動成功後，您可以訪問：
+### 🔑 預設帳號
 
-- **前端應用**: http://localhost:5173
-- **後端 API**: http://localhost:5001  
-- **API 文檔**: http://localhost:5001/api-docs
-- **系統狀態**: http://localhost:5001/health
+| 角色 | 帳號 | 密碼 | 說明 |
+|------|------|------|------|
+| 管理員 | `admin` | `Admin123456` | 完整系統權限 |
+| 編輯者 | `editor` | `Editor123!` | 內容編輯權限 |
 
-### 5️⃣ 預設帳號
-
-| 角色 | 用戶名 | 密碼 | 說明 |
-|------|--------|------|------|
-| 管理員 | `admin` | `Admin123!` | 具有所有權限 |
-| 編輯者 | `editor` | `Editor123!` | 可編輯專案內容 |
-| 觀看者 | `viewer` | `Viewer123!` | 只能查看內容 |
-
-> ⚠️ **安全提醒**: 生產環境中務必變更預設密碼！
+> ⚠️ **重要**: 生產環境請務必變更預設密碼！
 
 ## 📁 專案結構
 
 ```
 zeyang/
-├── backend/                      # 💻 後端服務
-│   ├── config/                   # ⚙️ 系統配置
-│   │   ├── constants.js           # 常數定義
-│   │   └── database.js            # 資料庫連接配置
-│   ├── middleware/               # 🔗 中介軟體
-│   │   ├── auth.js                # JWT 認證
-│   │   ├── errorHandler.js        # 錯誤處理
-│   │   ├── rateLimiter.js         # 速率限制
-│   │   ├── upload.js              # 檔案上傳
-│   │   └── validation.js          # 資料驗證
-│   ├── models/                   # 📊 資料模型
-│   │   ├── Project.js             # 專案模型
-│   │   └── SimpleProject.js       # 簡化專案模型
-│   ├── routes/                   # 🛣️ API 路由
-│   │   ├── auth.js                # 認證相關 API
-│   │   ├── projects.js            # 專案管理 API
-│   │   ├── contacts.js            # 聯絡表單 API
-│   │   ├── tags.js                # 標籤管理 API
-│   │   ├── projectImages.js       # 圖片管理 API
-│   │   ├── statistics.js          # 統計報表 API
-│   │   ├── admin.js               # 管理員 API
-│   │   ├── system.js              # 系統管理 API
-│   │   └── upload.js              # 檔案上傳 API
-│   ├── services/                 # 💼 業務邏輯層
-│   │   ├── projectService.js      # 專案業務邏輯
-│   │   ├── contactService.js      # 聯絡業務邏輯
-│   │   ├── tagService.js          # 標籤業務邏輯
-│   │   └── projectImageService.js # 圖片業務邏輯
-│   ├── utils/                    # 🛠️ 工具函數
-│   │   ├── logger.js              # 日誌管理
-│   │   ├── emailService.js        # 郵件服務
-│   │   ├── imageHandler.js        # 圖片處理
-│   │   └── slugGenerator.js       # URL 簡碼生成
-│   ├── tests/                    # 🧪 測試檔案
-│   │   └── api/                   # API 測試
-│   ├── swagger/                  # 📄 API 文檔
-│   │   └── api-docs.yml           # Swagger 配置
-│   ├── uploads/                  # 🖼️ 上傳檔案目錄
-│   └── server.js                 # 🚀 主程式入口
+├── 📁 backend/                   # 後端 API 服務
+│   ├── 📁 config/                # 系統配置
+│   ├── 📁 middleware/            # 中介軟體
+│   ├── 📁 models/                # 資料模型
+│   ├── 📁 routes/                # API 路由
+│   ├── 📁 services/              # 業務邏輯
+│   ├── 📁 utils/                 # 工具函數
+│   ├── 📁 tests/                 # 測試檔案
+│   ├── 📁 uploads/               # 上傳檔案
+│   └── 📄 server.js              # 主程式入口
 │
-├── frontend/                     # 🎨 前端應用
-│   ├── src/
-│   │   ├── components/           # 🧩 React 組件
-│   │   │   ├── Admin/             # 管理員組件
-│   │   │   ├── Common/            # 共用組件
-│   │   │   ├── Layout/            # 版面配置組件
-│   │   │   └── Project/           # 專案相關組件
-│   │   ├── contexts/             # 🌐 Context Providers
-│   │   │   └── AuthContext.tsx    # 認證狀態管理
-│   │   ├── pages/                # 📄 頁面組件
-│   │   │   ├── Home/              # 首頁
-│   │   │   ├── Projects/          # 專案列表
-│   │   │   ├── Admin/             # 管理後台
-│   │   │   ├── Login/             # 登入頁面
-│   │   │   └── Contact/           # 聯絡我們
-│   │   ├── services/             # 🔗 API 服務
-│   │   │   ├── api.ts             # 基本 API 配置
-│   │   │   ├── auth.service.ts    # 認證服務
-│   │   │   ├── project.service.ts # 專案服務
-│   │   │   ├── contact.service.ts # 聯絡服務
-│   │   │   └── tag.service.ts     # 標籤服務
-│   │   ├── types/                # 📝 TypeScript 類型
-│   │   │   └── index.ts           # 類型定義
-│   │   ├── utils/                # 🛠️ 工具函數
-│   │   └── styles/               # 🎨 樣式文件
-│   │       └── index.css          # 全域樣式
-│   ├── public/                   # 🖼️ 靜態資源
-│   │   └── images/               # 圖片資源
-│   └── index.html                # 🏠 HTML 入口
+├── 📁 frontend/                  # 前端 React 應用
+│   ├── 📁 src/
+│   │   ├── 📁 components/        # React 組件
+│   │   │   ├── 📁 Admin/         # 管理後台組件
+│   │   │   ├── 📁 Common/        # 共用組件
+│   │   │   ├── 📁 Layout/        # 版面配置
+│   │   │   └── 📁 Carousel/      # 輪播組件
+│   │   ├── 📁 pages/             # 頁面組件
+│   │   │   ├── 📁 Home/          # 首頁與子組件
+│   │   │   ├── 📁 About/         # 關於我們
+│   │   │   ├── 📁 Projects/      # 專案展示
+│   │   │   ├── 📁 Contact/       # 聯絡我們
+│   │   │   ├── 📁 Team/          # 團隊介紹
+│   │   │   ├── 📁 Development/   # 開發案例
+│   │   │   ├── 📁 Login/         # 登入頁面
+│   │   │   └── 📁 Admin/         # 管理後台
+│   │   ├── 📁 services/          # API 服務
+│   │   ├── 📁 contexts/          # React Context
+│   │   ├── 📁 types/             # TypeScript 類型
+│   │   └── 📁 utils/             # 工具函數
+│   └── 📁 public/                # 靜態資源
+│       └── 📁 images/            # 圖片資源
 │
-├── database/                     # 💾 資料庫相關
-│   ├── init.sql                  # 初始化 SQL 腳本
-│   ├── migrations/               # 資料庫遷移
-│   ├── seeds/                    # 種子資料
-│   └── run-migration.sh          # 遷移執行腳本
+├── 📁 database/                  # 資料庫相關
+│   ├── 📄 init.sql               # 初始化腳本
+│   ├── 📁 migrations/            # 資料庫遷移
+│   └── 📁 seeds/                 # 種子資料
 │
-├── docs/                         # 📆 文檔目錄
-├── .env.example                  # 環境變數範例
-├── docker-compose.yml            # Docker 編排檔
-├── package.json                  # 專案依賴管理
-└── README.md                     # 專案說明文件
+└── 📄 README.md                  # 專案說明文件
 ```
 
-## 🎆 主要功能
+## 🎯 主要頁面
 
-### 🏠 專案管理
-- **完整的專案生命週期管理**: 從規劃、進行中、完成到暫停
-- **多維度篩選**: 按類型、狀態、位置、價格、面積等篩選
-- **智慧搜尋**: 全文搜尋支持，支持中英文
-- **精選專案**: 管理員可設定精選專案並自定義顯示順序
-- **詳細資訊**: 支持專案的各種資訊字段
+### 🏠 首頁功能
+- **Hero 區塊**: 動態影片背景展示品牌形象
+- **築夢理念**: 滾動觸發的視差動畫展示核心理念
+- **熱銷專案**: 動態載入的精選專案輪播
+- **品牌特色**: 四大核心價值動畫展示
+- **聯絡資訊**: 快速聯絡與諮詢功能
 
-### 🖼️ 圖片管理
-- **多檔案上傳**: 支持批量上傳圖片
-- **自動處理**: 自動產生多種尺寸的縮圖
-- **格式優化**: 自動轉換為 WebP 格式提升效能
-- **圖片管理**: 設定主圖、插入說明、調整順序
-- **應用最佳化**: 應用優先策略和延遲載入
+### 📖 關於我們
+- **品牌故事**: 澤暘建設的發展歷程與理念
+- **經營團隊**: 專業團隊介紹與核心成員
+- **建築理念**: 四大核心建築理念詳細說明
+- **動畫效果**: 豐富的 GSAP 滾動動畫
 
-### 🏷️ 標籤系統
-- **彈性分類**: 支持多種標籤分類（風格、特色、位置等）
-- **熱門排行**: 按使用次數自動排序熱門標籤
-- **智慧搜尋**: 支持標籤名稱的模糊搜尋
-- **關聯推薦**: 根據標籤關聯性推薦相關專案
+### 🏗️ 專案展示
+- **專案列表**: 響應式網格展示所有專案
+- **智能篩選**: 多維度篩選（狀態、類型、位置、價格）
+- **搜尋功能**: 全文搜尋支援中英文
+- **專案詳情**: 詳細的專案資訊與圖片展示
 
-### 💬 聯絡管理
-- **完整表單**: 支持完整的聯絡資訊收集
-- **狀態追蹤**: 標記已讀、已回復、重要等狀態
-- **批量操作**: 支持批量標記、批量刪除
-- **統計分析**: 提供詳細的聯絡統計報表
-- **自動回復**: 支持設定自動回復範本
+### 👥 團隊夥伴
+- **合作夥伴**: 展示重要合作夥伴與供應商
+- **專業認證**: 相關建築與房地產認證展示
+- **企業形象**: 品牌價值與企業文化展示
 
-### 🔒 安全認證
-- **JWT 認證**: 使用現代化的 JSON Web Token
-- **角色權限**: 精細的角色與權限控制
-- **令牌刷新**: 支持 Access Token 和 Refresh Token
-- **密碼安全**: 密碼加密、複雜度檢查
-- **安全標頭**: 包含完整的安全標頭配置
+### 💬 聯絡我們
+- **智能表單**: React Hook Form 驅動的聯絡表單
+- **即時驗證**: 前端表單驗證與錯誤處理
+- **多元聯絡**: 電話、郵件、地址等多種聯絡方式
 
-### 📈 統計分析
-- **實時監控**: 系統健康狀態監控
-- **數據統計**: 專案瀏覽、聯絡詢問統計
-- **效能監控**: API 響應時間、資料庫效能監控
-- **用戶行為**: 用戶操作記錄與分析
+### 🔧 管理後台
+- **專案管理**: 完整的專案 CRUD 操作
+- **圖片管理**: 批量上傳、編輯與排序功能
+- **聯絡管理**: 客戶詢問處理與回覆功能
+- **數據統計**: 網站訪問與業務數據分析
 
-### 🛡️ 安全防護
-- **速率限制**: 防止 API 濫用和 DDoS 攻擊
-- **輸入驗證**: 完整的輸入數據清洗與驗證
-- **CORS 配置**: 精確的跨域資源共享配置
-- **SQL 注入防護**: 使用參數化查詢防止 SQL 注入
-- **XSS 防護**: HTML 輸入清洗和輸出編碼
+## 🧪 測試與品質保證
 
-### 📊 管理後台
-- **直覺式界面**: 現代化的管理後台界面
-- **權限管理**: 精細的用戶角色與權限管理
-- **操作日誌**: 完整的管理操作記錄
-- **批量操作**: 支持多種批量操作功能
-- **數據導入/導出**: Excel/CSV 格式數據交換
+### 測試覆蓋率
+- **後端 API 測試**: 完整的 REST API 測試套件
+- **前端組件測試**: React 組件單元測試
+- **整合測試**: 端對端功能測試
+- **安全測試**: API 安全性與權限測試
 
-## 📚 開發指南
-
-### 開發環境設置
-
+### 代碼品質
 ```bash
-# 安裝預提交鉤子（代碼品質檢查）
-npm run install:hooks
-
-# 啟動開發環境（自動重載）
-npm run dev
-
-# 分別啟動前後端
-npm run dev:backend   # 啟動後端 API
-npm run dev:frontend  # 啟動前端應用
-```
-
-### 資料庫管理
-
-```bash
-# 執行資料庫遷移
-./database/run-migration.sh
-
-# 執行特定遷移
-mysql -u root -p ZeYang < database/migrations/your-migration.sql
-
-# 重設資料庫（警告：會清空所有資料）
-npm run db:reset
-```
-
-### 測試執行
-
-```bash
-# 後端單元測試
-cd backend
+# 執行完整測試套件
 npm test
 
-# 後端測試涵蓋率
-npm run test:coverage
-
-# 前端測試
-cd frontend  
-npm test
-
-# E2E 測試（需要先啟動服務）
-npm run test:e2e
-
-# API 測試（使用實際資料庫）
-npm run test:api
-```
-
-### 代碼品質檢查
-
-```bash
-# ESLint 檢查
+# 代碼品質檢查
 npm run lint
 
-# ESLint 自動修復
-npm run lint:fix
-
-# Prettier 格式化
-npm run format
-
-# TypeScript 類型檢查
+# 類型檢查
 npm run type-check
+
+# 代碼格式化
+npm run format
 ```
 
-### 產品部署
+## 🔒 安全性
 
+### 已實施的安全措施
+- **JWT 認證**: 安全的 Token 基礎認證
+- **密碼加密**: bcrypt 雜湊加密
+- **速率限制**: API 請求頻率控制
+- **輸入驗證**: 嚴格的資料驗證與清洗
+- **CORS 控制**: 精確的跨域資源控制
+- **安全標頭**: Helmet 中介軟體安全配置
+
+### 生產環境檢查清單
+- [ ] 更改所有預設密碼
+- [ ] 設定 `NODE_ENV=production`
+- [ ] 啟用 HTTPS 憑證
+- [ ] 配置正確的 CORS 域名
+- [ ] 關閉開發用 API 文檔
+- [ ] 設定資料庫連線加密
+- [ ] 配置系統監控與告警
+
+## 📈 效能優化
+
+### 前端優化
+- **圖片懶載入**: Intersection Observer API
+- **代碼分割**: React.lazy 動態載入
+- **資源壓縮**: Vite 自動壓縮與優化
+- **CDN 整合**: 靜態資源 CDN 分發
+
+### 後端優化  
+- **資料庫索引**: 關鍵欄位索引優化
+- **圖片處理**: Sharp 高效能圖片處理
+- **快取機制**: Redis 快取熱門資料
+- **連線池**: MySQL 連線池管理
+
+## 🌐 部署建議
+
+### Docker 部署
 ```bash
-# 構建生產版本
-npm run build
+# 建置 Docker 映像
+docker build -t zeyang .
 
-# 始生產服務（需要先構建）
-npm start
-
-# Docker 構建
-docker build -t ZeYang .
-docker run -p 5000:5000 ZeYang
-
-# Docker Compose 部署
+# 使用 Docker Compose
 docker-compose up -d
 ```
 
-## 🔗 API 端點摘要
+### 傳統部署
+```bash
+# 建置前端
+npm run build
 
-### 🔐 認證相關
-- `POST /api/auth/login` - 用戶登入
-- `POST /api/auth/register` - 用戶註冊
-- `POST /api/auth/refresh` - 刷新令牌
-- `GET /api/auth/me` - 獲取當前用戶資訊
-- `PUT /api/auth/change-password` - 變更密碼
-- `POST /api/auth/logout` - 用戶登出
+# 啟動 PM2 管理
+pm2 start ecosystem.config.js
+```
 
-### 🏠 專案管理
-- `GET /api/projects` - 獲取專案列表（支持篩選、搜尋、分頁）
-- `GET /api/projects/featured` - 獲取精選專案
-- `GET /api/projects/search` - 搜尋專案
-- `GET /api/projects/{identifier}` - 獲取單一專案詳情
-- `POST /api/projects` - 建立新專案 🔒
-- `PUT /api/projects/{identifier}` - 更新專案 🔒
-- `DELETE /api/projects/{identifier}` - 刪除專案 🔒
-- `PATCH /api/projects/{identifier}/status` - 更新專案狀態 🔒
-- `POST /api/projects/{identifier}/feature` - 切換精選狀態 🔒
+## 📚 相關文檔
 
-### 🏷️ 標籤管理
-- `GET /api/tags` - 獲取標籤列表
-- `GET /api/tags/popular` - 獲取熱門標籤
-- `GET /api/tags/search` - 搜尋標籤
-- `GET /api/tags/{identifier}` - 獲取單一標籤
-- `POST /api/tags` - 建立新標籤 🔒
-- `PUT /api/tags/{identifier}` - 更新標籤 🔒
-- `DELETE /api/tags/{identifier}` - 刪除標籤 🔒
+- [API 測試指南](backend/API-GUIDE.md)
+- [Swagger API 文檔](http://localhost:5000/api-docs)
+- [測試結果報告](backend/tests/FINAL-REPORT.md)
+- [資料庫架構](database/init.sql)
 
-### 💬 聯絡管理
-- `POST /api/contacts` - 提交聯絡表單
-- `GET /api/contacts` - 獲取聯絡訊息列表 🔒
-- `GET /api/contacts/{id}` - 獲取單一聯絡訊息 🔒
-- `PUT /api/contacts/{id}/read` - 標記為已讀 🔒
-- `PUT /api/contacts/{id}/reply` - 回復聯絡訊息 🔒
-- `DELETE /api/contacts/{id}` - 刪除聯絡訊息 🔒
-- `GET /api/contacts/statistics` - 獲取聯絡統計 🔒
+## 🤝 貢獻指南
 
-### 🖼️ 圖片管理
-- `GET /api/projects/{identifier}/images` - 獲取專案圖片 🔒
-- `POST /api/projects/{identifier}/images` - 上傳專案圖片 🔒
-- `PUT /api/projects/{identifier}/images/{id}` - 更新圖片資訊 🔒
-- `DELETE /api/projects/{identifier}/images/{id}` - 刪除圖片 🔒
-- `POST /api/projects/{identifier}/images/{id}/set-main` - 設定主圖 🔒
+歡迎參與專案開發！請遵循以下步驟：
 
-### 📈 系統管理
-- `GET /health` - 基本健康檢查
-- `GET /api/system/health` - 詳細健康檢查
-- `GET /api/system/info` - 系統資訊 🔒
-
-> 🔒 表示需要認證的端點  
-> 完整 API 文檔請參考: [API 測試指南](backend/API-GUIDE.md) 或 [Swagger 文檔](http://localhost:5001/api-docs)
-
-## 🔒 安全注意事項
-
-### 🔑 必要安全配置
-1. **更改預設密鑰**: 修改 `.env` 中的所有 JWT 密鑰和資料庫密碼
-2. **HTTPS 加密**: 生產環境中務必使用 HTTPS 協議
-3. **防火牆配置**: 只開放必要的連接埠（443, 80, 3306）
-4. **資料庫安全**: 設置強密碼，限制遠端存取
-5. **環境變數**: 使用環境變數管理敏感資訊
-
-### 🛡️ 進階安全措施
-- **速率限制**: 已內建 API 速率限制機制
-- **輸入清洗**: 所有輸入都經過驗證和清洗
-- **SQL 注入防護**: 使用參數化查詢
-- **XSS 防護**: 前端輸出編碼和 CSP 設定
-- **CSRF 防護**: CSRF 令牌驗證
-
-### 🔄 維護建議
-- **定期更新**: 定期更新依賴包和系統軟體
-- **備份策略**: 定期備份資料庫和上傳檔案
-- **監控告警**: 設置系統監控和異常告警
-- **日誌稽核**: 定期檢查安全日誌
-- **權限稽核**: 定期檢查用戶權限設定
-
-### ⚠️ 生產環境檢查清單
-- [ ] 更改所有預設密碼和密鑰
-- [ ] 設定 NODE_ENV=production
-- [ ] 啟用 HTTPS 和 SSL 證書
-- [ ] 設定正確的 CORS 域名
-- [ ] 關閉 Swagger 文檔（ENABLE_SWAGGER=false）
-- [ ] 設定資料庫連接加密
-- [ ] 配置防火牆規則
-- [ ] 設置監控和告警
-- [ ] 執行安全測試和審核
-
-## 📝 貢獻指南
-
-歡迎參與 ZeYang 專案的開發！請閱讀以下指南：
-
-### 提交 Issues
-如果您發現了 Bug 或有新功能建議，請在 GitHub Issues 中提交。
-
-### Pull Requests
-1. Fork 本專案
-2. 創建特性分支 (`git checkout -b feature/amazing-feature`)
-3. 提交您的變更 (`git commit -m 'Add some amazing feature'`)
+1. Fork 專案倉庫
+2. 建立功能分支 (`git checkout -b feature/amazing-feature`)
+3. 提交變更 (`git commit -m 'Add amazing feature'`)
 4. 推送到分支 (`git push origin feature/amazing-feature`)
 5. 開啟 Pull Request
 
-### 代碼風格
-請遵循專案中的 ESLint 和 Prettier 配置。
+## 📞 技術支援
 
-## 📞 支持與聯絡
+- **GitHub Issues**: 回報問題與功能建議
+- **技術文檔**: 查閱完整的技術文檔
+- **聯絡我們**: 商業合作與技術諮詢
 
-- **技術支持**: [GitHub Issues](https://github.com/your-repo/ZeYang/issues)
-- **功能建議**: [GitHub Discussions](https://github.com/your-repo/ZeYang/discussions)
-- **安全問題**: security@ZeYang.com
-- **商業合作**: business@ZeYang.com
+## 📄 版權聲明
 
-## 📜 相關文檔
-
-- [API 測試指南](backend/API-GUIDE.md) - 完整的 API 測試文檔
-- [Swagger API 文檔](http://localhost:5001/api-docs) - 互動式 API 文檔
-- [資料庫架構文檔](database/README.md) - 資料庫設計說明
-- [部署指南](docs/DEPLOYMENT.md) - 生產環境部署指南
-- [系統架構文檔](docs/ARCHITECTURE.md) - 技術架構說明
-
-## 🏆 致謝
-
-感謝以下開源專案的貢獻：
-
-- [React](https://reactjs.org/) - 前端框架
-- [Express.js](https://expressjs.com/) - 後端框架  
-- [MySQL](https://www.mysql.com/) - 資料庫系統
-- [Tailwind CSS](https://tailwindcss.com/) - CSS 框架
-- [Sharp](https://sharp.pixelplumbing.com/) - 圖片處理
-
-## 📄 許可證
-
-本專案採用 [MIT License](LICENSE) 許可證。
+本專案採用 [MIT License](LICENSE) 授權條款。
 
 ---
 
 <div align="center">
-  <p>🏢 <strong>ZeYang</strong> - 當代房地產專案管理解決方案</p>
-  <p>由 ❤️ 和 ☕ 在台灣製作</p>
+  <p><strong>澤暘建設</strong> - 誠信築基 · 匠心營造</p>
+  <p>💻 現代化房地產企業數位解決方案</p>
+  <p>🇹🇼 Made with ❤️ in Taiwan</p>
 </div>

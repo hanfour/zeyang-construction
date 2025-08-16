@@ -8,8 +8,9 @@ import LoadingSpinner from '@/components/Common/LoadingSpinner';
 
 const categories = [
   { id: 'residential', name: '住宅', value: '住宅', color: 'bg-blue-500' },
-  { id: 'commercial', name: '商業', value: '商業', color: 'bg-green-500' },
-  { id: 'office', name: '辦公室', value: '辦公室', color: 'bg-purple-500' },
+  { id: 'commercial', name: '商辦', value: '商辦', color: 'bg-green-500' },
+  { id: 'public', name: '公共工程', value: '公共工程', color: 'bg-purple-500' },
+  { id: 'other', name: '其他', value: '其他', color: 'bg-gray-500' },
 ];
 
 const HotCategories: React.FC = () => {

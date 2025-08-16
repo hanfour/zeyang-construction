@@ -182,10 +182,10 @@ const ProjectCard: React.FC<{
             
             {/* Status Display */}
             {project.status && (
-              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+              <div className="!hidden justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
                 <span className="w-[6.25em]">專案狀態</span>
                 <span className="font-medium">
-                  {project.status === 'planning' && '規劃中'}
+                  {project.status === 'planning' && '籌備中'}
                   {project.status === 'pre_sale' && '預售'}
                   {project.status === 'on_sale' && '銷售中'}
                   {project.status === 'sold_out' && '完銷'}
@@ -273,12 +273,12 @@ const ProjectsPage: React.FC = () => {
   const loadProjects = async (retryCount = 0) => {
     try {
       setLoading(true);
-      const response = await projectService.getProjects();
+      const response = await projectService.getProjects({
+        display_page: '澤暘作品'
+      });
       
       if (response.success && response.data?.items) {
-        // Filter out projects with 'planning' status
-        const filteredProjects = response.data.items.filter(project => project.status !== 'planning');
-        setProjects(filteredProjects);
+        setProjects(response.data.items);
         setError(null);
       } else {
         setError('專案列表載入失敗');

@@ -51,8 +51,9 @@ export interface Project {
   slug: string;
   title: string;
   subtitle?: string;
-  category: '住宅' | '商業' | '辦公室' | '公共建築' | '其他';
-  status: 'planning' | 'pre_sale' | 'on_sale' | 'sold_out' | 'completed';
+  category?: '住宅' | '商辦' | '公共工程' | '其他';
+  status?: 'planning' | 'pre_sale' | 'on_sale' | 'sold_out' | 'completed';
+  display_page?: '開發專區' | '澤暘作品';
   location: string;
   base_address?: string;
   year?: number;
@@ -179,8 +180,9 @@ export interface ContactFormData {
 export interface ProjectFormData {
   title: string;
   subtitle?: string;
-  category: Project['category'];
+  category?: Project['category'];
   status?: Project['status'];
+  display_page?: Project['display_page'];
   location: string;
   base_address?: string;
   year?: number;
@@ -208,6 +210,7 @@ export interface ProjectFormData {
 export interface ProjectFilters {
   category?: Project['category'];
   status?: Project['status'];
+  display_page?: Project['display_page'];
   is_featured?: boolean;
   is_active?: boolean;
   search?: string;

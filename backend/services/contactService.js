@@ -85,7 +85,7 @@ class ContactService {
         FROM contacts c
         LEFT JOIN users u1 ON c.read_by = u1.id
         LEFT JOIN users u2 ON c.replied_by = u2.id
-        WHERE 1=1
+        WHERE c.is_archived = false
       `;
       
       const params = [];
@@ -150,7 +150,7 @@ class ContactService {
          FROM contacts c
          LEFT JOIN users u1 ON c.read_by = u1.id
          LEFT JOIN users u2 ON c.replied_by = u2.id
-         WHERE c.id = ?`,
+         WHERE c.id = ? AND c.is_archived = false`,
         [id]
       );
       
@@ -196,6 +196,27 @@ class ContactService {
     } catch (error) {
       logger.error('Error bulk marking contacts as read:', error);
       throw new Error('Failed to mark contacts as read');
+    }
+  }
+  
+  // Mark contact as replied (without sending email)
+  static async markAsReplied(id, userId) {
+    try {
+      const result = await query(
+        'UPDATE contacts SET is_replied = true, replied_by = ?, replied_at = NOW() WHERE id = ?',
+        [userId, id]
+      );
+      
+      if (result.affectedRows === 0) {
+        throw new Error('Contact not found');
+      }
+      
+      logger.info('Contact marked as replied', { contactId: id, userId });
+      
+      return { success: true };
+    } catch (error) {
+      logger.error('Error marking contact as replied:', error);
+      throw error;
     }
   }
   
@@ -249,35 +270,45 @@ class ContactService {
     }
   }
 
-  // Delete contact
-  static async deleteContact(id) {
+  // Archive contact (soft delete)
+  static async deleteContact(id, userId) {
     try {
-      const result = await query('DELETE FROM contacts WHERE id = ?', [id]);
+      const result = await query(
+        'UPDATE contacts SET is_archived = true, archived_by = ?, archived_at = NOW() WHERE id = ? AND is_archived = false', 
+        [userId, id]
+      );
       
       if (result.affectedRows === 0) {
-        throw new Error('Contact not found');
+        throw new Error('Contact not found or already archived');
       }
+      
+      logger.info('Contact archived', { contactId: id, userId });
       
       return { success: true };
     } catch (error) {
-      logger.error('Error deleting contact:', error);
+      logger.error('Error archiving contact:', error);
       throw error;
     }
   }
   
-  // Bulk delete contacts
-  static async bulkDeleteContacts(ids) {
+  // Bulk archive contacts (soft delete)
+  static async bulkDeleteContacts(ids, userId) {
     try {
       const placeholders = ids.map(() => '?').join(',');
-      const result = await query(`DELETE FROM contacts WHERE id IN (${placeholders})`, ids);
+      const result = await query(
+        `UPDATE contacts SET is_archived = true, archived_by = ?, archived_at = NOW() WHERE id IN (${placeholders}) AND is_archived = false`, 
+        [userId, ...ids]
+      );
+      
+      logger.info('Contacts bulk archived', { contactIds: ids, userId, count: result.affectedRows });
       
       return {
         success: true,
         deleted: result.affectedRows
       };
     } catch (error) {
-      logger.error('Error bulk deleting contacts:', error);
-      throw new Error('Failed to delete contacts');
+      logger.error('Error bulk archiving contacts:', error);
+      throw new Error('Failed to archive contacts');
     }
   }
   
@@ -293,7 +324,7 @@ class ContactService {
           DATE(created_at) as date,
           COUNT(*) as daily_count
          FROM contacts
-         WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+         WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) AND is_archived = false
          GROUP BY DATE(created_at)
          ORDER BY date DESC`,
         [days]
@@ -306,7 +337,7 @@ class ContactService {
           SUM(is_replied) as replied_count,
           SUM(CASE WHEN is_read = false THEN 1 ELSE 0 END) as unread_count
          FROM contacts
-         WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)`,
+         WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) AND is_archived = false`,
         [days]
       );
       
@@ -456,6 +487,69 @@ class ContactService {
     } catch (error) {
       logger.error('Failed to send reply email:', error);
       throw error; // Throw error to indicate reply failure
+    }
+  }
+
+  // Export contacts to CSV
+  static async exportContacts(filters = {}) {
+    try {
+      let whereClause = '';
+      const queryParams = [];
+      
+      // Build where clause from filters
+      const conditions = [];
+      
+      if (filters.is_read !== undefined) {
+        conditions.push('c.is_read = ?');
+        queryParams.push(filters.is_read);
+      }
+      
+      if (filters.is_replied !== undefined) {
+        conditions.push('c.is_replied = ?');
+        queryParams.push(filters.is_replied);
+      }
+      
+      if (filters.source) {
+        conditions.push('c.source = ?');
+        queryParams.push(filters.source);
+      }
+      
+      if (filters.search) {
+        conditions.push('(c.name LIKE ? OR c.email LIKE ? OR c.subject LIKE ? OR c.message LIKE ?)');
+        const searchTerm = `%${filters.search}%`;
+        queryParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
+      }
+      
+      if (filters.dateFrom) {
+        conditions.push('DATE(c.created_at) >= ?');
+        queryParams.push(filters.dateFrom);
+      }
+      
+      if (filters.dateTo) {
+        conditions.push('DATE(c.created_at) <= ?');
+        queryParams.push(filters.dateTo);
+      }
+      
+      if (conditions.length > 0) {
+        whereClause = 'WHERE ' + conditions.join(' AND ');
+      }
+
+      const contacts = await query(`
+        SELECT 
+          c.*,
+          u1.username as read_by_name,
+          u2.username as replied_by_name
+        FROM contacts c
+        LEFT JOIN users u1 ON c.read_by = u1.id
+        LEFT JOIN users u2 ON c.replied_by = u2.id
+        WHERE c.is_archived = false ${whereClause ? 'AND ' + whereClause.replace('WHERE ', '') : ''}
+        ORDER BY c.created_at DESC
+      `, queryParams);
+      
+      return contacts;
+    } catch (error) {
+      logger.error('Error exporting contacts:', error);
+      throw new Error('Failed to export contacts');
     }
   }
 }

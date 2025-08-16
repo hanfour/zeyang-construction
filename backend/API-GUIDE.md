@@ -213,7 +213,7 @@ curl -X POST http://localhost:5001/api/projects \
 
 **必填欄位：**
 - `title`: 專案標題
-- `category`: 專案分類（住宅、商業、辦公室、公共建築、其他）
+- `category`: 專案分類（住宅、商辦、公共工程、其他）（選填）
 - `location`: 專案位置
 
 #### 2.7 更新專案

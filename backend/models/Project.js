@@ -7,6 +7,7 @@ class Project {
     const {
       category,
       status,
+      display_page,
       is_featured,
       search
     } = filters;
@@ -27,6 +28,7 @@ class Project {
         p.subtitle,
         p.category,
         p.status,
+        p.display_page,
         p.location,
         p.base_address,
         p.year,
@@ -74,6 +76,11 @@ class Project {
       params.push(status);
     }
     
+    if (display_page) {
+      sql += ' AND p.display_page = ?';
+      params.push(display_page);
+    }
+    
     if (is_featured !== undefined) {
       sql += ' AND p.is_featured = ?';
       params.push(is_featured);
@@ -119,6 +126,11 @@ class Project {
     if (status) {
       countSql += ' AND p.status = ?';
       countParams.push(status);
+    }
+    
+    if (display_page) {
+      countSql += ' AND p.display_page = ?';
+      countParams.push(display_page);
     }
     
     if (is_featured !== undefined) {
@@ -270,6 +282,7 @@ class Project {
         subtitle,
         category,
         status = 'planning',
+        display_page,
         description,
         detail_content,
         location,
@@ -293,17 +306,18 @@ class Project {
       // Insert project with database schema fields
       const [projectResult] = await connection.execute(
         `INSERT INTO projects (
-          uuid, slug, title, subtitle, category, status, location, base_address, year, area,
+          uuid, slug, title, subtitle, category, status, display_page, location, base_address, year, area,
           floor_plan_info, unit_count, display_order, view_count, is_active, is_featured,
           facebook_page, booking_phone, info_website, created_by, updated_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           uuid,
           slug,
           title,
           subtitle || null,
-          category,
+          category || null,
           status,
+          display_page || null,
           location,
           base_address || null,
           year || null,
@@ -382,6 +396,7 @@ class Project {
         nameEn: subtitle,
         type: category,
         status,
+        display_page,
         location,
         year,
         area,
@@ -411,6 +426,11 @@ class Project {
       if (status !== undefined) {
         updateFields.push('status = ?');
         updateParams.push(status);
+      }
+      
+      if (display_page !== undefined) {
+        updateFields.push('display_page = ?');
+        updateParams.push(display_page);
       }
       
       if (location !== undefined) {

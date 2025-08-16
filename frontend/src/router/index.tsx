@@ -22,8 +22,10 @@ const LoginPage = lazy(() => import('@/pages/Login'));
 const AdminDashboard = lazy(() => import('@/pages/Admin/Dashboard'));
 const AdminProjects = lazy(() => import('@/pages/Admin/Projects'));
 const AdminContacts = lazy(() => import('@/pages/Admin/Contacts'));
-const AdminTags = lazy(() => import('@/pages/Admin/Tags'));
+// const AdminTags = lazy(() => import('@/pages/Admin/Tags'));
+const AdminSettings = lazy(() => import('@/pages/Admin/Settings'));
 const AdminEmailSettings = lazy(() => import('@/pages/Admin/Settings/Email'));
+const AdminPasswordSettings = lazy(() => import('@/pages/Admin/Settings/Password'));
 
 // Admin loading component
 const AdminLoading = () => (
@@ -121,14 +123,24 @@ const Router = () => {
             <AdminContacts />
           </Suspense>
         } />
-        <Route path="tags" element={
+        {/* <Route path="tags" element={
           <Suspense fallback={<AdminLoading />}>
             <AdminTags />
+          </Suspense>
+        } /> */}
+        <Route path="settings" element={
+          <Suspense fallback={<AdminLoading />}>
+            <AdminSettings />
           </Suspense>
         } />
         <Route path="settings/email" element={
           <Suspense fallback={<AdminLoading />}>
             <AdminEmailSettings />
+          </Suspense>
+        } />
+        <Route path="settings/password" element={
+          <Suspense fallback={<AdminLoading />}>
+            <AdminPasswordSettings />
           </Suspense>
         } />
       </Route>

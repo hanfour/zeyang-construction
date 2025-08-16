@@ -13,8 +13,7 @@ const createContactValidation = [
   body('name').notEmpty().withMessage('Name is required').trim()
     .isLength({ max: 100 }).withMessage('Name too long'),
   body('email').notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email format')
-    .normalizeEmail(),
+    .isEmail().withMessage('Invalid email format'),
   body('phone').optional().trim()
     .matches(/^[\d\s\-\+\(\)]+$/).withMessage('Invalid phone format'),
   body('company').optional().trim()
@@ -22,7 +21,7 @@ const createContactValidation = [
   body('subject').optional().trim()
     .isLength({ max: 200 }).withMessage('Subject too long'),
   body('message').notEmpty().withMessage('Message is required')
-    .isLength({ min: 10, max: 2000 }).withMessage('Message must be 10-2000 characters'),
+    .isLength({ min: 2, max: 2000 }).withMessage('Message must be 2-2000 characters'),
   body('source').optional().trim(),
   handleValidationErrors
 ];
@@ -105,6 +104,56 @@ router.get('/statistics',
   })
 );
 
+// Export contacts to CSV (admin only)
+router.get('/export', 
+  authenticate, 
+  authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
+  asyncHandler(async (req, res) => {
+    const filters = {
+      is_read: req.query.isRead === 'true' ? true : req.query.isRead === 'false' ? false : undefined,
+      is_replied: req.query.isReplied === 'true' ? true : req.query.isReplied === 'false' ? false : undefined,
+      source: req.query.source,
+      search: req.query.search,
+      dateFrom: req.query.dateFrom,
+      dateTo: req.query.dateTo
+    };
+    
+    const contacts = await ContactService.exportContacts(filters);
+    
+    // Convert to CSV format
+    const headers = [
+      'ID', 'Name', 'Email', 'Phone', 'Company', 'Subject', 'Message', 
+      'Source', 'Read', 'Replied', 'Created At', 'Notes', 'Read By', 'Replied By'
+    ];
+    
+    let csvContent = headers.join(',') + '\n';
+    
+    contacts.forEach(contact => {
+      const row = [
+        contact.id,
+        `"${(contact.name || '').replace(/"/g, '""')}"`,
+        `"${(contact.email || '').replace(/"/g, '""')}"`,
+        `"${(contact.phone || '').replace(/"/g, '""')}"`,
+        `"${(contact.company || '').replace(/"/g, '""')}"`,
+        `"${(contact.subject || '').replace(/"/g, '""')}"`,
+        `"${(contact.message || '').replace(/"/g, '""')}"`,
+        `"${(contact.source || '').replace(/"/g, '""')}"`,
+        contact.is_read ? 'Yes' : 'No',
+        contact.is_replied ? 'Yes' : 'No',
+        contact.created_at ? new Date(contact.created_at).toISOString() : '',
+        `"${(contact.notes || '').replace(/"/g, '""')}"`,
+        `"${(contact.read_by_name || '').replace(/"/g, '""')}"`,
+        `"${(contact.replied_by_name || '').replace(/"/g, '""')}"`
+      ];
+      csvContent += row.join(',') + '\n';
+    });
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="contacts.csv"');
+    res.send(csvContent);
+  })
+);
+
 // Get single contact (admin only)
 router.get('/:id', 
   authenticate, 
@@ -179,6 +228,20 @@ router.put('/:id/reply',
   })
 );
 
+// Mark as replied (admin only)
+router.put('/:id/mark-replied', 
+  authenticate, 
+  authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
+  asyncHandler(async (req, res) => {
+    await ContactService.markAsReplied(parseInt(req.params.id), req.user.id);
+    
+    res.json({
+      success: true,
+      message: 'Contact marked as replied'
+    });
+  })
+);
+
 // Update contact notes (admin only)
 router.put('/:id/notes', 
   authenticate, 
@@ -198,21 +261,21 @@ router.put('/:id/notes',
   })
 );
 
-// Delete contact (admin only)
+// Archive contact (admin only)
 router.delete('/:id', 
   authenticate, 
   authorize(USER_ROLES.ADMIN),
   asyncHandler(async (req, res) => {
-    await ContactService.deleteContact(parseInt(req.params.id));
+    await ContactService.deleteContact(parseInt(req.params.id), req.user.id);
     
     res.json({
       success: true,
-      message: SUCCESS_MESSAGES.DELETED
+      message: '聯絡表單已封存'
     });
   })
 );
 
-// Bulk delete contacts (admin only)
+// Bulk archive contacts (admin only)
 router.post('/bulk-delete', 
   authenticate, 
   authorize(USER_ROLES.ADMIN),
@@ -222,11 +285,11 @@ router.post('/bulk-delete',
     handleValidationErrors
   ],
   asyncHandler(async (req, res) => {
-    const result = await ContactService.bulkDeleteContacts(req.body.ids);
+    const result = await ContactService.bulkDeleteContacts(req.body.ids, req.user.id);
     
     res.json({
       success: true,
-      message: `${result.deleted} contacts deleted`,
+      message: `已封存 ${result.deleted} 個聯絡表單`,
       data: result
     });
   })

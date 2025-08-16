@@ -7,7 +7,7 @@ import {
   HomeIcon,
   BuildingOfficeIcon,
   EnvelopeIcon,
-  TagIcon,
+  // TagIcon,
   CogIcon,
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
@@ -18,8 +18,8 @@ const navigation = [
   { name: '儀表板', href: '/admin/dashboard', icon: HomeIcon },
   { name: '專案管理', href: '/admin/projects', icon: BuildingOfficeIcon },
   { name: '聯絡表單', href: '/admin/contacts', icon: EnvelopeIcon },
-  { name: '標籤管理', href: '/admin/tags', icon: TagIcon },
-  { name: '系統設定', href: '/admin/settings/email', icon: CogIcon },
+  // { name: '標籤管理', href: '/admin/tags', icon: TagIcon },
+  { name: '系統設定', href: '/admin/settings', icon: CogIcon },
 ];
 
 const AdminLayout: React.FC = () => {

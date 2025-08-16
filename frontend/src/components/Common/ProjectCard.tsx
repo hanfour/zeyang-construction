@@ -74,11 +74,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
             {project.location}
           </div>
           
-          <div className="flex items-center text-sm text-gray-500">
-            <HomeIcon className="h-4 w-4 mr-1.5" />
-            {project.category}
-            {project.area && ` • ${project.area}`}
-          </div>
+          {project.area && (
+            <div className="flex items-center text-sm text-gray-500">
+              <HomeIcon className="h-4 w-4 mr-1.5" />
+              {project.area}
+            </div>
+          )}
         </div>
         
         {project.year && (
@@ -87,7 +88,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
           </p>
         )}
         
-        {project.tags && project.tags.length > 0 && (
+        {/* Tags temporarily hidden */}
+        {/* {project.tags && project.tags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {(typeof project.tags[0] === 'string' ? project.tags : project.tags.map(t => t.name))
               .slice(0, 3)
@@ -100,7 +102,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
                 </span>
               ))}
           </div>
-        )}
+        )} */}
       </div>
     </Link>
   );

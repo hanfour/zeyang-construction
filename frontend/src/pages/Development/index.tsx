@@ -30,7 +30,7 @@ const DevelopmentPage: React.FC = () => {
       try {
         setLoading(true);
         const response = await projectService.getProjects({
-          status: 'planning',
+          display_page: '開發專區',
           orderBy: 'created_at',
           orderDir: 'DESC',
           limit: 10

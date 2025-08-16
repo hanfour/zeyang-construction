@@ -30,30 +30,30 @@ const Footer: React.FC = () => {
               {/* Links */}
               <div className='flex justify-center lg:justify-end mb-6 lg:mb-32'>
                 <div className="flex flex-wrap gap-1 sm:gap-6 lg:gap-8 items-center text-content-mobile lg:text-content-desktop justify-center lg:justify-end">
-                  <Link to="/about" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/about" onClick={handleNavClick} className="text-black hover:text-primary transition-colors">
                     關於澤暘
                   </Link>
                   <div className="w-px h-4 bg-neutral-400 lg:hidden"></div>
-                  <Link to="/team" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/team" onClick={handleNavClick} className="text-black hover:text-primary transition-colors">
                     澤暘團隊
                   </Link>
                   <div className="w-px h-4 bg-neutral-400 lg:hidden"></div>
-                  <Link to="/projects" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/projects" onClick={handleNavClick} className="text-black hover:text-primary transition-colors">
                     澤暘作品
                   </Link>
                   <div className="w-px h-4 bg-neutral-400 lg:hidden"></div>
-                  <Link to="/development" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/development" onClick={handleNavClick} className="text-black hover:text-primary transition-colors">
                     開發專區
                   </Link>
                   <div className="w-px h-4 bg-neutral-400 lg:hidden"></div>
-                  <Link to="/contact" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/contact" onClick={handleNavClick} className="text-black hover:text-primary transition-colors">
                     聯絡我們
                   </Link>
                 </div>
               </div>
 
               {/* Phone */}
-              <div className="text-main-title-mobile lg:text-main-title-desktop font-black text-neutral-600 text-center lg:text-right">
+              <div className="text-main-title-mobile lg:text-main-title-desktop font-black text-black text-center lg:text-right">
                 <p className="relative inline-block">
                   02-2736-8955
                   <span className="absolute bottom-1 left-0 w-full h-[0.3em] bg-[#c8a063]"></span>
@@ -62,12 +62,12 @@ const Footer: React.FC = () => {
               </div>
 
               {/* Address */}
-              <div className="text-content-mobile lg:text-content-desktop text-neutral-600 text-center lg:text-right">
+              <div className="text-content-mobile lg:text-content-desktop text-black text-center lg:text-right">
                 <p>台北市大安區安和路二段213號3樓之2</p>
               </div>
 
               {/* Copyright */}
-              <div className="text-[8px] lg:text-xs text-neutral-500 text-center lg:text-right">
+              <div className="text-[8px] lg:text-xs text-black text-center lg:text-right">
                 <p>© COPYRIGHT ZE YANG. ALL RIGHTS RESERVED</p>
               </div>
             </div>
@@ -86,12 +86,12 @@ const Footer: React.FC = () => {
 
             {/* CONTACT Us */}
             <div className="text-center">
-              <p className="text-xs lg:text-sm font-medium text-neutral-700">CONTACT US</p>
+              <p className="text-xs lg:text-sm font-medium text-black">CONTACT US</p>
             </div>
 
             {/* Vertical Text */}
             <div className="hidden lg:flex flex-col items-center">
-              <div className="text-main-title-mobile lg:text-main-title-desktop font-semibold text-neutral-700" style={{writingMode: 'vertical-rl', textOrientation: 'mixed', letterSpacing: '0.4em'}}>
+              <div className="text-main-title-mobile lg:text-main-title-desktop font-semibold text-black" style={{writingMode: 'vertical-rl', textOrientation: 'mixed', letterSpacing: '0.4em'}}>
                 與我們聯繫
               </div>
             </div>

@@ -1,4 +1,5 @@
 import api from './api';
+import axios from 'axios';
 import { Contact, ContactFilters, PaginatedResponse, ApiResponse, ContactFormData } from '@/types';
 
 class ContactService {
@@ -8,7 +9,10 @@ class ContactService {
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
-          params.append(key, String(value));
+          // Convert frontend parameter names to backend expected names
+          const backendKey = key === 'is_read' ? 'isRead' : 
+                            key === 'is_replied' ? 'isReplied' : key;
+          params.append(backendKey, String(value));
         }
       });
     }
@@ -26,6 +30,10 @@ class ContactService {
 
   async markAsRead(id: number): Promise<ApiResponse> {
     return api.put(`/contacts/${id}/read`);
+  }
+
+  async markAsReplied(id: number): Promise<ApiResponse> {
+    return api.put(`/contacts/${id}/mark-replied`);
   }
 
   async replyToContact(id: number, data: { message: string; notes?: string }): Promise<ApiResponse> {
@@ -54,16 +62,23 @@ class ContactService {
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
-          params.append(key, String(value));
+          // Convert frontend parameter names to backend expected names
+          const backendKey = key === 'is_read' ? 'isRead' : 
+                            key === 'is_replied' ? 'isReplied' : key;
+          params.append(backendKey, String(value));
         }
       });
     }
 
-    const response = await api.get(`/contacts/export?${params.toString()}`, {
+    // Use axios directly for blob response to avoid JSON parsing issues
+    const response = await axios.get(`${api.baseURL || 'http://localhost:5001/api'}/contacts/export?${params.toString()}`, {
       responseType: 'blob',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+      },
     });
 
-    return response.data as unknown as Blob;
+    return response.data;
   }
 }
 

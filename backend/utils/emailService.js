@@ -11,6 +11,10 @@ const createTransporter = async (customConfig = null) => {
       host: customConfig.host,
       port: customConfig.port || 587,
       secure: customConfig.secure || false,
+      requireTLS: true,
+      tls: {
+        rejectUnauthorized: false
+      },
       auth: {
         user: customConfig.auth?.user || customConfig.username,
         pass: customConfig.auth?.pass || customConfig.password
@@ -27,6 +31,10 @@ const createTransporter = async (customConfig = null) => {
           host: smtpConfig.host,
           port: smtpConfig.port || 587,
           secure: smtpConfig.secure || false,
+          requireTLS: true,
+          tls: {
+            rejectUnauthorized: false
+          },
           auth: {
             user: smtpConfig.username,
             pass: smtpConfig.password
@@ -38,6 +46,10 @@ const createTransporter = async (customConfig = null) => {
           host: process.env.SMTP_HOST,
           port: parseInt(process.env.SMTP_PORT) || 587,
           secure: process.env.SMTP_PORT === '465',
+          requireTLS: true,
+          tls: {
+            rejectUnauthorized: false
+          },
           auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS
@@ -51,6 +63,10 @@ const createTransporter = async (customConfig = null) => {
         host: process.env.SMTP_HOST,
         port: parseInt(process.env.SMTP_PORT) || 587,
         secure: process.env.SMTP_PORT === '465',
+        requireTLS: true,
+        tls: {
+          rejectUnauthorized: false
+        },
         auth: {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS
@@ -62,7 +78,7 @@ const createTransporter = async (customConfig = null) => {
   // In development, use ethereal email for testing if no SMTP configured
   if (process.env.NODE_ENV === 'development' && !config.host) {
     logger.info('Using Ethereal Email for development');
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       host: 'smtp.ethereal.email',
       port: 587,
       auth: {
@@ -72,7 +88,7 @@ const createTransporter = async (customConfig = null) => {
     });
   }
   
-  return nodemailer.createTransporter(config);
+  return nodemailer.createTransport(config);
 };
 
 // Test SMTP connection

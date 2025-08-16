@@ -42,7 +42,7 @@ class ProjectService {
   static async createProject(data, userId) {
     try {
       // Validate required fields
-      const requiredFields = ['title', 'category', 'location'];
+      const requiredFields = ['title', 'location'];
       for (const field of requiredFields) {
         if (!data[field]) {
           throw new Error(`${field} is required`);

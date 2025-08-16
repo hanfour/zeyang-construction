@@ -52,7 +52,7 @@ const HotProjects: React.FC = () => {
   const fetchFeaturedProjects = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:5001/api/projects/featured?limit=6');
+      const response = await fetch('http://localhost:5001/api/projects/featured?limit=6&display_page=澤暘作品');
       if (!response.ok) {
         throw new Error('Failed to fetch featured projects');
       }
@@ -63,14 +63,12 @@ const HotProjects: React.FC = () => {
       
       // 過濾符合條件的專案：必須是精選且狀態為預售或銷售中
       // 注意：API 中 status 是英文 (pre_sale)，is_featured 是數字 (1)
-      const allowedStatuses = ['pre_sale', 'selling']; // 只顯示預售和銷售中
-      const filteredProjects = projectsArray.filter((project: any) => 
-        project.is_featured === 1 && allowedStatuses.includes(project.status)
-      );
+      // const allowedStatuses = ['pre_sale', 'selling']; // 只顯示預售和銷售中
+      // const filteredProjects = projectsArray.filter((project: any) => 
+      //   project.is_featured === 1 && allowedStatuses.includes(project.status)
+      // );
       
-      console.log('API data:', data);
-      console.log('Filtered projects:', filteredProjects);
-      setProjects(filteredProjects);
+      setProjects(projectsArray);
     } catch (error) {
       console.error('Error fetching featured projects:', error);
       // API 失敗時不設定備用數據，讓區塊不顯示
@@ -241,7 +239,7 @@ const HotProjects: React.FC = () => {
     <section ref={sectionRef} className="hot-projects relative w-full py-8 md:pb-24 bg-white overflow-hidden">
       <div className="relative w-full h-[45vh] lg:h-[80vh]">
         {/* 標題層 - 絕對定位 */}
-        <div className="absolute z-20 lg:left-[calc(70%-1.5rem)] lg:top-1/2 lg:-translate-y-1/2 
+        <div className="absolute z-20 lg:left-[calc(70%+1.5rem)] lg:top-1/2 lg:-translate-y-1/2 
                         -top-8 right-4 lg:right-auto">
           <div className="flex lg:flex-row lg:gap-4 gap-2 items-start lg:items-centerq">
             {/* 主標題 - 直式文字 */}

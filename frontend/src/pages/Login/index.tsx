@@ -60,57 +60,59 @@ const LoginPage: React.FC = () => {
             <div className="mt-8">
               <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                 <div>
-                  <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="username" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     帳號
                   </label>
-                  <div className="mt-1">
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
                     <input
                       {...register('username', { required: '請輸入帳號' })}
                       type="text"
                       autoComplete="username"
-                      className="input"
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                       placeholder="請輸入帳號或 Email"
                     />
-                    {errors.username && (
-                      <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
-                    )}
                   </div>
+                  {errors.username && (
+                    <p className="mt-2 text-sm text-red-600">{errors.username.message}</p>
+                  )}
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="password" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     密碼
                   </label>
-                  <div className="mt-1 relative">
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
                     <input
                       {...register('password', { required: '請輸入密碼' })}
                       type={showPassword ? 'text' : 'password'}
                       autoComplete="current-password"
-                      className="input pr-10"
+                      className="w-full h-12 !pr-12 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                       placeholder="請輸入密碼"
                     />
                     <button
                       type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                        <EyeSlashIcon className="h-5 w-5 text-primary-more" />
                       ) : (
-                        <EyeIcon className="h-5 w-5 text-gray-400" />
+                        <EyeIcon className="h-5 w-5 text-primary-more" />
                       )}
                     </button>
-                    {errors.password && (
-                      <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-                    )}
                   </div>
+                  {errors.password && (
+                    <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
+                  )}
                 </div>
 
                 <div>
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full btn-primary py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-primary-more text-white w-full px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? '登入中...' : '登入'}
                   </button>
@@ -119,7 +121,7 @@ const LoginPage: React.FC = () => {
 
               <div className="mt-6">
                 <p className="text-sm text-gray-600 text-center">
-                  預設管理員帳號：admin / admin123456
+                  預設管理員帳號：admin / Admin@123
                 </p>
               </div>
             </div>

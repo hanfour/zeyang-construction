@@ -58,7 +58,7 @@ const SectionHeader: React.FC<{
     <p className="text-primary-more text-content-mobile lg:text-content-desktop tracking-widest font-medium">
       {title}
     </p>
-    <h2 className="text-main-large-title-mobile lg:text-main-large-title-desktop font-light text-black leading-tight">
+    <h2 className="text-main-large-title-mobile lg:text-main-large-title-desktop text-black leading-tight">
       {subtitle.split('\n').map((line, i) => (
         <React.Fragment key={i}>
           {line}

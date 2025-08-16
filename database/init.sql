@@ -3,11 +3,11 @@
 -- Date: 2024-01-20
 
 -- Create database
-CREATE DATABASE IF NOT EXISTS ZeYang_db
+CREATE DATABASE IF NOT EXISTS estatehub_db
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE ZeYang_db;
+USE estatehub_db;
 
 -- 1. Users table
 CREATE TABLE IF NOT EXISTS users (
@@ -31,8 +31,9 @@ CREATE TABLE IF NOT EXISTS projects (
     slug VARCHAR(200) UNIQUE NOT NULL,
     title VARCHAR(200) NOT NULL,
     subtitle VARCHAR(200),
-    category ENUM('住宅', '商業', '辦公室', '公共建築', '其他') NOT NULL,
+    category ENUM('住宅', '商辦', '公共工程', '其他'),
     status ENUM('planning', 'pre_sale', 'on_sale', 'sold_out', 'completed') DEFAULT 'planning',
+    display_page ENUM('開發專區', '澤暘作品'),
     location VARCHAR(200) NOT NULL,
     year INT,
     area VARCHAR(100),

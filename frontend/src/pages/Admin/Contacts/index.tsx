@@ -35,6 +35,8 @@ const AdminContacts: React.FC = () => {
   const [replyingContact, setReplyingContact] = useState<Contact | null>(null);
   const [replyMessage, setReplyMessage] = useState('');
   const [replyNotes, setReplyNotes] = useState('');
+  const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
+  const [archiveTargetIds, setArchiveTargetIds] = useState<number[]>([]);
 
   useEffect(() => {
     const filters: ContactFilters = {
@@ -191,40 +193,42 @@ const AdminContacts: React.FC = () => {
       await contactService.markAsReplied(id);
       toast.success('已標記為已回覆');
       setContacts(contacts.map(c => 
-        c.id === id ? { ...c, is_replied: true } : c
+        c.id === id ? { ...c, is_replied: true, replied_at: new Date().toISOString() } : c
       ));
       if (viewingContact?.id === id) {
-        setViewingContact({ ...viewingContact, is_replied: true });
+        setViewingContact({ ...viewingContact, is_replied: true, replied_at: new Date().toISOString() });
       }
     } catch (error) {
-      toast.error('操作失敗');
+      console.error('Mark as replied error:', error);
+      toast.error(`操作失敗: ${error instanceof Error ? error.message : '未知錯誤'}`);
     }
   };
 
-  const handleDelete = async (ids: number[]) => {
-    if (!deleteConfirmIds.includes(ids[0])) {
-      setDeleteConfirmIds(ids);
-      setTimeout(() => setDeleteConfirmIds([]), 3000);
-      return;
-    }
+  const handleDelete = (ids: number[]) => {
+    setArchiveTargetIds(ids);
+    setArchiveConfirmOpen(true);
+  };
 
+  const confirmArchive = async () => {
     try {
-      if (ids.length === 1) {
-        await contactService.deleteContact(ids[0]);
+      if (archiveTargetIds.length === 1) {
+        await contactService.deleteContact(archiveTargetIds[0]);
       } else {
-        await contactService.bulkDelete(ids);
+        await contactService.bulkDelete(archiveTargetIds);
       }
       
-      toast.success(`已刪除 ${ids.length} 個聯絡表單`);
-      setContacts(contacts.filter(c => !ids.includes(c.id)));
+      toast.success(`已封存 ${archiveTargetIds.length} 個聯絡表單`);
+      setContacts(contacts.filter(c => !archiveTargetIds.includes(c.id)));
       setSelectedContacts([]);
-      setDeleteConfirmIds([]);
       
-      if (viewingContact && ids.includes(viewingContact.id)) {
+      if (viewingContact && archiveTargetIds.includes(viewingContact.id)) {
         setViewingContact(null);
       }
     } catch (error) {
-      toast.error('刪除失敗');
+      toast.error('封存失敗');
+    } finally {
+      setArchiveConfirmOpen(false);
+      setArchiveTargetIds([]);
     }
   };
 
@@ -304,15 +308,16 @@ const AdminContacts: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <form onSubmit={handleSearch} className="flex-1">
               <div className="relative">
+                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  className="w-full h-12 !pr-12 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                   placeholder="搜尋姓名、Email、電話..."
                 />
-                <div className="absolute inset-y-0 right-0 pe-3 flex items-center pointer-events-none">
-                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                  <MagnifyingGlassIcon className="h-5 w-5 text-primary-more" />
                 </div>
               </div>
             </form>
@@ -371,17 +376,9 @@ const AdminContacts: React.FC = () => {
                 </button>
                 <button
                   onClick={() => handleDelete(selectedContacts)}
-                  className={clsx(
-                    'text-sm font-medium',
-                    deleteConfirmIds.length > 0 && deleteConfirmIds.every(id => selectedContacts.includes(id))
-                      ? 'text-red-600 hover:text-red-500'
-                      : 'text-primary-600 hover:text-primary-500'
-                  )}
+                  className="text-sm font-medium text-red-600 hover:text-red-500"
                 >
-                  {deleteConfirmIds.length > 0 && deleteConfirmIds.every(id => selectedContacts.includes(id))
-                    ? '確認刪除'
-                    : '刪除'
-                  }
+                  封存
                 </button>
               </div>
             </div>
@@ -505,13 +502,8 @@ const AdminContacts: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => handleDelete([contact.id])}
-                    className={clsx(
-                      'p-2 rounded-md transition-colors',
-                      deleteConfirmIds.includes(contact.id)
-                        ? 'text-red-600 hover:bg-red-50'
-                        : 'text-gray-400 hover:text-gray-500 hover:bg-gray-100'
-                    )}
-                    title={deleteConfirmIds.includes(contact.id) ? '確認刪除' : '刪除'}
+                    className="p-2 rounded-md transition-colors text-gray-400 hover:text-red-600 hover:bg-red-50"
+                    title="封存"
                   >
                     <TrashIcon className="h-5 w-5" />
                   </button>
@@ -647,17 +639,20 @@ const AdminContacts: React.FC = () => {
 
                   <div>
                     <h3 className="text-sm font-medium text-gray-900 mb-2">備註</h3>
-                    <textarea
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      rows={3}
-                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      placeholder="新增內部備註..."
-                    />
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        rows={3}
+                        className="w-full px-4 py-3 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none resize-none"
+                        placeholder="新增內部備註..."
+                      />
+                    </div>
                     {notes !== viewingContact.notes && (
                       <button
                         onClick={handleUpdateNotes}
-                        className="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        className="mt-2 bg-primary-more text-white px-6 py-2 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
                       >
                         儲存備註
                       </button>
@@ -700,10 +695,10 @@ const AdminContacts: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="mt-6 flex justify-end space-x-3">
+                <div className="mt-6 flex justify-center">
                   <button
                     onClick={() => setViewingContact(null)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="bg-gray-500 text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
                   >
                     關閉
                   </button>
@@ -740,47 +735,53 @@ const AdminContacts: React.FC = () => {
 
                   {/* Reply Message */}
                   <div>
-                    <label htmlFor="reply-message" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="reply-message" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                       回覆內容 <span className="text-red-500">*</span>
                     </label>
-                    <textarea
-                      id="reply-message"
-                      value={replyMessage}
-                      onChange={(e) => setReplyMessage(e.target.value)}
-                      rows={8}
-                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      placeholder="請輸入您的回覆..."
-                      required
-                    />
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <textarea
+                        id="reply-message"
+                        value={replyMessage}
+                        onChange={(e) => setReplyMessage(e.target.value)}
+                        rows={8}
+                        className="w-full px-4 py-3 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none resize-none"
+                        placeholder="請輸入您的回覆..."
+                        required
+                      />
+                    </div>
                   </div>
 
                   {/* Notes */}
                   <div>
-                    <label htmlFor="reply-notes" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="reply-notes" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                       內部備註
                     </label>
-                    <textarea
-                      id="reply-notes"
-                      value={replyNotes}
-                      onChange={(e) => setReplyNotes(e.target.value)}
-                      rows={3}
-                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      placeholder="新增內部備註（選填）..."
-                    />
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <textarea
+                        id="reply-notes"
+                        value={replyNotes}
+                        onChange={(e) => setReplyNotes(e.target.value)}
+                        rows={3}
+                        className="w-full px-4 py-3 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none resize-none"
+                        placeholder="新增內部備註（選填）..."
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-6 flex justify-end space-x-3">
+                <div className="mt-6 flex justify-center space-x-4">
                   <button
                     onClick={() => setReplyingContact(null)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="bg-gray-500 text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
                   >
                     取消
                   </button>
                   <button
                     onClick={handleSendReply}
                     disabled={!replyMessage.trim()}
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-primary-more text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChatBubbleLeftRightIcon className="h-4 w-4 mr-2 inline" />
                     發送回覆
@@ -788,6 +789,49 @@ const AdminContacts: React.FC = () => {
                 </div>
               </div>
             )}
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* Archive Confirmation Modal */}
+      <Dialog open={archiveConfirmOpen} onClose={() => setArchiveConfirmOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto max-w-md w-full bg-white rounded-lg shadow-xl p-6">
+            <div className="flex items-center mb-4">
+              <div className="flex-shrink-0">
+                <TrashIcon className="h-6 w-6 text-red-600" />
+              </div>
+              <div className="ml-3">
+                <Dialog.Title className="text-lg font-medium text-gray-900">
+                  確認封存
+                </Dialog.Title>
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-sm text-gray-600">
+                您確定要封存{archiveTargetIds.length === 1 ? '這個' : `這 ${archiveTargetIds.length} 個`}聯絡表單嗎？
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                封存後的表單將不會在列表中顯示，但資料會保留在系統中以供查閱。
+              </p>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setArchiveConfirmOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                取消
+              </button>
+              <button
+                onClick={confirmArchive}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                確認封存
+              </button>
+            </div>
           </Dialog.Panel>
         </div>
       </Dialog>

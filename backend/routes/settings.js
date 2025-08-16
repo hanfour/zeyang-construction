@@ -180,4 +180,19 @@ router.put('/category/email',
   })
 );
 
+// Delete email settings (admin only)
+router.delete('/category/email', 
+  authenticate, 
+  authorize(USER_ROLES.ADMIN),
+  asyncHandler(async (req, res) => {
+    const result = await SettingsService.deleteSettingsByCategory('email', req.user.id);
+    
+    res.json({
+      success: true,
+      message: 'Email settings deleted successfully',
+      data: result
+    });
+  })
+);
+
 module.exports = router;

@@ -17,7 +17,7 @@ const AdminEmailSettings: React.FC = () => {
     smtp_enabled: false,
     smtp_host: '',
     smtp_port: 587,
-    smtp_secure: true,
+    smtp_secure: false,
     smtp_username: '',
     smtp_password: '',
     smtp_from_email: '',
@@ -32,6 +32,7 @@ const AdminEmailSettings: React.FC = () => {
   const [testing, setTesting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [isPresetProvider, setIsPresetProvider] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -56,6 +57,10 @@ const AdminEmailSettings: React.FC = () => {
           ...prevSettings,
           ...settingsData
         }));
+        
+        // Check if current host is a preset provider
+        const presetHosts = ['smtp.gmail.com', 'smtp-mail.outlook.com', 'smtp.mail.yahoo.com'];
+        setIsPresetProvider(presetHosts.includes(settingsData.smtp_host || ''));
       }
     } catch (error) {
       toast.error('無法載入郵件設定');
@@ -121,9 +126,49 @@ const AdminEmailSettings: React.FC = () => {
       [field]: value
     }));
     
+    // Reset preset provider when manually changing host
+    if (field === 'smtp_host') {
+      const presetHosts = ['smtp.gmail.com', 'smtp-mail.outlook.com', 'smtp.mail.yahoo.com'];
+      setIsPresetProvider(presetHosts.includes(value));
+    }
+    
     // Clear test result when settings change
     if (testResult) {
       setTestResult(null);
+    }
+  };
+
+  const handleClearSettings = async () => {
+    try {
+      // 確認對話框
+      if (!window.confirm('確定要刪除所有郵件設定嗎？此操作無法復原。')) {
+        return;
+      }
+      
+      // 調用API刪除資料庫中的設定
+      await settingsService.deleteEmailSettings();
+      
+      // 清空前端表單
+      setSettings(prev => ({
+        ...prev,
+        smtp_enabled: false,
+        smtp_host: '',
+        smtp_port: 587,
+        smtp_secure: false,
+        smtp_username: '',
+        smtp_password: '',
+        smtp_from_email: '',
+        smtp_from_name: 'ZeYang',
+        admin_notification_emails: '',
+        send_admin_notifications: true,
+        send_user_confirmations: true
+      }));
+      setIsPresetProvider(false);
+      setTestResult(null);
+      toast.success('郵件設定已從資料庫中刪除');
+    } catch (error) {
+      toast.error('刪除設定失敗');
+      console.error('Delete settings error:', error);
     }
   };
 
@@ -286,32 +331,48 @@ const AdminEmailSettings: React.FC = () => {
 
             {/* SMTP Server Settings */}
             <div className="bg-white shadow rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <ServerIcon className="h-6 w-6 text-primary-600 mr-2" />
-                <h2 className="text-lg font-medium text-gray-900">SMTP 伺服器設定</h2>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <ServerIcon className="h-6 w-6 text-primary-600 mr-2" />
+                  <h2 className="text-lg font-medium text-gray-900">SMTP 伺服器設定</h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearSettings}
+                  className="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-sm font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  刪除設定
+                </button>
               </div>
               
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="smtp_host" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="smtp_host" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     SMTP 主機 <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    id="smtp_host"
-                    value={settings.smtp_host || ''}
-                    onChange={(e) => handleInputChange('smtp_host', e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="例如: smtp.gmail.com"
-                    required
-                  />
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <input
+                      type="text"
+                      id="smtp_host"
+                      value={settings.smtp_host || ''}
+                      onChange={(e) => handleInputChange('smtp_host', e.target.value)}
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      placeholder="例如: smtp.gmail.com"
+                      required
+                    />
+                  </div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => {
                         handleInputChange('smtp_host', 'smtp.gmail.com');
                         handleInputChange('smtp_port', 587);
-                        handleInputChange('smtp_secure', true);
+                        handleInputChange('smtp_secure', false);
+                        setIsPresetProvider(true);
                       }}
                       className="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                     >
@@ -322,7 +383,8 @@ const AdminEmailSettings: React.FC = () => {
                       onClick={() => {
                         handleInputChange('smtp_host', 'smtp-mail.outlook.com');
                         handleInputChange('smtp_port', 587);
-                        handleInputChange('smtp_secure', true);
+                        handleInputChange('smtp_secure', false);
+                        setIsPresetProvider(true);
                       }}
                       className="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                     >
@@ -333,7 +395,8 @@ const AdminEmailSettings: React.FC = () => {
                       onClick={() => {
                         handleInputChange('smtp_host', 'smtp.mail.yahoo.com');
                         handleInputChange('smtp_port', 587);
-                        handleInputChange('smtp_secure', true);
+                        handleInputChange('smtp_secure', false);
+                        setIsPresetProvider(true);
                       }}
                       className="inline-flex items-center px-2 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                     >
@@ -343,19 +406,22 @@ const AdminEmailSettings: React.FC = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="smtp_port" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="smtp_port" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     連接埠 <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="number"
-                    id="smtp_port"
-                    value={settings.smtp_port || 587}
-                    onChange={(e) => handleInputChange('smtp_port', parseInt(e.target.value))}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    min="1"
-                    max="65535"
-                    required
-                  />
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <input
+                      type="number"
+                      id="smtp_port"
+                      value={settings.smtp_port || 587}
+                      onChange={(e) => handleInputChange('smtp_port', parseInt(e.target.value))}
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      min="1"
+                      max="65535"
+                      required
+                    />
+                  </div>
                   <p className="mt-1 text-sm text-gray-500">
                     常用埠號: 587 (TLS), 465 (SSL), 25 (不安全)
                   </p>
@@ -368,52 +434,68 @@ const AdminEmailSettings: React.FC = () => {
                       id="smtp_secure"
                       checked={settings.smtp_secure || false}
                       onChange={(e) => handleInputChange('smtp_secure', e.target.checked)}
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      disabled={isPresetProvider}
+                      className={clsx(
+                        "rounded border-gray-300 text-primary-600 focus:ring-primary-500",
+                        isPresetProvider && "opacity-50 cursor-not-allowed"
+                      )}
                     />
-                    <label htmlFor="smtp_secure" className="ml-2 text-sm font-medium text-gray-700">
+                    <label htmlFor="smtp_secure" className={clsx(
+                      "ml-2 text-sm font-medium",
+                      isPresetProvider ? "text-gray-400" : "text-gray-700"
+                    )}>
                       使用安全連線 (TLS/SSL)
                     </label>
+                    {isPresetProvider && (
+                      <span className="ml-2 text-xs text-gray-500">
+                        (預設服務商自動設定)
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="smtp_username" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="smtp_username" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     使用者名稱 <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    id="smtp_username"
-                    value={settings.smtp_username || ''}
-                    onChange={(e) => handleInputChange('smtp_username', e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="郵件帳號"
-                    required
-                  />
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <input
+                      type="text"
+                      id="smtp_username"
+                      value={settings.smtp_username || ''}
+                      onChange={(e) => handleInputChange('smtp_username', e.target.value)}
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      placeholder="郵件帳號"
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label htmlFor="smtp_password" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="smtp_password" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     密碼 <span className="text-red-500">*</span>
                   </label>
-                  <div className="mt-1 relative">
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       id="smtp_password"
                       value={settings.smtp_password || ''}
                       onChange={(e) => handleInputChange('smtp_password', e.target.value)}
-                      className="block w-full pr-10 border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      className="w-full h-12 !pr-12 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                       placeholder="應用程式密碼（不是登入密碼）"
                       required
                     />
                     <button
                       type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                        <EyeSlashIcon className="h-5 w-5 text-primary-more" />
                       ) : (
-                        <EyeIcon className="h-5 w-5 text-gray-400" />
+                        <EyeIcon className="h-5 w-5 text-primary-more" />
                       )}
                     </button>
                   </div>
@@ -430,32 +512,38 @@ const AdminEmailSettings: React.FC = () => {
               
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="smtp_from_email" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="smtp_from_email" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     寄件人信箱 <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="email"
-                    id="smtp_from_email"
-                    value={settings.smtp_from_email || ''}
-                    onChange={(e) => handleInputChange('smtp_from_email', e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="noreply@yourdomain.com"
-                    required
-                  />
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <input
+                      type="email"
+                      id="smtp_from_email"
+                      value={settings.smtp_from_email || ''}
+                      onChange={(e) => handleInputChange('smtp_from_email', e.target.value)}
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      placeholder="noreply@yourdomain.com"
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label htmlFor="smtp_from_name" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="smtp_from_name" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     寄件人名稱
                   </label>
-                  <input
-                    type="text"
-                    id="smtp_from_name"
-                    value={settings.smtp_from_name || ''}
-                    onChange={(e) => handleInputChange('smtp_from_name', e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="ZeYang"
-                  />
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <input
+                      type="text"
+                      id="smtp_from_name"
+                      value={settings.smtp_from_name || ''}
+                      onChange={(e) => handleInputChange('smtp_from_name', e.target.value)}
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      placeholder="ZeYang"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -466,17 +554,20 @@ const AdminEmailSettings: React.FC = () => {
               
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="admin_notification_emails" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="admin_notification_emails" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     管理員通知信箱
                   </label>
-                  <input
-                    type="text"
-                    id="admin_notification_emails"
-                    value={settings.admin_notification_emails || ''}
-                    onChange={(e) => handleInputChange('admin_notification_emails', e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="admin@yourdomain.com, manager@yourdomain.com"
-                  />
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <input
+                      type="text"
+                      id="admin_notification_emails"
+                      value={settings.admin_notification_emails || ''}
+                      onChange={(e) => handleInputChange('admin_notification_emails', e.target.value)}
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      placeholder="admin@yourdomain.com, manager@yourdomain.com"
+                    />
+                  </div>
                   <p className="mt-1 text-sm text-gray-500">
                     多個信箱請用逗號分隔，留空將不發送管理員通知
                   </p>
@@ -524,7 +615,7 @@ const AdminEmailSettings: React.FC = () => {
                   type="button"
                   onClick={handleTestConnection}
                   disabled={testing || !settings.smtp_host || !settings.smtp_username || !settings.smtp_password}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex justify-center items-center bg-green-600 text-white px-4 py-3 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {testing ? (
                     <>
@@ -567,11 +658,11 @@ const AdminEmailSettings: React.FC = () => {
         )}
 
         {/* Save Button */}
-        <div className="flex justify-end">
+        <div className="flex justify-center">
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-primary-more text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? (
               <>

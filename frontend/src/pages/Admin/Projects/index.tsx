@@ -31,6 +31,7 @@ const AdminProjects: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [selectedDisplayPage, setSelectedDisplayPage] = useState<string>('');
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -44,8 +45,9 @@ const AdminProjects: React.FC = () => {
   const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     subtitle: '',
-    category: '住宅',
+    category: undefined,
     status: 'planning',
+    display_page: undefined,
     location: '',
     base_address: '',
     year: new Date().getFullYear(),
@@ -63,7 +65,7 @@ const AdminProjects: React.FC = () => {
     tags: [],
   });
 
-  const categories = ['住宅', '商業', '辦公室', '公共建築', '其他'];
+  // const categories = ['住宅', '商辦', '公共工程', '其他'];
   const statuses = [
     { value: 'planning', label: '規劃中' },
     { value: 'pre_sale', label: '預售' },
@@ -78,6 +80,7 @@ const AdminProjects: React.FC = () => {
       search: searchParams.get('search') || undefined,
       category: searchParams.get('category') as Project['category'] || undefined,
       status: searchParams.get('status') as Project['status'] || undefined,
+      display_page: searchParams.get('display_page') as Project['display_page'] || undefined,
       is_featured: searchParams.get('is_featured') === 'true' ? true : undefined,
     };
 
@@ -85,6 +88,7 @@ const AdminProjects: React.FC = () => {
     setSearchTerm(filters.search || '');
     setSelectedCategory(filters.category || '');
     setSelectedStatus(filters.status || '');
+    setSelectedDisplayPage(filters.display_page || '');
     setShowFeaturedOnly(filters.is_featured || false);
 
     fetchProjects(filters);
@@ -120,6 +124,7 @@ const AdminProjects: React.FC = () => {
       search: searchTerm,
       category: selectedCategory,
       status: selectedStatus,
+      display_page: selectedDisplayPage,
       is_featured: showFeaturedOnly,
       ...newFilters,
     };
@@ -198,6 +203,7 @@ const AdminProjects: React.FC = () => {
       subtitle: project.subtitle || '',
       category: project.category,
       status: project.status,
+      display_page: project.display_page,
       location: project.location,
       base_address: project.base_address || '',
       year: project.year || new Date().getFullYear(),
@@ -256,8 +262,9 @@ const AdminProjects: React.FC = () => {
     setFormData({
       title: '',
       subtitle: '',
-      category: '住宅',
+      category: undefined,
       status: 'planning',
+      display_page: undefined,
       location: '',
       base_address: '',
       year: new Date().getFullYear(),
@@ -304,64 +311,56 @@ const AdminProjects: React.FC = () => {
       {/* Filters */}
       <div className="bg-white shadow rounded-lg p-6 mb-6">
         <form onSubmit={handleSearch} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="search" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                 搜尋專案
               </label>
-              <div className="mt-1 relative">
+              <div className="relative">
+                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
                 <input
                   type="text"
                   id="search"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  className="w-full h-12 !pr-12 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                   placeholder="輸入專案名稱..."
                 />
-                <div className="absolute inset-y-0 right-0 pe-3 flex items-center pointer-events-none">
-                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                  <MagnifyingGlassIcon className="h-5 w-5 text-primary-more" />
                 </div>
               </div>
             </div>
 
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                類別
-              </label>
-              <select
-                id="category"
-                value={selectedCategory}
-                onChange={(e) => {
-                  setSelectedCategory(e.target.value);
-                  updateFilters({ category: e.target.value as Project['category'], page: 1 });
-                }}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-              >
-                <option value="">全部類別</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
+            {/* Category filter hidden - removed from filters */}
+
+            {/* Status filter hidden - removed from filters */}
 
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-                狀態
+              <label htmlFor="display_page" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                上架頁面
               </label>
-              <select
-                id="status"
-                value={selectedStatus}
-                onChange={(e) => {
-                  setSelectedStatus(e.target.value);
-                  updateFilters({ status: e.target.value as Project['status'], page: 1 });
-                }}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-              >
-                <option value="">全部狀態</option>
-                {statuses.map((status) => (
-                  <option key={status.value} value={status.value}>{status.label}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                <select
+                  id="display_page"
+                  value={selectedDisplayPage}
+                  onChange={(e) => {
+                    setSelectedDisplayPage(e.target.value);
+                    updateFilters({ display_page: e.target.value as Project['display_page'], page: 1 });
+                  }}
+                  className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none appearance-none"
+                >
+                  <option value="">全部頁面</option>
+                  <option value="開發專區">開發專區</option>
+                  <option value="澤暘作品">澤暘作品</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                  <svg className="w-5 h-5 text-primary-more" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center">
@@ -383,7 +382,7 @@ const AdminProjects: React.FC = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="bg-primary-more text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
             >
               搜尋
             </button>
@@ -415,10 +414,8 @@ const AdminProjects: React.FC = () => {
                       </div>
                       <div className="mt-1 flex items-center text-sm text-gray-500">
                         <span className="truncate">{project.location}</span>
-                        <span className="mx-2">•</span>
-                        <span>{project.category}</span>
-                        <span className="mx-2">•</span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                        <span className="!hidden mx-2">•</span>
+                        <span className="!hidden inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                           {statuses.find(s => s.value === project.status)?.label || project.status}
                         </span>
                       </div>
@@ -561,213 +558,246 @@ const AdminProjects: React.FC = () => {
               <form onSubmit={handleCreateOrUpdate} className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="title" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                       專案名稱 *
                     </label>
-                    <input
-                      type="text"
-                      id="title"
-                      required
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label htmlFor="subtitle" className="block text-sm font-medium text-gray-700">
-                      副標題
-                    </label>
-                    <input
-                      type="text"
-                      id="subtitle"
-                      value={formData.subtitle}
-                      onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                      類別 *
-                    </label>
-                    <select
-                      id="category"
-                      required
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value as Project['category'] })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    >
-                      {categories.map((cat) => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-                      狀態 *
-                    </label>
-                    <select
-                      id="status"
-                      required
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as Project['status'] })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    >
-                      {statuses.map((status) => (
-                        <option key={status.value} value={status.value}>{status.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                      地區位置 *
-                    </label>
-                    <input
-                      type="text"
-                      id="location"
-                      required
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="base_address" className="block text-sm font-medium text-gray-700">
-                      基地地址
-                    </label>
-                    <input
-                      type="text"
-                      id="base_address"
-                      value={formData.base_address}
-                      onChange={(e) => setFormData({ ...formData, base_address: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="year" className="block text-sm font-medium text-gray-700">
-                      年份
-                    </label>
-                    <input
-                      type="number"
-                      id="year"
-                      value={formData.year}
-                      onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="area" className="block text-sm font-medium text-gray-700">
-                      面積
-                    </label>
-                    <input
-                      type="text"
-                      id="area"
-                      value={formData.area}
-                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="floor_plan_info" className="block text-sm font-medium text-gray-700">
-                      樓層規劃
-                    </label>
-                    <input
-                      type="text"
-                      id="floor_plan_info"
-                      value={formData.floor_plan_info}
-                      onChange={(e) => setFormData({ ...formData, floor_plan_info: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      placeholder="例：地上15層/地下3層"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="unit_count" className="block text-sm font-medium text-gray-700">
-                      戶數
-                    </label>
-                    <input
-                      type="number"
-                      id="unit_count"
-                      value={formData.unit_count || ''}
-                      onChange={(e) => setFormData({ ...formData, unit_count: e.target.value ? parseInt(e.target.value) : undefined })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="facebook_page" className="block text-sm font-medium text-gray-700">
-                      Facebook粉絲團
-                    </label>
-                    <input
-                      type="url"
-                      id="facebook_page"
-                      value={formData.facebook_page}
-                      onChange={(e) => setFormData({ ...formData, facebook_page: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      placeholder="https://facebook.com/..."
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="booking_phone" className="block text-sm font-medium text-gray-700">
-                      預約專線
-                    </label>
-                    <input
-                      type="tel"
-                      id="booking_phone"
-                      value={formData.booking_phone}
-                      onChange={(e) => setFormData({ ...formData, booking_phone: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      placeholder="02-1234-5678"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label htmlFor="info_website" className="block text-sm font-medium text-gray-700">
-                      介紹網站
-                    </label>
-                    <input
-                      type="url"
-                      id="info_website"
-                      value={formData.info_website}
-                      onChange={(e) => setFormData({ ...formData, info_website: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      placeholder="https://..."
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                      描述
-                    </label>
-                    <textarea
-                      id="description"
-                      rows={3}
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
-                      標籤
-                    </label>
-                    <div className="mt-1">
-                      <TagSelector
-                        value={formData.tags}
-                        onChange={(tags) => setFormData({ ...formData, tags })}
-                        placeholder="輸入標籤名稱或選擇現有標籤"
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="text"
+                        id="title"
+                        required
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                       />
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label htmlFor="subtitle" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      副標題
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="text"
+                        id="subtitle"
+                        value={formData.subtitle}
+                        onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Category field hidden - removed from form */}
+
+                  {/* Status field hidden - removed from form */}
+
+                  <div>
+                    <label htmlFor="display_page" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      上架頁面
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <select
+                        id="display_page"
+                        value={formData.display_page || ''}
+                        onChange={(e) => setFormData({ ...formData, display_page: e.target.value as Project['display_page'] })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none appearance-none"
+                      >
+                        <option value="">選擇上架頁面</option>
+                        <option value="開發專區">開發專區</option>
+                        <option value="澤暘作品">澤暘作品</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                        <svg className="w-5 h-5 text-primary-more" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="location" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      地區位置 *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="text"
+                        id="location"
+                        required
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="base_address" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      基地地址
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="text"
+                        id="base_address"
+                        value={formData.base_address}
+                        onChange={(e) => setFormData({ ...formData, base_address: e.target.value })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="year" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      年份
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="number"
+                        id="year"
+                        value={formData.year}
+                        onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="area" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      面積
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="text"
+                        id="area"
+                        value={formData.area}
+                        onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="floor_plan_info" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      樓層規劃
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="text"
+                        id="floor_plan_info"
+                        value={formData.floor_plan_info}
+                        onChange={(e) => setFormData({ ...formData, floor_plan_info: e.target.value })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        placeholder="例：地上15層/地下3層"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="unit_count" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      戶數
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="number"
+                        id="unit_count"
+                        value={formData.unit_count || ''}
+                        onChange={(e) => setFormData({ ...formData, unit_count: e.target.value ? parseInt(e.target.value) : undefined })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="facebook_page" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      Facebook粉絲團
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="url"
+                        id="facebook_page"
+                        value={formData.facebook_page}
+                        onChange={(e) => setFormData({ ...formData, facebook_page: e.target.value })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        placeholder="https://facebook.com/..."
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="booking_phone" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      預約專線
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="tel"
+                        id="booking_phone"
+                        value={formData.booking_phone}
+                        onChange={(e) => setFormData({ ...formData, booking_phone: e.target.value })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        placeholder="02-1234-5678"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label htmlFor="info_website" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      介紹網站
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <input
+                        type="url"
+                        id="info_website"
+                        value={formData.info_website}
+                        onChange={(e) => setFormData({ ...formData, info_website: e.target.value })}
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label htmlFor="description" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      描述
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <textarea
+                        id="description"
+                        rows={3}
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        className="w-full px-4 py-3 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2 !hidden">
+                    <label htmlFor="tags" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                      標籤
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                      <div className="pl-6">
+                        <TagSelector
+                          value={formData.tags}
+                          onChange={(tags) => setFormData({ ...formData, tags })}
+                          placeholder="輸入標籤名稱或選擇現有標籤"
+                        />
+                      </div>
+                    </div>
+                    <p className="mt-2 text-sm text-gray-500">
                       可以新增多個標籤，按 Enter 確認輸入
                     </p>
                   </div>
@@ -831,7 +861,7 @@ const AdminProjects: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="mt-6 flex justify-end space-x-3">
+                <div className="mt-6 flex justify-center space-x-4">
                   <button
                     type="button"
                     onClick={() => {
@@ -840,13 +870,13 @@ const AdminProjects: React.FC = () => {
                       setNewImages([]);
                       setIsModalOpen(false);
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="bg-gray-500 text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
                   >
                     取消
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="bg-primary-more text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
                   >
                     {editingProject ? '更新' : '建立'}
                   </button>
@@ -897,7 +927,7 @@ const AdminProjects: React.FC = () => {
                 />
               )}
               
-              <div className="mt-6 flex justify-end">
+              <div className="mt-6 flex justify-center">
                 <button
                   type="button"
                   onClick={() => {
@@ -906,7 +936,7 @@ const AdminProjects: React.FC = () => {
                     setSelectedProject(null);
                     setProjectImages([]);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="bg-gray-500 text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
                 >
                   關閉
                 </button>

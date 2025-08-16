@@ -11,11 +11,16 @@ const { USER_ROLES, SUCCESS_MESSAGES, PROJECT_CATEGORIES, PROJECT_STATUS } = req
 // Validation rules
 const createProjectValidation = [
   body('title').notEmpty().withMessage('Title is required').trim(),
-  body('category').notEmpty().withMessage('Category is required')
-    .isIn(['住宅', '商業', '辦公室', '公共建築', '其他']).withMessage('Invalid category'),
+  body('category').optional()
+    .custom(value => {
+      if (value === null || value === undefined || value === '') return true;
+      return ['住宅', '商辦', '公共工程', '其他'].includes(value);
+    }).withMessage('Invalid category'),
   body('location').notEmpty().withMessage('Location is required').trim(),
   body('status').optional()
     .isIn(Object.values(PROJECT_STATUS)).withMessage('Invalid status'),
+  body('display_page').optional()
+    .isIn(['開發專區', '澤暘作品']).withMessage('Invalid display page'),
   body('year').optional().isInt({ min: 1900, max: 2100 }).withMessage('Invalid year'),
   body('display_order').optional().isInt({ min: 0 }).withMessage('Invalid display order'),
   body('is_featured').optional().isBoolean().withMessage('Invalid featured status'),
@@ -31,9 +36,14 @@ const updateProjectValidation = [
   param('identifier').notEmpty(),
   body('title').optional().trim(),
   body('category').optional()
-    .isIn(['住宅', '商業', '辦公室', '公共建築', '其他']).withMessage('Invalid category'),
+    .custom(value => {
+      if (value === null || value === undefined || value === '') return true;
+      return ['住宅', '商辦', '公共工程', '其他'].includes(value);
+    }).withMessage('Invalid category'),
   body('status').optional()
     .isIn(Object.values(PROJECT_STATUS)).withMessage('Invalid status'),
+  body('display_page').optional()
+    .isIn(['開發專區', '澤暘作品']).withMessage('Invalid display page'),
   body('year').optional().isInt({ min: 1900, max: 2100 }).withMessage('Invalid year'),
   body('display_order').optional().isInt({ min: 0 }).withMessage('Invalid display order'),
   body('is_featured').optional().isBoolean().withMessage('Invalid featured status'),
@@ -49,6 +59,8 @@ const listProjectsValidation = [
   queryValidator('category').optional(), // Allow any category value, will be mapped in handler
   queryValidator('status').optional()
     .isIn([...Object.values(PROJECT_STATUS), 'on_sale']).withMessage('Invalid status'),
+  queryValidator('display_page').optional()
+    .isIn(['開發專區', '澤暘作品']).withMessage('Invalid display page'),
   queryValidator('isFeatured').optional().isBoolean().withMessage('Invalid featured status'),
   queryValidator('orderBy').optional()
     .isIn(['displayOrder', 'created_at', 'updated_at', 'viewCount', 'view_count', 'name'])
@@ -85,6 +97,7 @@ router.get('/', optionalAuth, listProjectsValidation, asyncHandler(async (req, r
   const filters = {
     type,
     status,
+    display_page: req.query.display_page,
     isFeatured: req.query.isFeatured === 'true' ? true : req.query.isFeatured === 'false' ? false : undefined,
     search: req.query.search
   };

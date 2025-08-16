@@ -200,15 +200,16 @@ const AdminTags: React.FC = () => {
       <div className="bg-white shadow rounded-lg p-6 mb-6">
         <div className="space-y-4">
           <div className="relative">
+            <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              className="w-full h-12 !pr-12 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
               placeholder="搜尋標籤名稱或描述..."
             />
-            <div className="absolute inset-y-0 right-0 pe-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+              <MagnifyingGlassIcon className="h-5 w-5 text-primary-more" />
             </div>
           </div>
 
@@ -336,45 +337,51 @@ const AdminTags: React.FC = () => {
               
               <form onSubmit={handleCreateOrUpdate} className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="name" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     標籤名稱 *
                   </label>
-                  <input
-                    type="text"
-                    id="name"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="例如：豪宅、學區房"
-                  />
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <input
+                      type="text"
+                      id="name"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                      placeholder="例如：豪宅、學區房"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="description" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     描述
                   </label>
-                  <textarea
-                    id="description"
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="標籤的詳細說明（選填）"
-                  />
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <textarea
+                      id="description"
+                      rows={3}
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full px-4 py-3 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none resize-none"
+                      placeholder="標籤的詳細說明（選填）"
+                    />
+                  </div>
                 </div>
 
-                <div className="mt-6 flex justify-end space-x-3">
+                <div className="mt-6 flex justify-center space-x-4">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="bg-gray-500 text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
                   >
                     取消
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="bg-primary-more text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
                   >
                     {editingTag ? '更新' : '建立'}
                   </button>
@@ -397,24 +404,32 @@ const AdminTags: React.FC = () => {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     來源標籤（將被刪除）
                   </label>
-                  <select
-                    value={mergeSource?.id || ''}
-                    onChange={(e) => {
-                      const tag = tags.find(t => t.id === Number(e.target.value));
-                      setMergeSource(tag || null);
-                    }}
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                  >
-                    <option value="">選擇來源標籤</option>
-                    {tags.map((tag) => (
-                      <option key={tag.id} value={tag.id} disabled={tag.id === mergeTarget?.id}>
-                        {tag.name} ({tag.usage_count} 次使用)
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <select
+                      value={mergeSource?.id || ''}
+                      onChange={(e) => {
+                        const tag = tags.find(t => t.id === Number(e.target.value));
+                        setMergeSource(tag || null);
+                      }}
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none appearance-none"
+                    >
+                      <option value="">選擇來源標籤</option>
+                      {tags.map((tag) => (
+                        <option key={tag.id} value={tag.id} disabled={tag.id === mergeTarget?.id}>
+                          {tag.name} ({tag.usage_count} 次使用)
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                      <svg className="w-5 h-5 text-primary-more" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex justify-center">
@@ -422,24 +437,32 @@ const AdminTags: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                     目標標籤（保留）
                   </label>
-                  <select
-                    value={mergeTarget?.id || ''}
-                    onChange={(e) => {
-                      const tag = tags.find(t => t.id === Number(e.target.value));
-                      setMergeTarget(tag || null);
-                    }}
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                  >
-                    <option value="">選擇目標標籤</option>
-                    {tags.map((tag) => (
-                      <option key={tag.id} value={tag.id} disabled={tag.id === mergeSource?.id}>
-                        {tag.name} ({tag.usage_count} 次使用)
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                    <select
+                      value={mergeTarget?.id || ''}
+                      onChange={(e) => {
+                        const tag = tags.find(t => t.id === Number(e.target.value));
+                        setMergeTarget(tag || null);
+                      }}
+                      className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none appearance-none"
+                    >
+                      <option value="">選擇目標標籤</option>
+                      {tags.map((tag) => (
+                        <option key={tag.id} value={tag.id} disabled={tag.id === mergeSource?.id}>
+                          {tag.name} ({tag.usage_count} 次使用)
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                      <svg className="w-5 h-5 text-primary-more" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 {mergeSource && mergeTarget && (
@@ -452,7 +475,7 @@ const AdminTags: React.FC = () => {
                   </div>
                 )}
 
-                <div className="mt-6 flex justify-end space-x-3">
+                <div className="mt-6 flex justify-center space-x-4">
                   <button
                     type="button"
                     onClick={() => {
@@ -460,14 +483,14 @@ const AdminTags: React.FC = () => {
                       setMergeSource(null);
                       setMergeTarget(null);
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    className="bg-gray-500 text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors"
                   >
                     取消
                   </button>
                   <button
                     onClick={handleMerge}
                     disabled={!mergeSource || !mergeTarget || mergeSource.id === mergeTarget.id}
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-primary-more text-white px-16 py-4 text-content-mobile lg:text-content-desktop font-medium tracking-wider hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     確認合併
                   </button>

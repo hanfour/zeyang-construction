@@ -579,7 +579,7 @@ paths:
                   description: 專案標題
                 category:
                   type: string
-                  enum: [住宅, 商業, 辦公室, 公共建築, 其他]
+                  enum: [住宅, 商辦, 公共工程, 其他]
                   description: 專案分類
                 location:
                   type: string
@@ -728,7 +728,7 @@ paths:
                   type: string
                 category:
                   type: string
-                  enum: [住宅, 商業, 辦公室, 公共建築, 其他]
+                  enum: [住宅, 商辦, 公共工程, 其他]
                 status:
                   type: string
                   enum: [planning, pre_sale, on_sale, sold_out, completed]

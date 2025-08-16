@@ -60,6 +60,10 @@ class SettingsService {
   async testSmtpConnection(): Promise<ApiResponse<SmtpTestResult>> {
     return api.post<SmtpTestResult>('/settings/smtp/test');
   }
+
+  async deleteEmailSettings(): Promise<ApiResponse> {
+    return api.delete('/settings/category/email');
+  }
 }
 
 export default new SettingsService();
