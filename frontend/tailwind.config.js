@@ -77,7 +77,7 @@ module.exports = {
       fontSize: {
         // 大型主標題 (築夢、精工、永續、經典)
         'main-large-title-mobile': ['1.875rem', { lineHeight: '1.2', letterSpacing: '0.02em' }], // text-3xl
-        'main-large-title-desktop': ['4rem', { lineHeight: '1.1', letterSpacing: '0.02em' }], // text-6xl
+        'main-large-title-desktop': ['3rem', { lineHeight: '1.1', letterSpacing: '0.02em' }], // text-5xl
 
         // 主標題 (築夢、精工、永續、經典)
         'main-title-mobile': ['1.25rem', { lineHeight: '1.2', letterSpacing: '0.02em' }], // text-xl
@@ -96,7 +96,8 @@ module.exports = {
         'content-large-desktop': ['1.125rem', { lineHeight: '1.6' }], // text-lg
       },
       textShadow: {
-        'sm': '1px 1px 2px rgba(0, 0, 0, 0.375)',
+        'dark': '0 0 12px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.5), 0 0 30px rgba(0,0,0,0.3)',
+        'sm': '1px 1px 2px rgba(0, 0, 0, 0.05)',
         'DEFAULT': '2px 2px 4px rgba(0, 0, 0, 0.1)',
         'md': '3px 3px 6px rgba(0, 0, 0, 0.15)',
         'lg': '4px 4px 8px rgba(0, 0, 0, 0.25)',

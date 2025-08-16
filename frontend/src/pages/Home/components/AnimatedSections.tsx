@@ -483,7 +483,7 @@ const AnimatedSections: React.FC = () => {
                 </h3>
               </div>
               <div ref={classicRightTextDesktopRef} className="absolute top-32 right-48 text-black text-left">
-                <div className="text-content-mobile lg:text-content-desktop text-white text-shadow-sm leading-relaxed">
+                <div className="text-content-mobile lg:text-content-desktop text-white text-shadow-dark leading-relaxed">
                   {sectionData.classic.content.map((line, index) => (
                     <React.Fragment key={index}>
                       {line}

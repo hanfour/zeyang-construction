@@ -52,9 +52,12 @@ const Hero: React.FC = () => {
                   willChange: 'transform',
                 }}
               >
-                <img 
-                  src="/images/hero-bg.jpg" 
-                  alt="澤暘建設主視覺" 
+                <video 
+                  src="/images/index/pixta_121818857.mp4" 
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                   className="w-full h-full object-cover object-center"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';

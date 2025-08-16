@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import PageBanner from '@/components/Layout/PageBanner';
 import MenuButton from '@/components/Layout/MenuButton';
 import NavigationMenu from '@/components/Layout/NavigationMenu';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // 數據結構
 const aboutSections = {
@@ -97,11 +101,268 @@ const AboutPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
 
+  // Animation refs
+  const homeDreamsRef = useRef<HTMLElement>(null);
+  const presidentRef = useRef<HTMLElement>(null);
+  const premiumRef = useRef<HTMLElement>(null);
+  const livingRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Initialize scroll animations
+    const initScrollAnimations = () => {
+      const mm = gsap.matchMedia();
+
+      // Desktop animations
+      mm.add("(min-width: 1024px)", () => {
+        // Home Dreams Section Animation
+        if (homeDreamsRef.current) {
+          const titleElement = homeDreamsRef.current.querySelector('.section-title');
+          const imageElement = homeDreamsRef.current.querySelector('.section-image');
+          const imageImg = imageElement?.querySelector('img');
+          const contentElement = homeDreamsRef.current.querySelector('.section-content');
+
+          if (titleElement && imageElement && imageImg && contentElement) {
+            gsap.set([titleElement, imageElement, contentElement], { opacity: 0, y: 50 });
+            gsap.set(imageImg, { scale: 1.2 });
+
+            ScrollTrigger.create({
+              trigger: homeDreamsRef.current,
+              start: 'top 80%',
+              end: 'center center',
+              scrub: 1,
+              onUpdate: (self) => {
+                const progress = self.progress;
+                gsap.to(titleElement, {
+                  opacity: Math.min(progress * 2, 1),
+                  y: 50 * (1 - Math.min(progress * 2, 1)),
+                  duration: 0.1
+                });
+                gsap.to(imageElement, {
+                  opacity: Math.min((progress - 0.2) * 2, 1),
+                  duration: 0.1
+                });
+                gsap.to(imageImg, {
+                  scale: 1.2 - 0.2 * Math.min((progress - 0.2) * 2, 1),
+                  duration: 0.1
+                });
+                gsap.to(contentElement, {
+                  opacity: Math.min((progress - 0.4) * 2, 1),
+                  y: 30 * (1 - Math.min((progress - 0.4) * 2, 1)),
+                  duration: 0.1
+                });
+              }
+            });
+          }
+        }
+
+        // President Section Animation
+        if (presidentRef.current) {
+          const verticalText = presidentRef.current.querySelector('.vertical-text');
+          const presidentInfo = presidentRef.current.querySelector('.president-info');
+          const presidentImage = presidentRef.current.querySelector('.president-image');
+          const presidentImg = presidentImage?.querySelector('img');
+          const bottomImage = presidentRef.current.querySelector('.bottom-image');
+          const bottomImg = bottomImage?.querySelector('img');
+
+          if (verticalText && presidentInfo && presidentImage && presidentImg && bottomImage && bottomImg) {
+            gsap.set([verticalText, presidentInfo, presidentImage, bottomImage], { opacity: 0 });
+            gsap.set(presidentImage, { x: 50 });
+            gsap.set(bottomImage, { y: 50 });
+            gsap.set([presidentImg, bottomImg], { scale: 1.15 });
+
+            ScrollTrigger.create({
+              trigger: presidentRef.current,
+              start: 'top 70%',
+              end: 'bottom 30%',
+              scrub: 1,
+              onUpdate: (self) => {
+                const progress = self.progress;
+                
+                gsap.to(verticalText, {
+                  opacity: Math.min(progress * 2, 1),
+                  duration: 0.1
+                });
+                gsap.to(presidentInfo, {
+                  opacity: Math.min((progress - 0.2) * 2, 1),
+                  duration: 0.1
+                });
+                gsap.to(presidentImage, {
+                  opacity: Math.min((progress - 0.3) * 2, 1),
+                  x: 50 * (1 - Math.min((progress - 0.3) * 2, 1)),
+                  duration: 0.1
+                });
+                gsap.to(presidentImg, {
+                  scale: 1.15 - 0.15 * Math.min((progress - 0.3) * 2, 1),
+                  duration: 0.1
+                });
+                gsap.to(bottomImage, {
+                  opacity: Math.min((progress - 0.5) * 2, 1),
+                  y: 50 * (1 - Math.min((progress - 0.5) * 2, 1)),
+                  duration: 0.1
+                });
+                gsap.to(bottomImg, {
+                  scale: 1.15 - 0.15 * Math.min((progress - 0.5) * 2, 1),
+                  duration: 0.1
+                });
+              }
+            });
+          }
+        }
+
+        // Premium Section Animation
+        if (premiumRef.current) {
+          const headerElement = premiumRef.current.querySelector('.premium-header');
+          const imageElement = premiumRef.current.querySelector('.premium-image');
+          const overlayContent = premiumRef.current.querySelector('.overlay-content');
+
+          if (headerElement && imageElement && overlayContent) {
+            gsap.set(headerElement, { opacity: 0, y: -30 });
+            gsap.set(imageElement, { scale: 1.2, opacity: 0 });
+            gsap.set(overlayContent, { opacity: 0, x: -50 });
+
+            ScrollTrigger.create({
+              trigger: premiumRef.current,
+              start: 'top 60%',
+              end: 'bottom 40%',
+              scrub: 1,
+              onUpdate: (self) => {
+                const progress = self.progress;
+                
+                // Enhanced animation with proper timing
+                const headerProgress = Math.min(progress * 2.5, 1);
+                const imageProgress = Math.max(0, Math.min((progress - 0.1) * 2, 1));
+                const overlayProgress = Math.max(0, Math.min((progress - 0.3) * 1.67, 1));
+                
+                gsap.set(headerElement, {
+                  opacity: headerProgress,
+                  y: -30 * (1 - headerProgress)
+                });
+                gsap.set(imageElement, {
+                  opacity: imageProgress,
+                  scale: 1.2 - 0.2 * imageProgress
+                });
+                gsap.set(overlayContent, {
+                  opacity: overlayProgress * 0.8,
+                  x: -50 * (1 - overlayProgress)
+                });
+              }
+            });
+          }
+        }
+
+        // Living Section Animation
+        if (livingRef.current) {
+          const headerElement = livingRef.current.querySelector('.living-header');
+          const contentElement = livingRef.current.querySelector('.living-content');
+          const smallImage = livingRef.current.querySelector('.small-image');
+          const smallImg = smallImage?.querySelector('img');
+          const largeImage = livingRef.current.querySelector('.large-image');
+          const largeImg = largeImage?.querySelector('img');
+
+
+          if (headerElement && contentElement && smallImage && smallImg && largeImage && largeImg) {
+            gsap.set([headerElement, contentElement], { opacity: 0, y: 30 });
+            gsap.set(smallImage, { opacity: 0 });
+            gsap.set(smallImg, { scale: 1.2 });
+            gsap.set(largeImage, { opacity: 0, x: 100 });
+            gsap.set(largeImg, { scale: 1.15 });
+
+            ScrollTrigger.create({
+              trigger: livingRef.current,
+              start: 'top 60%',
+              end: 'bottom 40%',
+              scrub: 1,
+              onUpdate: (self) => {
+                const progress = self.progress;
+                
+                // Enhanced animation with proper timing
+                const headerProgress = Math.min(progress * 2.5, 1);
+                const contentProgress = Math.max(0, Math.min((progress - 0.1) * 2, 1));
+                const smallImageProgress = Math.max(0, Math.min((progress - 0.2) * 1.67, 1));
+                const largeImageProgress = Math.max(0, Math.min((progress - 0.15) * 1.82, 1));
+                
+                gsap.set(headerElement, {
+                  opacity: headerProgress,
+                  y: 30 * (1 - headerProgress)
+                });
+                gsap.set(contentElement, {
+                  opacity: contentProgress,
+                  y: 30 * (1 - contentProgress)
+                });
+                gsap.set(smallImage, {
+                  opacity: smallImageProgress
+                });
+                gsap.set(smallImg, {
+                  scale: 1.2 - 0.2 * smallImageProgress
+                });
+                gsap.set(largeImage, {
+                  opacity: largeImageProgress,
+                  x: 100 * (1 - largeImageProgress)
+                });
+                gsap.set(largeImg, {
+                  scale: 1.15 - 0.15 * largeImageProgress
+                });
+              }
+            });
+          }
+        }
+      });
+
+      // Mobile animations - simpler fade-in effects with image zoom
+      mm.add("(max-width: 1023px)", () => {
+        [homeDreamsRef, presidentRef, premiumRef, livingRef].forEach(ref => {
+          if (ref.current) {
+            const elements = ref.current.querySelectorAll('.animate-on-scroll');
+            
+            elements.forEach((element, index) => {
+              const img = element.querySelector('img');
+              
+              gsap.set(element, { opacity: 0, y: 30 });
+              if (img) {
+                gsap.set(img, { scale: 1.15 });
+              }
+              
+              ScrollTrigger.create({
+                trigger: element,
+                start: 'top 90%',
+                end: 'top 60%',
+                scrub: 1,
+                onUpdate: (self) => {
+                  gsap.to(element, {
+                    opacity: self.progress,
+                    y: 30 * (1 - self.progress),
+                    duration: 0.1
+                  });
+                  
+                  if (img) {
+                    gsap.to(img, {
+                      scale: 1.15 - 0.15 * self.progress,
+                      duration: 0.1
+                    });
+                  }
+                }
+              });
+            });
+          }
+        });
+      });
+
+      return () => {
+        mm.revert();
+        ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      };
+    };
+
+    const cleanup = initScrollAnimations();
+    
+    return cleanup;
   }, []);
 
   const BANNER_HEIGHT = 288;
@@ -143,13 +404,13 @@ const AboutPage: React.FC = () => {
       </PageBanner>
 
       {/* HOME OF DREAMS Section */}
-      <section className="py-16 md:py-24 bg-white">
+      <section ref={homeDreamsRef} className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="flex flex-col lg:grid lg:grid-cols-7 gap-8 lg:gap-12">
             {/* Left Column - Title (Bottom Aligned on desktop) */}
             <div className="order-1 lg:order-1 lg:col-span-2 flex flex-col justify-center lg:justify-end">
               <div className="flex justify-center lg:justify-end">
-                <div className="flex flex-col items-center lg:items-start">
+                <div className="flex flex-col items-center lg:items-start section-title animate-on-scroll">
                   <SectionHeader 
                     title={aboutSections.homeDreams.title}
                     subtitle={aboutSections.homeDreams.subtitle}
@@ -161,7 +422,7 @@ const AboutPage: React.FC = () => {
             </div>
             
             {/* Middle Column - Image */}
-            <div className="order-2 lg:order-2 lg:col-span-3 flex items-center">
+            <div className="order-2 lg:order-2 lg:col-span-3 flex items-center section-image animate-on-scroll overflow-hidden">
               <img 
                 src={aboutSections.homeDreams.image}
                 alt="澤暘建設 - 誠信築基 匠心營造"
@@ -170,7 +431,7 @@ const AboutPage: React.FC = () => {
             </div>
             
             {/* Right Column - Content (Top Aligned on desktop) */}
-            <div className="order-3 lg:order-3 lg:col-span-2 flex flex-col justify-center lg:justify-start">
+            <div className="order-3 lg:order-3 lg:col-span-2 flex flex-col justify-center lg:justify-start section-content animate-on-scroll">
               <ContentText content={aboutSections.homeDreams.content} />
             </div>
           </div>
@@ -178,14 +439,14 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* PRESIDENT Section */}
-      <section className="py-16 md:py-24 bg-white">
+      <section ref={presidentRef} className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-6 xl:px-36 2xl:px-72">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center lg:items-end">
             {/* Left Column - Text Content with Image */}
             <div className="order-3 lg:order-1 w-full flex flex-col justify-end flex-1 lg:translate-y-24">
               <div className="space-y-6 flex flex-row lg:flex-col">
                 {/* Vertical Text Content */}
-                <div className="order-last lg:order-first flex-1 flex justify-center space-x-4 text-black leading-relaxed text-content-mobile lg:text-content-desktop lg:translate-y-16">
+                <div className="order-last lg:order-first flex-1 flex justify-center space-x-4 text-black leading-relaxed text-content-mobile lg:text-content-desktop lg:translate-y-16 vertical-text animate-on-scroll z-20">
                   <p style={{ writingMode: 'vertical-rl' }}>
                     {aboutSections.president.verticalText.split('\n').map((line, i) => (
                       <React.Fragment key={i}>
@@ -197,7 +458,7 @@ const AboutPage: React.FC = () => {
                 </div>
                 
                 {/* Bottom Image */}
-                <div>
+                <div className="bottom-image animate-on-scroll">
                   <img 
                     src={aboutSections.president.bottomImage}
                     alt="建築設計"
@@ -208,7 +469,7 @@ const AboutPage: React.FC = () => {
             </div>
             
             {/* Middle Column - President Info */}
-            <div className="order-1 lg:order-2 flex flex-col justify-center flex-shrink-0">
+            <div className="order-1 lg:order-2 flex flex-col justify-center flex-shrink-0 president-info animate-on-scroll">
               <div className="text-left space-y-8">
                 <div className="space-y-4">
                   <p className="text-center lg:text-right text-primary-more text-content-mobile lg:text-content-desktop tracking-widest font-medium">
@@ -234,7 +495,7 @@ const AboutPage: React.FC = () => {
             </div>
             
             {/* Right Column - President Photo */}
-            <div className="order-2 lg:order-3 flex flex-col justify-start flex-1 lg:-translate-y-24">
+            <div className="order-2 lg:order-3 flex flex-col justify-start flex-1 lg:-translate-y-24 president-image animate-on-scroll">
               <img 
                 src={aboutSections.president.image}
                 alt="澤暘建設 江德成 總經理"
@@ -246,12 +507,12 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* PREMIUM STANDARD BUILDING Section */}
-      <section className="relative py-16 md:py-24 lg:py-0 bg-white">
+      <section ref={premiumRef} className="relative py-16 md:py-24 lg:py-0 bg-white">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="flex flex-col lg:block space-y-8 lg:space-y-0">
             {/* Header - Mobile center, Desktop right with overlay */}
             <div className="lg:flex lg:justify-end lg:mb-4">
-              <div className="lg:translate-y-20 lg:z-10 lg:relative lg:p-8">
+              <div className="lg:translate-y-20 lg:z-10 lg:relative lg:p-8 premium-header animate-on-scroll">
                 <SectionHeader 
                   title={aboutSections.premium.title}
                   subtitle={aboutSections.premium.subtitle}
@@ -262,15 +523,15 @@ const AboutPage: React.FC = () => {
             </div>
             
             {/* Image with overlay text */}
-            <div className="relative">
+            <div className="relative overflow-hidden">
               <img 
                 src={aboutSections.premium.image}
                 alt="精工鍛造 × 機能尺度 量化家的幸福"
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-cover premium-image"
               />
               
               {/* Content Text - Mobile below image, Desktop overlay on left */}
-              <div className="lg:absolute lg:inset-y-0 lg:flex lg:items-center lg:left-0">
+              <div className="lg:absolute lg:inset-y-0 lg:flex lg:items-center lg:left-0 overlay-content animate-on-scroll">
                 <div className="mt-8 lg:mt-0 lg:max-w-lg">
                   <ContentText 
                     content={aboutSections.premium.content}
@@ -284,32 +545,36 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* LIVING IN SUSTAINABLE HARMONY Section */}
-      <section className="py-16 md:py-24 bg-white">
+      <section ref={livingRef} className="py-16 md:py-24 bg-white">
         {/* Mobile Layout */}
         <div className="lg:hidden container mx-auto px-6">
           <div className="space-y-12">
             {/* Header */}
-            <SectionHeader 
-              title={aboutSections.living.title}
-              subtitle={aboutSections.living.subtitle}
-              textAlign="center"
-            />
+            <div className="animate-on-scroll">
+              <SectionHeader 
+                title={aboutSections.living.title}
+                subtitle={aboutSections.living.subtitle}
+                textAlign="center"
+              />
+            </div>
             
             {/* Content */}
             <div className="space-y-8">
               {/* Text Content */}
-              <ContentText content={aboutSections.living.content} />
+              <div className="animate-on-scroll">
+                <ContentText content={aboutSections.living.content} />
+              </div>
               
               {/* Images */}
               <div className="space-y-6">
-                <div className="w-[85%]">
+                <div className="w-[85%] animate-on-scroll">
                   <img 
                     src={aboutSections.living.smallImage}
                     alt="孩童玩樂"
                     className="w-full h-auto object-cover"
                   />
                 </div>
-                <div className='-translate-y-12 w-[85%] ms-[15%]'>
+                <div className='-translate-y-12 w-[85%] ms-[15%] animate-on-scroll'>
                   <img 
                     src={aboutSections.living.largeImage}
                     alt="自然森活環境"
@@ -331,17 +596,21 @@ const AboutPage: React.FC = () => {
             <div className="col-span-2 pr-8 xl:pr-12 flex flex-col justify-center min-h-[600px]">
               <div className="space-y-8 transform translate-y-8">
                 {/* Header */}
-                <SectionHeader 
-                  title={aboutSections.living.title}
-                  subtitle={aboutSections.living.subtitle}
-                  textAlign="left"
-                />
+                <div className="living-header">
+                  <SectionHeader 
+                    title={aboutSections.living.title}
+                    subtitle={aboutSections.living.subtitle}
+                    textAlign="left"
+                  />
+                </div>
                 
                 {/* Text Content */}
-                <ContentText content={aboutSections.living.content} />
+                <div className="living-content">
+                  <ContentText content={aboutSections.living.content} />
+                </div>
                 
                 {/* Small Image */}
-                <div className="mt-8">
+                <div className="mt-8 small-image overflow-hidden">
                   <img 
                     src={aboutSections.living.smallImage}
                     alt="孩童玩樂"
@@ -352,7 +621,7 @@ const AboutPage: React.FC = () => {
             </div>
             
             {/* Large Image Columns - Flush to right edge */}
-            <div className="col-span-3 -translate-y-8">
+            <div className="col-span-3 -translate-y-8 large-image overflow-hidden">
               <img 
                 src={aboutSections.living.largeImage}
                 alt="自然森活環境"

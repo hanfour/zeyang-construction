@@ -68,6 +68,8 @@ const HotProjects: React.FC = () => {
         project.is_featured === 1 && allowedStatuses.includes(project.status)
       );
       
+      console.log('API data:', data);
+      console.log('Filtered projects:', filteredProjects);
       setProjects(filteredProjects);
     } catch (error) {
       console.error('Error fetching featured projects:', error);
@@ -230,8 +232,8 @@ const HotProjects: React.FC = () => {
     }
   };
 
-  // 如果沒有專案或正在載入中，不顯示區塊
-  if (projects.length === 0) {
+  // 如果沒有專案且載入完成，不顯示區塊
+  if (!isLoading && projects.length === 0) {
     return null;
   }
 
