@@ -104,12 +104,13 @@ const AdminEmailSettings: React.FC = () => {
       } else {
         setTestResult({
           success: false,
-          message: response.error || 'SMTP 連線測試失敗'
+          message: typeof response.error === 'string' ? response.error : (response.error?.details || response.error?.code || 'SMTP 連線測試失敗')
         });
         toast.error('SMTP 連線測試失敗');
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.message || 'SMTP 連線測試失敗';
+      const apiError = error.response?.data?.error;
+      const errorMessage = typeof apiError === 'string' ? apiError : (apiError?.details || apiError?.code || error.message || 'SMTP 連線測試失敗');
       setTestResult({
         success: false,
         message: errorMessage
