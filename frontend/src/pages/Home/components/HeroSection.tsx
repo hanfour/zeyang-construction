@@ -26,7 +26,16 @@ const HeroSection: React.FC = () => {
 
     if (!section || !heroLeft || !subtitle || !title || !line || !heroRight || blocks.length === 0 || masks.length === 0) return;
 
-    // 檢查是否需要減少動畫
+    // 延遲初始化以等待 AnimatedSections 完成設置
+    const initDelay = setTimeout(() => {
+      // 先檢查 AnimatedSections 是否已經初始化完成
+      const animatedSections = document.querySelector('.section-dream');
+      if (animatedSections) {
+        // 等待 AnimatedSections 的 ScrollTrigger 完全初始化
+        ScrollTrigger.refresh();
+      }
+
+      // 檢查是否需要減少動畫
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // 初始狀態設置
@@ -63,6 +72,14 @@ const HeroSection: React.FC = () => {
     });
 
     if (!prefersReducedMotion) {
+      // 多次刷新確保位置計算正確
+      ScrollTrigger.refresh();
+      
+      // 再次確保正確的位置計算
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
+      
       // 垂直線條動畫 - 根據整個區塊的滾動進度
       gsap.to(line, {
         height: '100%',
@@ -71,7 +88,8 @@ const HeroSection: React.FC = () => {
           trigger: section,
           start: 'top 80%',
           end: 'bottom 20%',
-          scrub: 1
+          scrub: 1,
+          refreshPriority: -1 // 較低的優先級，讓其他動畫先初始化
         }
       });
 
@@ -86,6 +104,7 @@ const HeroSection: React.FC = () => {
             start: 'top 80%',
             end: 'bottom 20%',
             toggleActions: 'play none none reverse',
+            refreshPriority: -1, // 較低優先級，避免與 AnimatedSections 衝突
             onEnter: () => {
               block.classList.add('show');
             },
@@ -97,9 +116,7 @@ const HeroSection: React.FC = () => {
             },
             onLeaveBack: () => {
               block.classList.remove('show');
-            },
-            // 啟用重新觸發，確保動畫可以重複播放
-            refreshPriority: 1
+            }
           }
         });
 
@@ -110,8 +127,10 @@ const HeroSection: React.FC = () => {
         });
       });
     }
+    }, 100); // Close the setTimeout callback
 
     return () => {
+      clearTimeout(initDelay);
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
