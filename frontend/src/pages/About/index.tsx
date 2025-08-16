@@ -1,152 +1,369 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import PageBanner from '@/components/Layout/PageBanner';
+import MenuButton from '@/components/Layout/MenuButton';
+import NavigationMenu from '@/components/Layout/NavigationMenu';
+
+// 數據結構
+const aboutSections = {
+  homeDreams: {
+    title: "HOME OF DREAMS",
+    subtitle: "誠信築基\n匠心營造",
+    content: [
+      "澤暘建設深耕土地多年\n30年來鐫刻無數大台北地標\n我們相信，好的住宅不僅是建築本身，\n更是生活價值的延伸與呈現。",
+      "未來澤暘將持續以踏實的腳步前行，\n創造符合現代人需求、兼具舒適與美感的生活空間，\n讓建築經得起時光焠鍊，成就永恆地標之美，\n讓每一位住進「澤暘」的家人所見所感皆如所願\n建築質感、生活價值兼具，打從心底感到幸福"
+    ],
+    image: "/images/about/img-home.png"
+  },
+  president: {
+    title: "PRESIDENT",
+    subtitle: "澤暘建設\n江德成 總經理",
+    verticalText: "將夢想建築化作現實中的動人詩篇\n只為實現心中的理想之作——\n到對建築由裡到外的細膩雕琢\n從對選地的嚴苛挑剔",
+    experiences: [
+      "保陽建設 總經理",
+      "金樹機構 執行長", 
+      "梅齡建設 副總經理",
+      "江氏建設 創辦人之一兼執行副總"
+    ],
+    image: "/images/about/img-president.png",
+    bottomImage: "/images/about/img-president2.png"
+  },
+  premium: {
+    title: "PREMIUM STANDARD BUILDING",
+    subtitle: "精工鍛造 × 機能尺度\n量化家的幸福",
+    content: "澤暘的建築，講究的不只是格局，\n更是一種貼近生活的尺度美學\n精算迎光面的開窗角度、對材質的嚴格挑選、\n設計讓人更安心的耐震結構\n每一道細節都不是隨意，\n而是層層推敲後的選擇\n這些細緻入微的堅持，不只是對建築的用心\n更是澤暘對「理想生活」的信念與實踐",
+    image: "/images/about/img-premium.png"
+  },
+  living: {
+    title: "LIVING IN SUSTAINABLE HARMONY",
+    subtitle: "便捷自然森活\n永續共好承諾",
+    content: "以永續共好為使命\n結合智慧建築與綠建築技術\n優化能源管理與環境友善\n打造節能健康的生活空間\n讓每一位居住者都能感受到「共好」的溫度\n這不僅是一份責任\n更是澤暘對未來世代最真摯的承諾",
+    smallImage: "/images/about/img-kids.png",
+    largeImage: "/images/about/img-living.png"
+  }
+};
+
+// 通用組件
+const SectionHeader: React.FC<{
+  title: string;
+  subtitle: string;
+  className?: string;
+  textAlign?: 'left' | 'center' | 'right';
+}> = ({ title, subtitle, className = "", textAlign = 'center' }) => (
+  <div className={`space-y-4 lg:space-y-6 text-${textAlign} ${className}`}>
+    <p className="text-primary-more text-content-mobile lg:text-content-desktop tracking-widest font-medium">
+      {title}
+    </p>
+    <h2 className="text-main-large-title-mobile lg:text-main-large-title-desktop font-light text-black leading-tight">
+      {subtitle.split('\n').map((line, i) => (
+        <React.Fragment key={i}>
+          {line}
+          {i < subtitle.split('\n').length - 1 && <br />}
+        </React.Fragment>
+      ))}
+    </h2>
+  </div>
+);
+
+const ContentText: React.FC<{
+  content: string | string[];
+  className?: string;
+}> = ({ content, className = "" }) => (
+  <div className={`space-y-6 text-content-mobile lg:text-content-desktop text-black leading-relaxed text-center lg:text-left ${className}`}>
+    {Array.isArray(content) ? content.map((paragraph, i) => (
+      <p key={i}>
+        {paragraph.split('\n').map((line, j) => (
+          <React.Fragment key={j}>
+            {line}
+            {j < paragraph.split('\n').length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </p>
+    )) : (
+      <p>
+        {content.split('\n').map((line, i) => (
+          <React.Fragment key={i}>
+            {line}
+            {i < content.split('\n').length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </p>
+    )}
+  </div>
+);
+
 
 const AboutPage: React.FC = () => {
-  const values = [
-    {
-      title: '專業誠信',
-      description: '以專業知識和誠信態度，為客戶提供最優質的房地產服務。',
-    },
-    {
-      title: '創新思維',
-      description: '不斷創新，引領市場趨勢，提供前瞻性的房地產解決方案。',
-    },
-    {
-      title: '客戶至上',
-      description: '以客戶需求為中心，量身打造最適合的房地產投資方案。',
-    },
-    {
-      title: '永續發展',
-      description: '致力於綠色建築和永續發展，創造更美好的居住環境。',
-    },
-  ];
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
-  const milestones = [
-    { year: '2015', event: 'ZeYang 品牌成立' },
-    { year: '2017', event: '完成第一個百億級專案' },
-    { year: '2019', event: '榮獲最佳房地產開發商獎' },
-    { year: '2021', event: '推出智慧建築系列專案' },
-    { year: '2023', event: '達成 50 個專案里程碑' },
-  ];
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const BANNER_HEIGHT = 288;
+
+  const bannerConfig = {
+    logoSection: {
+      iconSrc: "/images/logo-icon-brand.svg",
+      iconAlt: "澤暘建設",
+      subtitle: "ABOUT ZY",
+      title: "關於澤暘 "
+    },
+    centralContent: {
+      text: "築的不只是房子，更是一種生活價值\nWe craft more than homes We create a way of living."
+    },
+    backgroundImage: "/images/about/top-bn-about.png"
+  };
 
   return (
     <>
       <Helmet>
-        <title>關於品牌 - ZeYang</title>
-        <meta name="description" content="了解 ZeYang 的品牌故事、企業理念和發展歷程。" />
+        <title>關於澤暘 - 澤暘建設</title>
+        <meta name="description" content="築的不只是房子，更是一種生活價值" />
       </Helmet>
 
       {/* Hero Section */}
-      <section className="relative bg-primary-50 py-16 md:py-24">
-        <div className="container mx-auto px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-              關於 ZeYang
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">
-              自 2015 年成立以來，ZeYang 致力於打造最優質的房地產專案，
-              結合創新設計與永續理念，為客戶創造理想的生活空間。
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageBanner config={bannerConfig}>
+        {/* Menu Button */}
+        <MenuButton 
+          isOpen={isMenuOpen} 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          color={scrollY > BANNER_HEIGHT ? 'dark' : 'light'}
+        />
+        
+        {/* Navigation Menu */}
+        <NavigationMenu 
+          isOpen={isMenuOpen} 
+          onClose={() => setIsMenuOpen(false)} 
+        />
+      </PageBanner>
 
-      {/* Mission & Vision */}
+      {/* HOME OF DREAMS Section */}
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">我們的使命</h2>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                透過專業的房地產開發與管理，創造具有長期價值的優質專案，
-                為客戶提供最佳的投資機會，同時為社會創造更美好的生活環境。
-              </p>
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">我們的願景</h2>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                成為最受信賴的房地產品牌，引領產業創新，打造永續、智慧、
-                人性化的建築專案，讓每個人都能擁有理想的生活空間。
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Core Values */}
-      <section className="py-16 md:py-24 bg-gray-50">
-        <div className="container mx-auto px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">核心價值</h2>
-            <p className="mt-4 text-lg text-gray-600">
-              我們堅持的四大核心價值，是成功的基石
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-                <CheckCircleIcon className="h-10 w-10 text-primary-600 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{value.title}</h3>
-                <p className="text-gray-600">{value.description}</p>
+          <div className="flex flex-col lg:grid lg:grid-cols-7 gap-8 lg:gap-12">
+            {/* Left Column - Title (Bottom Aligned on desktop) */}
+            <div className="order-1 lg:order-1 lg:col-span-2 flex flex-col justify-center lg:justify-end">
+              <div className="flex justify-center lg:justify-end">
+                <div className="flex flex-col items-center lg:items-start">
+                  <SectionHeader 
+                    title={aboutSections.homeDreams.title}
+                    subtitle={aboutSections.homeDreams.subtitle}
+                    textAlign="center"
+                    className="lg:text-left"
+                  />
+                </div>
               </div>
-            ))}
+            </div>
+            
+            {/* Middle Column - Image */}
+            <div className="order-2 lg:order-2 lg:col-span-3 flex items-center">
+              <img 
+                src={aboutSections.homeDreams.image}
+                alt="澤暘建設 - 誠信築基 匠心營造"
+                className="w-full h-auto object-cover object-bottom max-h-[360px] lg:max-h-none"
+              />
+            </div>
+            
+            {/* Right Column - Content (Top Aligned on desktop) */}
+            <div className="order-3 lg:order-3 lg:col-span-2 flex flex-col justify-center lg:justify-start">
+              <ContentText content={aboutSections.homeDreams.content} />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Timeline */}
+      {/* PRESIDENT Section */}
       <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">發展歷程</h2>
-            <p className="mt-4 text-lg text-gray-600">
-              見證 ZeYang 的成長與蛻變
-            </p>
-          </div>
-          <div className="max-w-4xl mx-auto">
-            {milestones.map((milestone, index) => (
-              <div key={index} className="flex items-center mb-8 last:mb-0">
-                <div className="flex-shrink-0 w-24 text-right">
-                  <span className="text-2xl font-bold text-primary-600">{milestone.year}</span>
+        <div className="container mx-auto px-6 xl:px-36 2xl:px-72">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center lg:items-end">
+            {/* Left Column - Text Content with Image */}
+            <div className="order-3 lg:order-1 w-full flex flex-col justify-end flex-1 lg:translate-y-24">
+              <div className="space-y-6 flex flex-row lg:flex-col">
+                {/* Vertical Text Content */}
+                <div className="order-last lg:order-first flex-1 flex justify-center space-x-4 text-black leading-relaxed text-content-mobile lg:text-content-desktop lg:translate-y-16">
+                  <p style={{ writingMode: 'vertical-rl' }}>
+                    {aboutSections.president.verticalText.split('\n').map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < aboutSections.president.verticalText.split('\n').length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
+                  </p>
                 </div>
-                <div className="ml-8 flex-grow">
-                  <div className="h-px bg-gray-300" />
-                </div>
-                <div className="ml-8 flex-grow">
-                  <p className="text-lg text-gray-700">{milestone.event}</p>
+                
+                {/* Bottom Image */}
+                <div>
+                  <img 
+                    src={aboutSections.president.bottomImage}
+                    alt="建築設計"
+                    className="w-full h-auto object-cover"
+                  />
                 </div>
               </div>
-            ))}
+            </div>
+            
+            {/* Middle Column - President Info */}
+            <div className="order-1 lg:order-2 flex flex-col justify-center flex-shrink-0">
+              <div className="text-left space-y-8">
+                <div className="space-y-4">
+                  <p className="text-center lg:text-right text-primary-more text-content-mobile lg:text-content-desktop tracking-widest font-medium">
+                    {aboutSections.president.title}
+                  </p>
+                  <div className='flex flex-col space-y-2 font-normal text-black leading-tight'>
+                    <h2 className="text-main-large-title-mobile lg:text-main-large-title-desktop" style={{ textAlignLast: 'justify' }}>
+                      澤暘建設
+                    </h2>
+                    <p className="text-sub-title-mobile lg:text-sub-title-desktop" style={{ textAlignLast: 'justify' }}>江德成 總經理</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3 text-content-mobile lg:text-content-desktop text-black leading-relaxed">
+                  {aboutSections.president.experiences.map((exp, i) => (
+                    <p key={i} className="flex items-center justify-center lg:justify-start">
+                      <span className="w-2 h-2 bg-primary-more rounded-full mr-3"></span>
+                      {exp}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Right Column - President Photo */}
+            <div className="order-2 lg:order-3 flex flex-col justify-start flex-1 lg:-translate-y-24">
+              <img 
+                src={aboutSections.president.image}
+                alt="澤暘建設 江德成 總經理"
+                className="w-full h-auto object-cover object-top"
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-primary-600 py-16">
-        <div className="container mx-auto px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            與我們一起打造未來
-          </h2>
-          <p className="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
-            無論您是尋找理想住所還是投資機會，ZeYang 都是您最佳的選擇
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/projects"
-              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary-600 bg-white hover:bg-primary-50 transition-colors"
-            >
-              瀏覽專案
-            </a>
-            <a
-              href="/contact"
-              className="inline-flex items-center justify-center px-6 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-primary-700 transition-colors"
-            >
-              聯絡我們
-            </a>
+      {/* PREMIUM STANDARD BUILDING Section */}
+      <section className="relative py-16 md:py-24 lg:py-0 bg-white">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="flex flex-col lg:block space-y-8 lg:space-y-0">
+            {/* Header - Mobile center, Desktop right with overlay */}
+            <div className="lg:flex lg:justify-end lg:mb-4">
+              <div className="lg:translate-y-20 lg:z-10 lg:relative lg:p-8">
+                <SectionHeader 
+                  title={aboutSections.premium.title}
+                  subtitle={aboutSections.premium.subtitle}
+                  textAlign="center"
+                  className="lg:text-right"
+                />
+              </div>
+            </div>
+            
+            {/* Image with overlay text */}
+            <div className="relative">
+              <img 
+                src={aboutSections.premium.image}
+                alt="精工鍛造 × 機能尺度 量化家的幸福"
+                className="w-full h-auto object-cover"
+              />
+              
+              {/* Content Text - Mobile below image, Desktop overlay on left */}
+              <div className="lg:absolute lg:inset-y-0 lg:flex lg:items-center lg:left-0">
+                <div className="mt-8 lg:mt-0 lg:max-w-lg">
+                  <ContentText 
+                    content={aboutSections.premium.content}
+                    className="lg:text-white lg:p-8 lg:text-shadow-dark text-center lg:text-left"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* LIVING IN SUSTAINABLE HARMONY Section */}
+      <section className="py-16 md:py-24 bg-white">
+        {/* Mobile Layout */}
+        <div className="lg:hidden container mx-auto px-6">
+          <div className="space-y-12">
+            {/* Header */}
+            <SectionHeader 
+              title={aboutSections.living.title}
+              subtitle={aboutSections.living.subtitle}
+              textAlign="center"
+            />
+            
+            {/* Content */}
+            <div className="space-y-8">
+              {/* Text Content */}
+              <ContentText content={aboutSections.living.content} />
+              
+              {/* Images */}
+              <div className="space-y-6">
+                <div className="w-[85%]">
+                  <img 
+                    src={aboutSections.living.smallImage}
+                    alt="孩童玩樂"
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+                <div className='-translate-y-12 w-[85%] ms-[15%]'>
+                  <img 
+                    src={aboutSections.living.largeImage}
+                    alt="自然森活環境"
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Layout */}
+        <div className="hidden lg:block">
+          <div className="grid grid-cols-6 gap-0">
+            {/* Empty Column */}
+            <div className="col-span-1"></div>
+            
+            {/* Text Content Columns */}
+            <div className="col-span-2 pr-8 xl:pr-12 flex flex-col justify-center min-h-[600px]">
+              <div className="space-y-8 transform translate-y-8">
+                {/* Header */}
+                <SectionHeader 
+                  title={aboutSections.living.title}
+                  subtitle={aboutSections.living.subtitle}
+                  textAlign="left"
+                />
+                
+                {/* Text Content */}
+                <ContentText content={aboutSections.living.content} />
+                
+                {/* Small Image */}
+                <div className="mt-8">
+                  <img 
+                    src={aboutSections.living.smallImage}
+                    alt="孩童玩樂"
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Large Image Columns - Flush to right edge */}
+            <div className="col-span-3 -translate-y-8">
+              <img 
+                src={aboutSections.living.largeImage}
+                alt="自然森活環境"
+                className="w-full h-full object-cover"
+                style={{ minHeight: '600px' }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
     </>
   );
 };
