@@ -61,9 +61,9 @@ const HotProjects: React.FC = () => {
       // 檢查響應結構：{ success: true, data: { items: [] } }
       const projectsArray = data.success && data.data && data.data.items ? data.data.items : [];
       
-      // 過濾符合條件的專案：必須是精選且狀態為規劃中、預售或銷售中
+      // 過濾符合條件的專案：必須是精選且狀態為預售或銷售中
       // 注意：API 中 status 是英文 (pre_sale)，is_featured 是數字 (1)
-      const allowedStatuses = ['planning', 'pre_sale', 'selling']; // 英文狀態
+      const allowedStatuses = ['pre_sale', 'selling']; // 只顯示預售和銷售中
       const filteredProjects = projectsArray.filter((project: any) => 
         project.is_featured === 1 && allowedStatuses.includes(project.status)
       );
@@ -71,33 +71,8 @@ const HotProjects: React.FC = () => {
       setProjects(filteredProjects);
     } catch (error) {
       console.error('Error fetching featured projects:', error);
-      // 如果API失敗，使用備用數據
-      setProjects([
-        {
-          id: 1,
-          title: '都心典藏',
-          category: '住宅',
-          location: '台北市中正區',
-          status: 'selling',
-          is_featured: 1
-        },
-        {
-          id: 2,
-          title: '水岸第一排',
-          category: '住宅',
-          location: '台北市大安區',
-          status: 'pre_sale',
-          is_featured: 1
-        },
-        {
-          id: 3,
-          title: '森林秘境',
-          category: '住宅',
-          location: '台北市信義區',
-          status: 'planning',
-          is_featured: 1
-        }
-      ]);
+      // API 失敗時不設定備用數據，讓區塊不顯示
+      setProjects([]);
     } finally {
       setIsLoading(false);
     }
@@ -254,6 +229,11 @@ const HotProjects: React.FC = () => {
       handleSlideChange();
     }
   };
+
+  // 如果沒有專案或正在載入中，不顯示區塊
+  if (projects.length === 0) {
+    return null;
+  }
 
   return (
     <section ref={sectionRef} className="hot-projects relative w-full py-8 md:pb-24 bg-white overflow-hidden">

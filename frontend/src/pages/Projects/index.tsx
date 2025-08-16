@@ -73,15 +73,15 @@ const ProjectCard: React.FC<{
                     }))}
                     config={{
                       container: { 
-                        aspectRatio: '3/4',
+                        aspectRatio: '4/5',
                         alignItems: 'start'
                       },
                       activeSlide: { 
-                        aspectRatio: '3/4',
+                        aspectRatio: '4/5',
                         width: '100%'
                       },
                       nextSlide: { 
-                        aspectRatio: '3/4',
+                        aspectRatio: '4/5',
                         width: '0%'
                       },
                       autoHeight: false,
@@ -101,16 +101,16 @@ const ProjectCard: React.FC<{
                     }))}
                     config={{
                       container: { 
-                        aspectRatio: '3/4',
+                        aspectRatio: '4/5',
                         alignItems: 'start',
                         justifyContent: 'between'
                       },
                       activeSlide: { 
-                        aspectRatio: '3/4',
+                        aspectRatio: '4/5',
                         width: '7/12'
                       },
                       nextSlide: { 
-                        aspectRatio: '3/4',
+                        aspectRatio: '4/5',
                         width: '5/12',
                         scale: 1
                       },
@@ -276,7 +276,9 @@ const ProjectsPage: React.FC = () => {
       const response = await projectService.getProjects();
       
       if (response.success && response.data?.items) {
-        setProjects(response.data.items);
+        // Filter out projects with 'planning' status
+        const filteredProjects = response.data.items.filter(project => project.status !== 'planning');
+        setProjects(filteredProjects);
         setError(null);
       } else {
         setError('專案列表載入失敗');

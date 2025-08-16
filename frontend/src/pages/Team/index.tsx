@@ -96,7 +96,7 @@ const TeamPage: React.FC = () => {
             alt="Team collaboration"
           />
         </div>
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative container mx-auto px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">
               品牌團隊
@@ -111,7 +111,7 @@ const TeamPage: React.FC = () => {
 
       {/* Team Introduction */}
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">專業、熱情、創新</h2>
             <p className="text-lg text-gray-600 leading-relaxed">
@@ -125,7 +125,7 @@ const TeamPage: React.FC = () => {
 
       {/* Department Filter */}
       <section className="py-8 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-6 lg:px-8">
           <div className="flex flex-wrap justify-center gap-2">
             {departments.map((dept) => (
               <button
@@ -146,7 +146,7 @@ const TeamPage: React.FC = () => {
 
       {/* Team Members */}
       <section className="py-16 md:py-24 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredMembers.map((member) => (
               <div key={member.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
@@ -191,7 +191,7 @@ const TeamPage: React.FC = () => {
 
       {/* Join Us CTA */}
       <section className="py-16 bg-primary-600">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="container mx-auto px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             加入我們的團隊
           </h2>

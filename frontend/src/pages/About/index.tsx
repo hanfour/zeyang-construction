@@ -39,7 +39,7 @@ const AboutPage: React.FC = () => {
 
       {/* Hero Section */}
       <section className="relative bg-primary-50 py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
               關於 ZeYang
@@ -54,7 +54,7 @@ const AboutPage: React.FC = () => {
 
       {/* Mission & Vision */}
       <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">我們的使命</h2>
@@ -76,7 +76,7 @@ const AboutPage: React.FC = () => {
 
       {/* Core Values */}
       <section className="py-16 md:py-24 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">核心價值</h2>
             <p className="mt-4 text-lg text-gray-600">
@@ -97,7 +97,7 @@ const AboutPage: React.FC = () => {
 
       {/* Timeline */}
       <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">發展歷程</h2>
             <p className="mt-4 text-lg text-gray-600">
@@ -124,7 +124,7 @@ const AboutPage: React.FC = () => {
 
       {/* CTA */}
       <section className="bg-primary-600 py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="container mx-auto px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             與我們一起打造未來
           </h2>

@@ -90,7 +90,7 @@ const ContactPage: React.FC = () => {
     <>
       <Helmet>
         <title>聯絡我們 - 澤暘建設</title>
-        <meta name="description" content="與澤暘建設聯繫，了解更多房地產專案資訊或預約賞屋。" />
+        <meta name="description" content="澤暘建設提供專業建案諮詢、購屋需求規劃、土地開發與都更合建服務。立即聯絡我們，為您的理想家園與土地價值打造最佳方案。" />
       </Helmet>
 
       {/* Hero Section */}
@@ -111,7 +111,7 @@ const ContactPage: React.FC = () => {
 
       {/* Contact Form Section */}
       <section className="py-16 md:py-24 bg-[url('/images/contact/form-bg.png')] bg-cover bg-center">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-6 lg:px-8">
           <div className="max-w-3xl mx-auto bg-white p-8 md:p-12 shadow-lg">
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="grid md:grid-cols-2 md:gap-8 h-full">
@@ -128,7 +128,7 @@ const ContactPage: React.FC = () => {
                         type="text"
                         id="name"
                         {...register('name', { required: '請輸入姓名' })}
-                        className="w-full h-12 px-4 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                         placeholder=""
                       />
                     </div>
@@ -147,7 +147,7 @@ const ContactPage: React.FC = () => {
                       <select
                         id="gender"
                         {...register('gender', { required: '請選擇性別' })}
-                        className="w-full h-12 px-4 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none appearance-none"
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none appearance-none"
                       >
                         {genderOptions.map((option) => (
                           <option key={option.value} value={option.value}>
@@ -177,7 +177,7 @@ const ContactPage: React.FC = () => {
                         type="tel"
                         id="phone"
                         {...register('phone', { required: '請輸入聯絡電話' })}
-                        className="w-full h-12 px-4 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                         placeholder=""
                       />
                     </div>
@@ -203,7 +203,7 @@ const ContactPage: React.FC = () => {
                             message: '請輸入有效的電子信箱'
                           }
                         })}
-                        className="w-full h-12 px-4 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                         placeholder=""
                       />
                     </div>
@@ -225,7 +225,7 @@ const ContactPage: React.FC = () => {
                       <select
                         id="requirement"
                         {...register('requirement', { required: '請選擇需求項目' })}
-                        className="w-full h-12 px-4 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none appearance-none"
+                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none appearance-none"
                       >
                         {requirementOptions.map((option) => (
                           <option key={option.value} value={option.value}>

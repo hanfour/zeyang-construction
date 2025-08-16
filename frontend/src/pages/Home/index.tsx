@@ -23,12 +23,6 @@ const HomePage: React.FC = () => {
       <HeroSection />
       {/* 熱銷個案輪播區塊 */}
       <HotProjects />
-      
-      
-      {/* <HotCategories />
-      <FeaturedProjects />
-      <Features />
-      <CTA /> */}
     </>
   );
 };

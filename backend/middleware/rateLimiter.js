@@ -4,7 +4,7 @@ const { RATE_LIMIT, ERROR_CODES } = require('../config/constants');
 // General rate limiter
 const rateLimiter = rateLimit({
   windowMs: (RATE_LIMIT.GENERAL.window || 15) * 60 * 1000,
-  max: RATE_LIMIT.GENERAL.max || 100,
+  max: process.env.NODE_ENV === 'development' ? 1000 : (RATE_LIMIT.GENERAL.max || 100),
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later',
@@ -15,9 +15,10 @@ const rateLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
-    // Skip rate limiting for whitelisted IPs
+    // Skip rate limiting for whitelisted IPs or development mode with localhost
     const whitelist = process.env.RATE_LIMIT_WHITELIST?.split(',') || [];
-    return whitelist.includes(req.ip);
+    const isLocalhost = req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1';
+    return whitelist.includes(req.ip) || (process.env.NODE_ENV === 'development' && isLocalhost);
   }
 });
 

@@ -9,6 +9,11 @@ interface NavigationMenuProps {
 
 const NavigationMenu: React.FC<NavigationMenuProps> = ({ isOpen, onClose }) => {
   const [animationKey, setAnimationKey] = React.useState(0);
+  
+  const handleNavClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    onClose();
+  };
   // Prevent scroll and compensate for scrollbar width to avoid layout shift
   useEffect(() => {
     if (isOpen) {
@@ -136,18 +141,23 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isOpen, onClose }) => {
                 : 'visibility 5ms ease 1s, z-index 5ms ease 1s'
             }}
           >
-            <div className="h-full flex flex-col lg:flex-row p-12 xl:p-20 gap-16 lg:gap-24 2xl:gap-48">
+            <div className="h-full flex flex-col sm:flex-row px-12 pt-24 xl:p-20 gap-16 lg:gap-24 2xl:gap-48">
               {/* Left Content Area */}
-              <div className="flex flex-col">
+              <div className="flex-1 flex flex-col z-20">
                 {/* Content wrapper with max width */}
                 <div className="w-full lg:max-w-fit">
                   {/* Logo */}
                   <div className="mb-8 lg:mb-16">
-                    <img 
-                      src="/images/logo-full-brand.svg" 
-                      alt="澤暘建設" 
-                      className="h-16 w-full filter brightness-0 invert object-contain object-left"
-                    />
+                    <Link
+                      to='/'
+                      onClick={handleNavClick}
+                    >
+                      <img 
+                        src="/images/logo-full-brand.svg" 
+                        alt="澤暘建設" 
+                        className="h-16 w-full filter brightness-0 invert object-contain object-left"
+                      />
+                    </Link>
                   </div>
 
                   {/* Menu Items - Desktop 2 columns layout */}
@@ -182,7 +192,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isOpen, onClose }) => {
                         >
                         <Link
                           to={item.path}
-                          onClick={onClose}
+                          onClick={handleNavClick}
                           className="block group"
                         >
                           <div className="flex flex-col items-end">
@@ -204,8 +214,8 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isOpen, onClose }) => {
 
               {/* Right Image Area */}
               <div className="block flex-1 relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full max-w-[90%] lg:max-w-[75%] aspect-square">
+                <div className="absolute inset-0 flex items-center justify-end lg:justify-start">
+                  <div className="w-full max-w-[90%] lg:max-w-[75%] aspect-square relative">
                     {/* Image placeholder - in real app, use actual building image */}
                     <div className="w-full h-full bg-gradient-to-br from-neutral-300 to-neutral-400 relative">
                       <motion.img 
@@ -239,53 +249,52 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isOpen, onClose }) => {
                       {/* Overlay gradient */}
                       <div className="absolute inset-0 bg-gradient-to-r from-primary-light/30 to-transparent" />
                     </div>
-                  </div>
-                </div>
-
-                {/* ZEYANG Text positioned on the right edge of image */}
-                <div className="absolute right-[5%] lg:right-[20%] top-1/2 -translate-y-1/2">
-                  <div className="relative">
-                    {/* First shadow layer */}
-                    <p 
-                      className="absolute text-5xl lg:text-6xl xl:text-8xl font-bold leading-none"
-                      style={{
-                        writingMode: 'vertical-rl',
-                        textOrientation: 'mixed',
-                        transform: 'translateX(50%)',
-                        letterSpacing: '0.1em',
-                        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, white 100%)',
-                        maskImage: 'linear-gradient(to right, transparent 0%, white 100%)',
-                        color: 'rgba(255, 255, 255, 0.3)'
-                      }}
-                    >
-                      ZEYANG
-                    </p>
-                    {/* Second shadow layer - further right */}
-                    <p 
-                      className="absolute text-5xl lg:text-6xl xl:text-8xl font-bold leading-none"
-                      style={{
-                        writingMode: 'vertical-rl',
-                        textOrientation: 'mixed',
-                        transform: 'translateX(100%)',
-                        letterSpacing: '0.1em',
-                        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, white 100%)',
-                        maskImage: 'linear-gradient(to right, transparent 0%, white 100%)',
-                        color: 'rgba(255, 255, 255, 0.15)'
-                      }}
-                    >
-                      ZEYANG
-                    </p>
-                    {/* Main text */}
-                    <p 
-                      className="relative text-5xl lg:text-6xl xl:text-8xl font-bold text-white leading-none"
-                      style={{
-                        writingMode: 'vertical-rl',
-                        textOrientation: 'mixed',
-                        letterSpacing: '0.1em'
-                      }}
-                    >
-                      ZEYANG
-                    </p>
+                    {/* ZEYANG Text positioned on the right edge of image */}
+                    <div className="absolute -right-[2%] lg:-right-[10%] top-1/2 -translate-y-1/2">
+                      <div className="relative">
+                        {/* First shadow layer */}
+                        <p 
+                          className="absolute text-5xl lg:text-6xl xl:text-8xl font-bold leading-none"
+                          style={{
+                            writingMode: 'vertical-rl',
+                            textOrientation: 'mixed',
+                            transform: 'translateX(50%)',
+                            letterSpacing: '0.1em',
+                            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, white 100%)',
+                            maskImage: 'linear-gradient(to right, transparent 0%, white 100%)',
+                            color: 'rgba(255, 255, 255, 0.3)'
+                          }}
+                        >
+                          ZEYANG
+                        </p>
+                        {/* Second shadow layer - further right */}
+                        <p 
+                          className="absolute text-5xl lg:text-6xl xl:text-8xl font-bold leading-none"
+                          style={{
+                            writingMode: 'vertical-rl',
+                            textOrientation: 'mixed',
+                            transform: 'translateX(100%)',
+                            letterSpacing: '0.1em',
+                            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, white 100%)',
+                            maskImage: 'linear-gradient(to right, transparent 0%, white 100%)',
+                            color: 'rgba(255, 255, 255, 0.15)'
+                          }}
+                        >
+                          ZEYANG
+                        </p>
+                        {/* Main text */}
+                        <p 
+                          className="relative text-5xl lg:text-6xl xl:text-8xl font-bold text-white leading-none"
+                          style={{
+                            writingMode: 'vertical-rl',
+                            textOrientation: 'mixed',
+                            letterSpacing: '0.1em'
+                          }}
+                        >
+                          ZEYANG
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

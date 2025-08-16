@@ -329,7 +329,7 @@ const CustomCarousel: React.FC<CustomCarouselProps> = ({
     >
       {/* Active Slide with Slide Animation */}
       <div
-        className="overflow-hidden rounded flex-shrink-0 relative"
+        className="overflow-hidden flex-shrink-0 relative"
         style={{
           width: dimensions ? `${dimensions.active.width}px` : '100%',
           height: dimensions ? `${dimensions.active.height}px` : '100%',
@@ -383,7 +383,7 @@ const CustomCarousel: React.FC<CustomCarouselProps> = ({
       {/* Next Slide Preview with animation */}
       {config.nextSlide.width !== '0%' && dimensions && dimensions.next.width > 0 && (
         <div
-          className="overflow-hidden rounded flex-shrink-0 relative"
+          className="overflow-hidden flex-shrink-0 relative"
           style={{
             width: `${dimensions.next.width}px`,
             height: `${dimensions.next.height}px`,

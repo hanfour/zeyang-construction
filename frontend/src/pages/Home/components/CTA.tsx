@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const CTA: React.FC = () => {
   return (
     <section className="bg-primary-600">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-6 lg:px-8">
         <div className="py-16 md:py-20 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
             準備好找到您的理想房產了嗎？

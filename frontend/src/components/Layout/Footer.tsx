@@ -2,6 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
+  const handleNavClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <footer className="bg-neutral-100">
@@ -12,11 +15,13 @@ const Footer: React.FC = () => {
             {/* Logo */}
             <div className="flex-1 mb-8 lg:mb-0">
               <div className="flex items-center justify-center lg:justify-start">
-                <img 
-                  src="/images/logo-full-brand.svg" 
-                  alt="澤暘建設股份有限公司" 
-                  className="h-12 sm:h-14 lg:h-16 w-auto"
-                />
+                <Link to="/" onClick={handleNavClick}>
+                  <img 
+                    src="/images/logo-full-brand.svg" 
+                    alt="澤暘建設股份有限公司" 
+                    className="h-6 sm:h-8 lg:h-10 w-auto"
+                  />
+                </Link>
               </div>
             </div>
 
@@ -25,23 +30,23 @@ const Footer: React.FC = () => {
               {/* Links */}
               <div className='flex justify-center lg:justify-end mb-6 lg:mb-32'>
                 <div className="flex flex-wrap gap-1 sm:gap-6 lg:gap-8 items-center text-content-mobile lg:text-content-desktop justify-center lg:justify-end">
-                  <Link to="/about" className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/about" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
                     關於澤暘
                   </Link>
                   <div className="w-px h-4 bg-neutral-400 lg:hidden"></div>
-                  <Link to="/team" className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/team" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
                     澤暘團隊
                   </Link>
                   <div className="w-px h-4 bg-neutral-400 lg:hidden"></div>
-                  <Link to="/projects" className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/projects" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
                     澤暘作品
                   </Link>
                   <div className="w-px h-4 bg-neutral-400 lg:hidden"></div>
-                  <Link to="/development" className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/development" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
                     開發專區
                   </Link>
                   <div className="w-px h-4 bg-neutral-400 lg:hidden"></div>
-                  <Link to="/contact" className="text-neutral-600 hover:text-primary transition-colors">
+                  <Link to="/contact" onClick={handleNavClick} className="text-neutral-600 hover:text-primary transition-colors">
                     聯絡我們
                   </Link>
                 </div>
@@ -62,20 +67,20 @@ const Footer: React.FC = () => {
               </div>
 
               {/* Copyright */}
-              <div className="text-xs text-neutral-500 text-center lg:text-right">
+              <div className="text-[8px] lg:text-xs text-neutral-500 text-center lg:text-right">
                 <p>© COPYRIGHT ZE YANG. ALL RIGHTS RESERVED</p>
               </div>
             </div>
           </div>
 
           {/* Right Section */}
-          <div className="flex-shrink-0 flex flex-col items-center space-y-4 w-full lg:w-48 bg-primary py-8 lg:py-0 lg:border-s-[2px] lg:border-white">
+          <Link to="/contact" onClick={handleNavClick} className="flex-shrink-0 flex flex-col items-center space-y-4 w-full lg:w-48 bg-primary py-8 lg:py-0 lg:border-s-[2px] lg:border-white hover:bg-[#d4b672] transition-colors duration-300 cursor-pointer">
             {/* Contact Icon */}
             <div className="pt-4 lg:pt-24">
               <img 
                 src="/images/icons/icon-contact.png" 
                 alt="Contact" 
-                className="h-10 w-10 sm:h-12 sm:w-12"
+                className="h-10 w-10 sm:h-12 sm:w-12 transition-transform duration-300 hover:scale-110"
               />
             </div>
 
@@ -90,7 +95,7 @@ const Footer: React.FC = () => {
                 與我們聯繫
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </footer>
