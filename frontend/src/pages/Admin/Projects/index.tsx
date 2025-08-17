@@ -55,7 +55,7 @@ const AdminProjects: React.FC = () => {
     year: new Date().getFullYear(),
     area: '',
     floor_plan_info: '',
-    unit_count: undefined,
+    unit_count: 0,
     display_order: 0,
     is_featured: false,
     facebook_page: '',
@@ -226,7 +226,7 @@ const AdminProjects: React.FC = () => {
       year: project.year || new Date().getFullYear(),
       area: project.area || '',
       floor_plan_info: project.floor_plan_info || '',
-      unit_count: project.unit_count || undefined,
+      unit_count: project.unit_count || 0,
       display_order: project.display_order,
       is_featured: project.is_featured,
       facebook_page: project.facebook_page || '',
@@ -287,7 +287,7 @@ const AdminProjects: React.FC = () => {
       year: new Date().getFullYear(),
       area: '',
       floor_plan_info: '',
-      unit_count: undefined,
+      unit_count: 0,
       display_order: 0,
       is_featured: false,
       facebook_page: '',
@@ -638,7 +638,7 @@ const AdminProjects: React.FC = () => {
                             updatedFormData.year = new Date().getFullYear();
                             updatedFormData.area = '';
                             updatedFormData.floor_plan_info = '';
-                            updatedFormData.unit_count = undefined;
+                            updatedFormData.unit_count = 0;
                             updatedFormData.description = '';
                             updatedFormData.facebook_page = '';
                             updatedFormData.booking_phone = '';
@@ -763,8 +763,16 @@ const AdminProjects: React.FC = () => {
                         <input
                           type="number"
                           id="unit_count"
+                          min="0"
                           value={formData.unit_count || ''}
-                          onChange={(e) => setFormData({ ...formData, unit_count: e.target.value ? parseInt(e.target.value) : undefined })}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            let numValue = 0;
+                            if (value) {
+                              numValue = Math.max(0, parseInt(value) || 0);
+                            }
+                            setFormData({ ...formData, unit_count: numValue });
+                          }}
                           className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
                         />
                       </div>

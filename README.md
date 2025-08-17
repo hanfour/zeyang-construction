@@ -517,11 +517,8 @@ docker-compose up -d
 
 ## 📚 相關文檔
 
-- **[詳細部署指南](DEPLOYMENT_GUIDE.md)** - 完整的生產環境部署說明
-- **[廠商快速指南](README_FOR_VENDOR.md)** - 5分鐘快速部署指南
-- **[API 測試指南](backend/API-GUIDE.md)** - API 使用與測試說明
+- **[部署指南](DEPLOYMENT.md)** - 完整的生產環境部署說明
 - **[Swagger API 文檔](http://localhost:5001/api-docs)** - 互動式 API 文檔
-- **[測試結果報告](backend/tests/FINAL-REPORT.md)** - 完整測試報告
 - **[資料庫架構](backend/database/schema.sql)** - 資料庫結構說明
 
 ## 🤝 貢獻指南
@@ -573,7 +570,7 @@ docker-compose up -d
   
   <p>
     <a href="#top">⬆️ 回到頂部</a> | 
-    <a href="DEPLOYMENT_GUIDE.md">📖 部署指南</a> | 
+    <a href="DEPLOYMENT.md">📖 部署指南</a> | 
     <a href="http://localhost:5001/api-docs">📚 API 文檔</a>
   </p>
 </div>

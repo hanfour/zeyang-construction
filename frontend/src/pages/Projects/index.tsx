@@ -7,6 +7,7 @@ import NavigationMenu from '@/components/Layout/NavigationMenu';
 import PageBanner from '@/components/Layout/PageBanner';
 import CustomCarousel from '@/components/Carousel/CustomCarousel';
 import { useInView } from 'react-intersection-observer';
+import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
 // Simple Project Card Component
 const ProjectCard: React.FC<{ 
@@ -161,7 +162,7 @@ const ProjectCard: React.FC<{
                 <span className="font-medium">{project.area}</span>
               </div>
             )}
-            {project.unit_count && (
+            {project.unit_count != null && project.unit_count > 0 && (
               <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
                 <span className="w-[6.25em]">總戶數</span>
                 <span className="font-medium">{project.unit_count} 戶</span>
@@ -169,7 +170,7 @@ const ProjectCard: React.FC<{
             )}
             {project.floor_plan_info && (
               <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
-                <span className="w-[6.25em]">格局資訊</span>
+                <span className="w-[6.25em]">樓層規劃</span>
                 <span className="font-medium">{project.floor_plan_info}</span>
               </div>
             )}
@@ -177,40 +178,6 @@ const ProjectCard: React.FC<{
               <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
                 <span className="w-[6.25em]">預約專線</span>
                 <span className="font-medium">{project.booking_phone}</span>
-              </div>
-            )}
-            
-            {/* Info Website */}
-            {project.info_website && (
-              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
-                <span className="w-[6.25em]">專案網站</span>
-                <span className="font-medium">
-                  <a 
-                    href={project.info_website} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary-more hover:underline"
-                  >
-                    {project.info_website}
-                  </a>
-                </span>
-              </div>
-            )}
-            
-            {/* Facebook Page */}
-            {project.facebook_page && (
-              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
-                <span className="w-[6.25em]">Facebook</span>
-                <span className="font-medium">
-                  <a 
-                    href={project.facebook_page} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary-more hover:underline"
-                  >
-                    Facebook 專頁
-                  </a>
-                </span>
               </div>
             )}
             
@@ -248,7 +215,7 @@ const ProjectCard: React.FC<{
             {currentProject.custom_fields && currentProject.custom_fields.length > 0 && (
               <>
                 {currentProject.custom_fields.map((field, index) => (
-                  field.value && (
+                  field.value && field.label && field.value.toString().trim() !== '' && (
                     <div key={index} className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
                       <span className="w-[6.25em]">{field.label}</span>
                       <span className="font-medium">{field.value}</span>
@@ -256,6 +223,39 @@ const ProjectCard: React.FC<{
                   )
                 ))}
               </>
+            )}
+
+            {/* Social Links Icons - 放在最後 */}
+            {(project.info_website || project.facebook_page) && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">相關連結</span>
+                <div className="flex flex-row space-x-3">
+                  {project.info_website && (
+                    <a 
+                      href={project.info_website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary-more hover:text-primary transition-colors duration-200"
+                      title="專案網站"
+                    >
+                      <GlobeAltIcon className="h-5 w-5" />
+                    </a>
+                  )}
+                  {project.facebook_page && (
+                    <a 
+                      href={project.facebook_page} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary-more hover:text-primary transition-colors duration-200"
+                      title="Facebook 專頁"
+                    >
+                      <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    </a>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>
