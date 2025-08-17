@@ -44,7 +44,7 @@
 ## 目錄結構
 
 ```
-estate-hub/
+zeyang/
 ├── backend/
 │   ├── config/
 │   │   ├── database.js         # MySQL 連接池配置
@@ -524,7 +524,7 @@ chore:    維護工作
 # 基礎設定
 NODE_ENV=development
 PORT=5001
-CLIENT_URL=http://localhost:3000
+CLIENT_URL=http://localhost:5173
 
 # 資料庫
 DB_HOST=localhost

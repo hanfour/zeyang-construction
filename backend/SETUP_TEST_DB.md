@@ -31,7 +31,7 @@ FLUSH PRIVILEGES;
 # 確保 .env.test 檔案設置正確
 cat > .env.test << EOL
 NODE_ENV=test
-PORT=3001
+PORT=5001
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=你的密碼

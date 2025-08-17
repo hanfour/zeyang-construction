@@ -36,7 +36,7 @@ cp .env.example .env
 DB_HOST=localhost
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
-DB_NAME=estatehub_db
+DB_NAME=zeyang
 
 # JWT 配置
 JWT_SECRET=your-super-secret-jwt-key
@@ -48,7 +48,7 @@ REFRESH_EXPIRES_IN=7d
 PORT=5001
 NODE_ENV=development
 ENABLE_SWAGGER=true
-ALLOWED_ORIGINS=http://localhost:3000
+ALLOWED_ORIGINS=http://localhost:5173
 
 # 檔案上傳配置
 UPLOAD_MAX_SIZE=300mb
@@ -68,7 +68,7 @@ SMTP_FROM=noreply@zeyang.com
 mysql -u root -p < ../database/init.sql
 
 # 載入範例資料（可選）
-mysql -u root -p estatehub_db < ../database/seeds/sample-data.sql
+mysql -u root -p zeyang < ../database/seeds/sample-data.sql
 ```
 
 **預設管理員帳號：**

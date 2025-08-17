@@ -27,7 +27,7 @@ sudo npm install -g pm2
 ```bash
 # Clone 專案
 git clone [repository-url]
-cd estate-hub
+cd zeyang
 
 # 安裝依賴
 npm install --production
@@ -60,7 +60,7 @@ server {
     }
 
     location /uploads {
-        alias /var/www/estate-hub/uploads;
+        alias /var/www/zeyang/uploads;
         expires 30d;
     }
 }

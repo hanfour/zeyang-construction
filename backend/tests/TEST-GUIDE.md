@@ -72,11 +72,11 @@ Error: connect ECONNREFUSED ::1:3306
 
 ### 2. 端口衝突
 ```
-Error: listen EADDRINUSE: address already in use :::3001
+Error: listen EADDRINUSE: address already in use :::5001
 ```
 
 **解決方案**:
-- 停止佔用 3001 端口的服務
+- 停止佔用 5001 端口的服務 (後端 API 預設端口)
 - 或修改 .env.test 中的 PORT 設置
 
 ### 3. 測試超時

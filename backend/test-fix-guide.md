@@ -55,7 +55,7 @@ router.get('/info', authenticate, authorize(USER_ROLES.ADMIN), asyncHandler(asyn
 echo $ALLOWED_ORIGINS
 
 # 測試 CORS
-curl -H "Origin: http://localhost:3000" \
+curl -H "Origin: http://localhost:5173" \
      -H "Access-Control-Request-Method: GET" \
      -H "Access-Control-Request-Headers: X-Requested-With" \
      -X OPTIONS \
