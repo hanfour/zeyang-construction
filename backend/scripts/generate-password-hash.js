@@ -14,7 +14,7 @@ bcrypt.hash(password, 10, (err, hash) => {
     console.error('Error generating hash:', err);
     process.exit(1);
   }
-  
+
   console.log('Password:', password);
   console.log('Hash:', hash);
   console.log('\nSQL Insert:');

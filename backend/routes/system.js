@@ -8,7 +8,7 @@ const { testConnection } = require('../config/database');
 // Health check (public)
 router.get('/health', asyncHandler(async (req, res) => {
   const dbStatus = await testConnection();
-  
+
   res.json({
     success: true,
     data: {

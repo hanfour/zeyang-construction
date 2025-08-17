@@ -33,9 +33,9 @@ router.get('/', asyncHandler(async (req, res) => {
     limit: req.query.limit ? parseInt(req.query.limit) : null,
     category: req.query.category || null
   };
-  
+
   const tags = await TagService.getAllTags(options);
-  
+
   res.json({
     success: true,
     data: tags
@@ -46,7 +46,7 @@ router.get('/', asyncHandler(async (req, res) => {
 router.get('/popular', asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const tags = await TagService.getPopularTags(limit);
-  
+
   res.json({
     success: true,
     data: tags
@@ -56,7 +56,7 @@ router.get('/popular', asyncHandler(async (req, res) => {
 // Search tags (public)
 router.get('/search', asyncHandler(async (req, res) => {
   const { q } = req.query;
-  
+
   if (!q || q.trim().length < 1) {
     return res.status(400).json({
       success: false,
@@ -66,9 +66,9 @@ router.get('/search', asyncHandler(async (req, res) => {
       }
     });
   }
-  
+
   const tags = await TagService.searchTags(q);
-  
+
   res.json({
     success: true,
     data: tags
@@ -78,9 +78,9 @@ router.get('/search', asyncHandler(async (req, res) => {
 // Get single tag with projects (public)
 router.get('/:identifier', asyncHandler(async (req, res) => {
   const { identifier } = req.params;
-  
+
   const tag = await TagService.getTag(identifier);
-  
+
   if (!tag) {
     return res.status(404).json({
       success: false,
@@ -90,7 +90,7 @@ router.get('/:identifier', asyncHandler(async (req, res) => {
       }
     });
   }
-  
+
   res.json({
     success: true,
     data: tag
@@ -98,13 +98,13 @@ router.get('/:identifier', asyncHandler(async (req, res) => {
 }));
 
 // Create new tag (admin/editor only)
-router.post('/', 
-  authenticate, 
+router.post('/',
+  authenticate,
   authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
   createTagValidation,
   asyncHandler(async (req, res) => {
     const tag = await TagService.createTag(req.body);
-    
+
     res.status(201).json({
       success: true,
       message: SUCCESS_MESSAGES.CREATED,
@@ -114,15 +114,15 @@ router.post('/',
 );
 
 // Update tag (admin only)
-router.put('/:identifier', 
-  authenticate, 
+router.put('/:identifier',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   updateTagValidation,
   asyncHandler(async (req, res) => {
     const { identifier } = req.params;
-    
+
     const tag = await TagService.updateTag(identifier, req.body);
-    
+
     res.json({
       success: true,
       message: SUCCESS_MESSAGES.UPDATED,
@@ -132,14 +132,14 @@ router.put('/:identifier',
 );
 
 // Delete tag (admin only)
-router.delete('/:identifier', 
-  authenticate, 
+router.delete('/:identifier',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   asyncHandler(async (req, res) => {
     const { identifier } = req.params;
-    
+
     await TagService.deleteTag(identifier);
-    
+
     res.json({
       success: true,
       message: SUCCESS_MESSAGES.DELETED
@@ -148,8 +148,8 @@ router.delete('/:identifier',
 );
 
 // Merge tags (admin only)
-router.post('/merge', 
-  authenticate, 
+router.post('/merge',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   [
     body('sourceId').isInt().withMessage('Source tag ID must be an integer'),
@@ -158,9 +158,9 @@ router.post('/merge',
   ],
   asyncHandler(async (req, res) => {
     const { sourceId, targetId } = req.body;
-    
+
     const result = await TagService.mergeTags(sourceId, targetId);
-    
+
     res.json({
       success: true,
       message: `Tags merged successfully. ${result.mergedCount} projects updated.`,
@@ -170,12 +170,12 @@ router.post('/merge',
 );
 
 // Update all tag usage counts (admin only)
-router.post('/update-counts', 
-  authenticate, 
+router.post('/update-counts',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   asyncHandler(async (req, res) => {
     await TagService.updateTagUsageCounts();
-    
+
     res.json({
       success: true,
       message: 'Tag usage counts updated successfully'

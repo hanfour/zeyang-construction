@@ -199,9 +199,9 @@ CREATE TABLE IF NOT EXISTS `settings` (
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- Insert default admin user (password: Admin123!)
+-- Insert default admin user (password: admin123)
 INSERT IGNORE INTO `users` (`username`, `email`, `password`, `role`) 
-VALUES ('admin', 'admin@ZeYang.com', '$2a$10$YourHashedPasswordHere', 'admin');
+VALUES ('admin', 'admin@ZeYang.com', '$2a$10$kFkyEY.y8hF.m/VMxjxG1e0v2y6a8mCnxbn.fxDHqV9.VUueu3tC.', 'admin');
 
 -- Insert default settings
 INSERT IGNORE INTO `settings` (`key`, `value`, `type`, `category`) VALUES

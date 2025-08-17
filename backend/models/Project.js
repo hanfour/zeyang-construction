@@ -11,14 +11,14 @@ class Project {
       is_featured,
       search
     } = filters;
-    
+
     const {
       page = 1,
       limit = 20,
       orderBy = 'displayOrder',
       orderDir = 'ASC'
     } = options;
-    
+
     let sql = `
       SELECT 
         p.id,
@@ -63,90 +63,90 @@ class Project {
       LEFT JOIN tags t ON pt.tag_id = t.id
       WHERE 1=1
     `;
-    
+
     const params = [];
-    
+
     if (category) {
       sql += ' AND p.category = ?';
       params.push(category);
     }
-    
+
     if (status) {
       sql += ' AND p.status = ?';
       params.push(status);
     }
-    
+
     if (display_page) {
       sql += ' AND p.display_page = ?';
       params.push(display_page);
     }
-    
+
     if (is_featured !== undefined) {
       sql += ' AND p.is_featured = ?';
       params.push(is_featured);
     }
-    
+
     if (search) {
       sql += ' AND (p.title LIKE ? OR p.subtitle LIKE ? OR p.location LIKE ?)';
       const searchPattern = `%${search}%`;
       params.push(searchPattern, searchPattern, searchPattern);
     }
-    
+
     sql += ' GROUP BY p.id';
-    
+
     // Add ordering
     const validColumns = ['created_at', 'updated_at', 'view_count', 'title', 'id'];
     const validDirs = ['ASC', 'DESC'];
-    
+
     if (validColumns.includes(orderBy) && validDirs.includes(orderDir.toUpperCase())) {
       sql += ` ORDER BY p.${orderBy} ${orderDir.toUpperCase()}`;
     } else {
       sql += ' ORDER BY p.created_at DESC';
     }
-    
+
     // Add pagination
     const limitNum = Math.max(1, Math.min(100, parseInt(limit) || 20));
     const offsetNum = Math.max(0, (parseInt(page) - 1) * limitNum);
     sql += ` LIMIT ${limitNum} OFFSET ${offsetNum}`;
-    
+
     // Get total count
     let countSql = `
       SELECT COUNT(DISTINCT p.id) as total
       FROM projects p
       WHERE 1=1
     `;
-    
+
     const countParams = [];
-    
+
     if (category) {
       countSql += ' AND p.category = ?';
       countParams.push(category);
     }
-    
+
     if (status) {
       countSql += ' AND p.status = ?';
       countParams.push(status);
     }
-    
+
     if (display_page) {
       countSql += ' AND p.display_page = ?';
       countParams.push(display_page);
     }
-    
+
     if (is_featured !== undefined) {
       countSql += ' AND p.is_featured = ?';
       countParams.push(is_featured);
     }
-    
+
     if (search) {
       countSql += ' AND (p.title LIKE ? OR p.subtitle LIKE ? OR p.location LIKE ?)';
       const searchPattern = `%${search}%`;
       countParams.push(searchPattern, searchPattern, searchPattern);
     }
-    
+
     const [{ total }] = await query(countSql, countParams);
     const projects = await query(sql, params);
-    
+
     // Parse tags, features, and main image data
     projects.forEach(project => {
       project.tags = project.tags ? project.tags.split(',') : [];
@@ -164,7 +164,7 @@ class Project {
           project.featuresEn = [];
         }
       }
-      
+
       // Parse main image thumbnails
       if (project.main_image_thumbnails && typeof project.main_image_thumbnails === 'string') {
         try {
@@ -173,7 +173,7 @@ class Project {
           project.main_image_thumbnails = {};
         }
       }
-      
+
       // Create main_image object for easier frontend access
       if (project.main_image_path) {
         project.main_image = {
@@ -181,12 +181,12 @@ class Project {
           thumbnails: project.main_image_thumbnails || {}
         };
       }
-      
+
       // Clean up temporary fields
       delete project.main_image_path;
       delete project.main_image_thumbnails;
     });
-    
+
     return {
       items: projects,
       pagination: {
@@ -199,7 +199,7 @@ class Project {
       }
     };
   }
-  
+
   // Find project by identifier (UUID or slug)
   static async findByIdentifier(identifier) {
     const sql = `
@@ -212,11 +212,11 @@ class Project {
       LEFT JOIN users u2 ON p.updated_by = u2.id
       WHERE p.slug = ? OR p.uuid = ?
     `;
-    
+
     const project = await findOne(sql, [identifier, identifier]);
-    
+
     if (!project) return null;
-    
+
     // Get images
     const images = await query(
       `SELECT * FROM project_images 
@@ -224,7 +224,7 @@ class Project {
        ORDER BY image_type, display_order, id`,
       [project.uuid]
     );
-    
+
     // Get tags
     const tags = await query(
       `SELECT t.* FROM tags t
@@ -232,7 +232,7 @@ class Project {
        WHERE pt.project_uuid = ?`,
       [project.uuid]
     );
-    
+
     // Parse JSON fields for images
     images.forEach(img => {
       if (img.dimensions && typeof img.dimensions === 'string') {
@@ -250,7 +250,7 @@ class Project {
         }
       }
     });
-    
+
     // Parse JSON fields for project
     if (project.features) {
       try {
@@ -266,14 +266,14 @@ class Project {
         project.featuresEn = [];
       }
     }
-    
+
     return {
       ...project,
       images,
       tags
     };
   }
-  
+
   // Create new project
   static async create(data, userId) {
     return await transaction(async (connection) => {
@@ -298,11 +298,11 @@ class Project {
         display_order = 0,
         tags = []
       } = data;
-      
+
       // Generate unique identifiers
       const uuid = require('crypto').randomUUID();
       const slug = `${title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
-      
+
       // Insert project with database schema fields
       const [projectResult] = await connection.execute(
         `INSERT INTO projects (
@@ -335,9 +335,9 @@ class Project {
           userId
         ]
       );
-      
+
       const projectId = projectResult.insertId;
-      
+
       // Handle tags
       if (tags.length > 0) {
         for (const tagName of tags) {
@@ -345,7 +345,7 @@ class Project {
             'SELECT id FROM tags WHERE name = ?',
             [tagName]
           );
-          
+
           let tagId;
           if (existingTag.length > 0) {
             tagId = existingTag[0].id;
@@ -358,7 +358,7 @@ class Project {
             );
             tagId = tagResult.insertId;
           }
-          
+
           // Create project-tag relation
           await connection.execute(
             'INSERT INTO project_tags (project_uuid, tag_id) VALUES (?, ?)',
@@ -366,9 +366,9 @@ class Project {
           );
         }
       }
-      
+
       logger.info('Project created', { projectId, uuid, slug, userId });
-      
+
       return {
         id: projectId,
         uuid,
@@ -376,7 +376,7 @@ class Project {
       };
     });
   }
-  
+
   // Update project
   static async update(identifier, data, userId) {
     return await transaction(async (connection) => {
@@ -385,11 +385,11 @@ class Project {
         'SELECT id, uuid FROM projects WHERE slug = ? OR uuid = ?',
         [identifier, identifier]
       );
-      
+
       if (existing.length === 0) {
         throw new Error('Project not found');
       }
-      
+
       const project = existing[0];
       const {
         name: title,
@@ -403,66 +403,66 @@ class Project {
         isFeatured: is_featured,
         tags
       } = data;
-      
+
       // Update main project info
       const updateFields = [];
       const updateParams = [];
-      
+
       if (title !== undefined) {
         updateFields.push('title = ?');
         updateParams.push(title);
       }
-      
+
       if (subtitle !== undefined) {
         updateFields.push('subtitle = ?');
         updateParams.push(subtitle);
       }
-      
+
       if (category !== undefined) {
         updateFields.push('category = ?');
         updateParams.push(category);
       }
-      
+
       if (status !== undefined) {
         updateFields.push('status = ?');
         updateParams.push(status);
       }
-      
+
       if (display_page !== undefined) {
         updateFields.push('display_page = ?');
         updateParams.push(display_page);
       }
-      
+
       if (location !== undefined) {
         updateFields.push('location = ?');
         updateParams.push(location);
       }
-      
+
       if (year !== undefined) {
         updateFields.push('year = ?');
         updateParams.push(year);
       }
-      
+
       if (area !== undefined) {
         updateFields.push('area = ?');
         updateParams.push(area);
       }
-      
+
       if (is_featured !== undefined) {
         updateFields.push('is_featured = ?');
         updateParams.push(is_featured);
       }
-      
+
       if (updateFields.length > 0) {
         updateFields.push('updated_by = ?', 'updated_at = NOW()');
         updateParams.push(userId, project.id);
-        
+
         await connection.execute(
           `UPDATE projects SET ${updateFields.join(', ')} WHERE id = ?`,
           updateParams
         );
       }
-      
+
       // Update tags if provided
       if (tags !== undefined) {
         // Remove existing tags
@@ -470,14 +470,14 @@ class Project {
           'DELETE FROM project_tags WHERE project_uuid = ?',
           [project.uuid]
         );
-        
+
         // Add new tags
         for (const tagName of tags) {
           const [existingTag] = await connection.execute(
             'SELECT id FROM tags WHERE name = ?',
             [tagName]
           );
-          
+
           let tagId;
           if (existingTag.length > 0) {
             tagId = existingTag[0].id;
@@ -489,34 +489,34 @@ class Project {
             );
             tagId = tagResult.insertId;
           }
-          
+
           await connection.execute(
             'INSERT INTO project_tags (project_uuid, tag_id) VALUES (?, ?)',
             [project.uuid, tagId]
           );
         }
       }
-      
+
       logger.info('Project updated', { projectId: project.id, userId });
-      
+
       return { success: true };
     });
   }
-  
+
   // Delete project
   static async delete(identifier) {
     const sql = 'DELETE FROM projects WHERE slug = ? OR uuid = ?';
     const result = await query(sql, [identifier, identifier]);
-    
+
     if (result.affectedRows === 0) {
       throw new Error('Project not found');
     }
-    
+
     logger.info('Project deleted', { identifier });
-    
+
     return { success: true };
   }
-  
+
   // Update project status
   static async updateStatus(identifier, status, userId) {
     const result = await query(
@@ -524,44 +524,44 @@ class Project {
        WHERE slug = ? OR uuid = ?`,
       [status, userId, identifier, identifier]
     );
-    
+
     if (result.affectedRows === 0) {
       throw new Error('Project not found');
     }
-    
+
     return { success: true };
   }
-  
+
   // Toggle featured status
   static async toggleFeatured(identifier, userId) {
     const project = await findOne(
       'SELECT id, is_featured as isFeatured FROM projects WHERE slug = ? OR uuid = ?',
       [identifier, identifier]
     );
-    
+
     if (!project) {
       throw new Error('Project not found');
     }
-    
+
     await query(
       'UPDATE projects SET is_featured = ?, updated_by = ?, updated_at = NOW() WHERE id = ?',
       [!project.isFeatured, userId, project.id]
     );
-    
+
     return { isFeatured: !project.isFeatured };
   }
-  
+
   // Increment view count
   static async incrementViewCount(identifier) {
     const result = await query(
       'UPDATE projects SET view_count = view_count + 1 WHERE slug = ? OR uuid = ?',
       [identifier, identifier]
     );
-    
+
     if (result.affectedRows === 0) {
       throw new Error('Project not found');
     }
-    
+
     return { success: true };
   }
 }

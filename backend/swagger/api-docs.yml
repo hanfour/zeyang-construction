@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: ZeYang API
   description: ZeYang 房地產專案管理系統 API 文檔
-  version: 2.0.0
+  version: 2.1.0
   contact:
     name: API Support
     email: dev@ZeYang.com
@@ -1311,6 +1311,562 @@ paths:
         403:
           $ref: '#/components/responses/Forbidden'
 
+  # 設定管理端點
+  /settings:
+    get:
+      tags:
+        - Settings
+      summary: 取得所有設定或特定分類設定
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: 設定分類
+      responses:
+        200:
+          description: 設定列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+    
+    put:
+      tags:
+        - Settings
+      summary: 批量更新設定
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - settings
+              properties:
+                settings:
+                  type: object
+                  description: 設定物件
+      responses:
+        200:
+          description: 設定更新成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /settings/{key}:
+    get:
+      tags:
+        - Settings
+      summary: 取得單一設定
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: key
+          required: true
+          schema:
+            type: string
+          description: 設定鍵值
+      responses:
+        200:
+          description: 設定詳情
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /settings/smtp/test:
+    post:
+      tags:
+        - Settings
+      summary: 測試 SMTP 連線
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: SMTP 測試成功
+        400:
+          description: SMTP 測試失敗
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /settings/category/email:
+    get:
+      tags:
+        - Settings
+      summary: 取得電子郵件設定
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 電子郵件設定
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+    
+    put:
+      tags:
+        - Settings
+      summary: 更新電子郵件設定
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                smtp_enabled:
+                  type: boolean
+                smtp_host:
+                  type: string
+                smtp_port:
+                  type: integer
+                  minimum: 1
+                  maximum: 65535
+                smtp_secure:
+                  type: boolean
+                smtp_username:
+                  type: string
+                smtp_password:
+                  type: string
+                smtp_from_email:
+                  type: string
+                  format: email
+                smtp_from_name:
+                  type: string
+                admin_notification_emails:
+                  type: string
+                send_admin_notifications:
+                  type: boolean
+                send_user_confirmations:
+                  type: boolean
+      responses:
+        200:
+          description: 電子郵件設定更新成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        422:
+          $ref: '#/components/responses/ValidationError'
+    
+    delete:
+      tags:
+        - Settings
+      summary: 刪除電子郵件設定
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 電子郵件設定刪除成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # 專案圖片管理端點
+  /projects/{identifier}/images:
+    get:
+      tags:
+        - Project Images
+      summary: 取得專案圖片列表
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+          description: 專案識別碼
+        - in: query
+          name: image_type
+          schema:
+            type: string
+            enum: [gallery, hero, thumbnail, floor_plan, other]
+          description: 圖片類型
+      responses:
+        200:
+          description: 專案圖片列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          images:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/ProjectImage'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+    
+    post:
+      tags:
+        - Project Images
+      summary: 上傳專案圖片
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                image_type:
+                  type: string
+                  enum: [gallery, hero, thumbnail, floor_plan, other]
+                  default: gallery
+                alt_text:
+                  type: string
+      responses:
+        201:
+          description: 圖片上傳成功
+        400:
+          description: 沒有檔案上傳
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /projects/{identifier}/images/{imageId}:
+    put:
+      tags:
+        - Project Images
+      summary: 更新圖片詳情
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: imageId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alt_text:
+                  type: string
+                display_order:
+                  type: integer
+                  minimum: 0
+                image_type:
+                  type: string
+                  enum: [gallery, hero, thumbnail, floor_plan, other]
+      responses:
+        200:
+          description: 圖片更新成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+    
+    delete:
+      tags:
+        - Project Images
+      summary: 刪除圖片
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: imageId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 圖片刪除成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{identifier}/images/{imageId}/set-main:
+    post:
+      tags:
+        - Project Images
+      summary: 設為主圖片
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: imageId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 主圖片設定成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /projects/{identifier}/images/reorder:
+    put:
+      tags:
+        - Project Images
+      summary: 重新排序圖片
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orders
+              properties:
+                orders:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - id
+                      - display_order
+                    properties:
+                      id:
+                        type: integer
+                      display_order:
+                        type: integer
+                        minimum: 0
+      responses:
+        200:
+          description: 圖片順序更新成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /projects/{identifier}/images/bulk-delete:
+    post:
+      tags:
+        - Project Images
+      summary: 批量刪除圖片
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - imageIds
+              properties:
+                imageIds:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        200:
+          description: 圖片批量刪除成功
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # 統計相關端點
+  /statistics/overview:
+    get:
+      tags:
+        - Statistics
+      summary: 取得系統總覽統計
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 統計資料
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          projects:
+                            type: object
+                            properties:
+                              total:
+                                type: integer
+                              featured:
+                                type: integer
+                              byStatus:
+                                type: object
+                          contacts:
+                            type: object
+                            properties:
+                              total:
+                                type: integer
+                              unread:
+                                type: integer
+                              thisMonth:
+                                type: integer
+                          tags:
+                            type: object
+                            properties:
+                              total:
+                                type: integer
+                              mostUsed:
+                                type: array
+                                items:
+                                  type: object
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /statistics/projects:
+    get:
+      tags:
+        - Statistics
+      summary: 取得專案統計
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+      responses:
+        200:
+          description: 專案統計資料
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /statistics/views:
+    get:
+      tags:
+        - Statistics
+      summary: 取得瀏覽統計
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+      responses:
+        200:
+          description: 瀏覽統計資料
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # 上傳相關端點
+  /upload:
+    post:
+      tags:
+        - Upload
+      summary: 一般檔案上傳
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: 上傳成功
+        400:
+          description: 上傳失敗
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
   # 系統相關端點
   /system/health:
     get:
@@ -1423,9 +1979,17 @@ tags:
     description: 用戶認證端點
   - name: Projects
     description: 專案管理端點
+  - name: Project Images
+    description: 專案圖片管理端點
   - name: Tags
     description: 標籤管理端點
   - name: Contacts
     description: 聯絡表單端點
+  - name: Settings
+    description: 系統設定管理端點
+  - name: Statistics
+    description: 統計資料端點
+  - name: Upload
+    description: 檔案上傳端點
   - name: System
     description: 系統管理端點

@@ -13,7 +13,7 @@ if (USE_MOCK) {
   query = mock.query;
   findOne = mock.findOne;
   transaction = mock.transaction;
-  
+
   logger.info('Using mock database for testing');
 } else {
   // Use real database
@@ -84,7 +84,7 @@ const testConnection = async () => {
     logger.info('Mock database ready');
     return true;
   }
-  
+
   try {
     const connection = await pool.getConnection();
     await connection.ping();

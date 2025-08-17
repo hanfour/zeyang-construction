@@ -4,7 +4,7 @@ const logger = require('./logger');
 // Create transporter with dynamic config
 const createTransporter = async (customConfig = null) => {
   let config;
-  
+
   if (customConfig) {
     // Use provided config (for testing SMTP settings)
     config = {
@@ -25,7 +25,7 @@ const createTransporter = async (customConfig = null) => {
     try {
       const SettingsService = require('../services/settingsService');
       const smtpConfig = await SettingsService.getSmtpConfig();
-      
+
       if (smtpConfig && smtpConfig.enabled) {
         config = {
           host: smtpConfig.host,
@@ -74,7 +74,7 @@ const createTransporter = async (customConfig = null) => {
       };
     }
   }
-  
+
   // In development, use ethereal email for testing if no SMTP configured
   if (process.env.NODE_ENV === 'development' && !config.host) {
     logger.info('Using Ethereal Email for development');
@@ -87,7 +87,7 @@ const createTransporter = async (customConfig = null) => {
       }
     });
   }
-  
+
   return nodemailer.createTransport(config);
 };
 
@@ -96,7 +96,7 @@ const testSmtpConnection = async (config) => {
   try {
     const transporter = await createTransporter(config);
     await transporter.verify();
-    
+
     // Send a test email if requested
     if (config.testEmail) {
       const testMessage = {
@@ -116,16 +116,16 @@ const testSmtpConnection = async (config) => {
           </ul>
         `
       };
-      
+
       const info = await transporter.sendMail(testMessage);
-      
+
       return {
         success: true,
         message: 'SMTP connection verified and test email sent',
         messageId: info.messageId
       };
     }
-    
+
     return {
       success: true,
       message: 'SMTP connection verified successfully'
@@ -234,9 +234,9 @@ const sendEmail = async (options) => {
       logger.info('Skipping email send in test environment', { to: options.to, subject: options.subject });
       return { messageId: 'test-message-id', success: true };
     }
-    
+
     const transporter = await createTransporter();
-    
+
     // Get SMTP config for from address
     let from = options.from;
     if (!from) {
@@ -251,7 +251,7 @@ const sendEmail = async (options) => {
         from = `ZeYang <${process.env.SMTP_USER || 'noreply@ZeYang.com'}>`;
       }
     }
-    
+
     // Prepare email options
     const mailOptions = {
       from,
@@ -261,21 +261,21 @@ const sendEmail = async (options) => {
       html: options.html ? wrapEmailTemplate(options.html, options.subject) : undefined,
       attachments: options.attachments
     };
-    
+
     // Send email
     const info = await transporter.sendMail(mailOptions);
-    
+
     logger.info('Email sent successfully', {
       messageId: info.messageId,
       to: options.to,
       subject: options.subject
     });
-    
+
     // In development, log the preview URL
     if (process.env.NODE_ENV === 'development' && info.messageId) {
       logger.info('Preview URL:', nodemailer.getTestMessageUrl(info));
     }
-    
+
     return {
       success: true,
       messageId: info.messageId
@@ -292,32 +292,32 @@ const sendBulkEmails = async (recipients, template, variables = {}) => {
     sent: [],
     failed: []
   };
-  
+
   for (const recipient of recipients) {
     try {
       // Replace template variables
       let subject = template.subject;
       let content = template.content;
-      
+
       // Replace common variables
       const allVariables = {
         ...variables,
         name: recipient.name || 'User',
         email: recipient.email
       };
-      
+
       for (const [key, value] of Object.entries(allVariables)) {
         const regex = new RegExp(`{{${key}}}`, 'g');
         subject = subject.replace(regex, value);
         content = content.replace(regex, value);
       }
-      
+
       await sendEmail({
         to: recipient.email,
         subject,
         html: content
       });
-      
+
       results.sent.push(recipient.email);
     } catch (error) {
       logger.error(`Failed to send email to ${recipient.email}:`, error);
@@ -327,7 +327,7 @@ const sendBulkEmails = async (recipients, template, variables = {}) => {
       });
     }
   }
-  
+
   return results;
 };
 
@@ -345,7 +345,7 @@ const emailTemplates = {
       <p>Best regards,<br>The ZeYang Team</p>
     `
   },
-  
+
   passwordReset: {
     subject: 'Password Reset Request',
     content: `
@@ -358,7 +358,7 @@ const emailTemplates = {
       <p>Best regards,<br>The ZeYang Team</p>
     `
   },
-  
+
   projectInquiry: {
     subject: 'Thank you for your interest in {{projectName}}',
     content: `

@@ -5,19 +5,19 @@ const { clearDatabase, seedTestUsers } = require('../helpers/db.helper');
 describe('API Response Consistency Tests', () => {
   let adminToken;
   let viewerToken;
-  
+
   beforeAll(async () => {
     await clearDatabase();
     await seedTestUsers();
     // Add delay to avoid rate limiting
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     // Login as admin
     const adminLogin = await request(app)
       .post('/api/auth/login')
       .send({ username: 'testadmin', password: 'Test123!' });
     adminToken = adminLogin.body.data.accessToken;
-    
+
     // Login as viewer
     const viewerLogin = await request(app)
       .post('/api/auth/login')
@@ -35,7 +35,7 @@ describe('API Response Consistency Tests', () => {
       const endpoints = [
         { method: 'get', url: '/api/system/status', auth: false },
         { method: 'get', url: '/api/tags', auth: false },
-        { method: 'get', url: '/api/auth/me', auth: true },
+        { method: 'get', url: '/api/auth/me', auth: true }
       ];
 
       for (const endpoint of endpoints) {
@@ -43,9 +43,9 @@ describe('API Response Consistency Tests', () => {
         if (endpoint.auth) {
           req.set('Authorization', `Bearer ${viewerToken}`);
         }
-        
+
         const response = await req;
-        
+
         // Check success response structure
         if (response.status < 400) {
           expect(response.body).toHaveProperty('success', true);
@@ -59,12 +59,12 @@ describe('API Response Consistency Tests', () => {
     it('should return data in consistent format for list endpoints', async () => {
       const listEndpoints = [
         '/api/tags',
-        '/api/tags/popular',
+        '/api/tags/popular'
       ];
 
       for (const url of listEndpoints) {
         const response = await request(app).get(url);
-        
+
         expect(response.body.success).toBe(true);
         expect(response.body.data).toBeInstanceOf(Array);
       }
@@ -120,11 +120,11 @@ describe('API Response Consistency Tests', () => {
 
       for (const scenario of errorScenarios) {
         const req = request(app)[scenario.method](scenario.url);
-        
+
         if (scenario.auth) {
           req.set('Authorization', `Bearer ${adminToken}`);
         }
-        
+
         if (scenario.data) {
           req.send(scenario.data);
         }
@@ -138,7 +138,7 @@ describe('API Response Consistency Tests', () => {
         expect(response.body.error).toHaveProperty('code');
         // Error responses should not have data field
         expect(response.body).not.toHaveProperty('data');
-        
+
         // Verify status code
         expect(response.status).toBe(scenario.expectedStatus);
       }
@@ -280,7 +280,7 @@ describe('API Response Consistency Tests', () => {
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('errors');
       expect(response.body.errors).toBeInstanceOf(Array);
-      
+
       response.body.errors.forEach(error => {
         expect(error).toHaveProperty('field');
         expect(error).toHaveProperty('message');

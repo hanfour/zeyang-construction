@@ -8,19 +8,19 @@ const logger = require('./logger');
 const generateThumbnails = async (inputPath, outputDir, filename) => {
   const sizes = UPLOAD.IMAGE_SIZES;
   const results = {};
-  
+
   try {
     // Ensure output directory exists
     await fs.mkdir(outputDir, { recursive: true });
-    
+
     // Get original image metadata
     const metadata = await sharp(inputPath).metadata();
-    
+
     // Process each size
     for (const [sizeName, dimensions] of Object.entries(sizes)) {
       const outputFilename = `${filename}-${sizeName}.webp`;
       const outputPath = path.join(outputDir, outputFilename);
-      
+
       try {
         if (sizeName === 'thumbnail') {
           // Square crop for thumbnails
@@ -41,7 +41,7 @@ const generateThumbnails = async (inputPath, outputDir, filename) => {
             .webp({ quality: 85 })
             .toFile(outputPath);
         }
-        
+
         results[sizeName] = {
           path: outputPath,
           filename: outputFilename,
@@ -52,11 +52,11 @@ const generateThumbnails = async (inputPath, outputDir, filename) => {
         logger.error(`Failed to generate ${sizeName} thumbnail:`, error);
       }
     }
-    
+
     // Also create optimized original
     const optimizedFilename = `${filename}-optimized.webp`;
     const optimizedPath = path.join(outputDir, optimizedFilename);
-    
+
     await sharp(inputPath)
       .resize(sizes.ORIGINAL.width, sizes.ORIGINAL.height, {
         fit: 'inside',
@@ -64,14 +64,14 @@ const generateThumbnails = async (inputPath, outputDir, filename) => {
       })
       .webp({ quality: 90 })
       .toFile(optimizedPath);
-    
+
     results.optimized = {
       path: optimizedPath,
       filename: optimizedFilename,
       width: metadata.width,
       height: metadata.height
     };
-    
+
     return {
       success: true,
       metadata,
@@ -94,13 +94,13 @@ const processImage = async (file, projectUuid) => {
       'projects',
       projectUuid
     );
-    
+
     // Generate thumbnails
     const result = await generateThumbnails(file.path, outputDir, filename);
-    
+
     // Delete original uploaded file
     await fs.unlink(file.path);
-    
+
     return {
       original: {
         filename: file.originalname,
@@ -126,7 +126,7 @@ const getImageInfo = async (imagePath) => {
   try {
     const metadata = await sharp(imagePath).metadata();
     const stats = await fs.stat(imagePath);
-    
+
     return {
       width: metadata.width,
       height: metadata.height,
@@ -149,10 +149,10 @@ const optimizeImage = async (inputPath, outputPath, options = {}) => {
     width = null,
     height = null
   } = options;
-  
+
   try {
     let pipeline = sharp(inputPath);
-    
+
     // Resize if dimensions provided
     if (width || height) {
       pipeline = pipeline.resize(width, height, {
@@ -160,24 +160,24 @@ const optimizeImage = async (inputPath, outputPath, options = {}) => {
         withoutEnlargement: true
       });
     }
-    
+
     // Convert format and optimize
     switch (format) {
-      case 'jpeg':
-      case 'jpg':
-        pipeline = pipeline.jpeg({ quality, progressive: true });
-        break;
-      case 'png':
-        pipeline = pipeline.png({ quality, compressionLevel: 9 });
-        break;
-      case 'webp':
-      default:
-        pipeline = pipeline.webp({ quality });
-        break;
+    case 'jpeg':
+    case 'jpg':
+      pipeline = pipeline.jpeg({ quality, progressive: true });
+      break;
+    case 'png':
+      pipeline = pipeline.png({ quality, compressionLevel: 9 });
+      break;
+    case 'webp':
+    default:
+      pipeline = pipeline.webp({ quality });
+      break;
     }
-    
+
     await pipeline.toFile(outputPath);
-    
+
     return {
       success: true,
       outputPath
@@ -197,10 +197,10 @@ const deleteImageSet = async (projectUuid, filename) => {
     'projects',
     projectUuid
   );
-  
+
   const sizes = ['thumbnail', 'small', 'medium', 'large', 'optimized'];
   const deletionPromises = [];
-  
+
   for (const size of sizes) {
     const filePath = path.join(imageDir, `${filename}-${size}.webp`);
     deletionPromises.push(
@@ -211,7 +211,7 @@ const deleteImageSet = async (projectUuid, filename) => {
       })
     );
   }
-  
+
   await Promise.all(deletionPromises);
 };
 
@@ -219,22 +219,22 @@ const deleteImageSet = async (projectUuid, filename) => {
 const validateImage = async (filePath) => {
   try {
     const metadata = await sharp(filePath).metadata();
-    
+
     // Check if it's a valid image
     if (!metadata.width || !metadata.height) {
       throw new Error('Invalid image file');
     }
-    
+
     // Check minimum dimensions
     if (metadata.width < 100 || metadata.height < 100) {
       throw new Error('Image dimensions too small (minimum 100x100)');
     }
-    
+
     // Check maximum dimensions
     if (metadata.width > 10000 || metadata.height > 10000) {
       throw new Error('Image dimensions too large (maximum 10000x10000)');
     }
-    
+
     return {
       valid: true,
       metadata

@@ -18,9 +18,9 @@ class SimpleProject {
       WHERE is_active = 1
       ORDER BY display_order ASC, id DESC
     `;
-    
+
     const projects = await query(sql);
-    
+
     return {
       items: projects,
       pagination: {

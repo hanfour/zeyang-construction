@@ -89,7 +89,7 @@ describe('Test Summary', () => {
     console.log(`測試端口: ${process.env.PORT || 3001}`);
     console.log(`資料庫: ${process.env.DB_NAME || 'ZeYang_test'}`);
     console.log('==================\n');
-    
+
     expect(process.env.NODE_ENV).toBe('test');
   });
 });

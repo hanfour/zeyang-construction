@@ -15,7 +15,7 @@ describe('Enhanced Contacts API Tests', () => {
         username: 'testadmin',
         password: 'Test123!'
       });
-    
+
     adminToken = adminLogin.body?.data?.accessToken;
 
     // Create editor user and get token
@@ -25,7 +25,7 @@ describe('Enhanced Contacts API Tests', () => {
         username: 'testeditor',
         password: 'Test123!'
       });
-    
+
     editorToken = editorLogin.body?.data?.accessToken;
   });
 
@@ -49,7 +49,7 @@ describe('Enhanced Contacts API Tests', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.message).toContain('感謝您的來信');
       expect(response.body.data).toHaveProperty('id');
-      
+
       contactId = response.body.data.id;
     });
 
@@ -175,7 +175,7 @@ describe('Enhanced Contacts API Tests', () => {
       expect(response.body.success).toBe(true);
       // Results should contain the search term
       if (response.body.data.items.length > 0) {
-        const hasSearchTerm = response.body.data.items.some(contact => 
+        const hasSearchTerm = response.body.data.items.some(contact =>
           contact.name.includes('測試') ||
           contact.message.includes('測試') ||
           contact.subject?.includes('測試')
@@ -238,7 +238,7 @@ describe('Enhanced Contacts API Tests', () => {
     it('should update contact notes', async () => {
       if (contactId) {
         const notes = '已電話聯繫過，客戶表示很有興趣。';
-        
+
         const response = await request(app)
           .put(`/api/contacts/${contactId}/notes`)
           .set(authHeader(adminToken))
@@ -388,11 +388,11 @@ describe('Enhanced Contacts API Tests', () => {
       }
 
       const responses = await Promise.all(promises);
-      
+
       // Some requests should succeed, but rate limiting should kick in
       const successCount = responses.filter(r => r.status === 201).length;
       const rateLimitCount = responses.filter(r => r.status === 429).length;
-      
+
       // At least one should be rate limited if rate limiting is working
       expect(successCount + rateLimitCount).toBe(10);
     });
@@ -403,7 +403,7 @@ describe('Enhanced Contacts API Tests', () => {
       const contactData = {
         name: '測試用戶',
         email: 'test@example.com',
-        message: '<script>alert("xss")</script>這是測試訊息<b>粗體</b>',
+        message: '<script>alert("xss")</script>這是測試訊息<b>粗體</b>'
       };
 
       const response = await request(app)
@@ -412,13 +412,13 @@ describe('Enhanced Contacts API Tests', () => {
         .expect(201);
 
       expect(response.body.success).toBe(true);
-      
+
       // Check that the stored message doesn't contain script tags
       if (response.body.data.id) {
         const getResponse = await request(app)
           .get(`/api/contacts/${response.body.data.id}`)
           .set(authHeader(adminToken));
-        
+
         if (getResponse.status === 200) {
           expect(getResponse.body.data.message).not.toContain('<script>');
         }

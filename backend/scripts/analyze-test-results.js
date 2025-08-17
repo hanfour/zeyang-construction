@@ -33,19 +33,19 @@ testSuites.forEach(suite => {
       encoding: 'utf8',
       env: process.env
     });
-    
+
     // 提取測試結果
     const match = output.match(/Tests:\s+(?:(\d+) failed,\s+)?(\d+) passed,\s+(\d+) total/);
-    
+
     if (match) {
       const failed = parseInt(match[1] || 0);
       const passed = parseInt(match[2]);
       const total = parseInt(match[3]);
       const rate = ((passed / total) * 100).toFixed(1);
-      
+
       totalPassed += passed;
       totalTests += total;
-      
+
       console.log(`${suite.name.padEnd(15)} | 總數: ${total.toString().padStart(3)} | 通過: ${passed.toString().padStart(3)} | 失敗: ${failed.toString().padStart(3)} | 通過率: ${rate.padStart(5)}%`);
     } else {
       console.log(`${suite.name.padEnd(15)} | 無法解析結果`);
@@ -76,7 +76,7 @@ try {
     encoding: 'utf8',
     env: process.env
   });
-  
+
   // 統計錯誤類型
   const errors = {
     'Cannot read properties': 0,
@@ -85,9 +85,9 @@ try {
     'Access denied': 0,
     'Other': 0
   };
-  
+
   const errorLines = fullOutput.split('\n').filter(line => line.includes('Error') || line.includes('failed'));
-  
+
   errorLines.forEach(line => {
     if (line.includes('Cannot read properties')) errors['Cannot read properties']++;
     else if (line.includes('ECONNREFUSED')) errors['Connection refused']++;
@@ -95,13 +95,13 @@ try {
     else if (line.includes('Access denied')) errors['Access denied']++;
     else errors['Other']++;
   });
-  
+
   Object.entries(errors).forEach(([type, count]) => {
     if (count > 0) {
       console.log(`${type}: ${count} 次`);
     }
   });
-  
+
 } catch (error) {
   console.log('無法分析錯誤詳情');
 }

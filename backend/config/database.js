@@ -60,9 +60,9 @@ const transaction = async (callback) => {
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
-    
+
     const result = await callback(connection);
-    
+
     await connection.commit();
     return result;
   } catch (error) {
@@ -93,29 +93,29 @@ const batchInsert = async (table, columns, values) => {
   if (!values || values.length === 0) {
     return { affectedRows: 0 };
   }
-  
-  const placeholders = values.map(() => 
+
+  const placeholders = values.map(() =>
     `(${columns.map(() => '?').join(', ')})`
   ).join(', ');
-  
+
   const sql = `INSERT INTO ${table} (${columns.join(', ')}) VALUES ${placeholders}`;
   const flatValues = values.flat();
-  
+
   return await query(sql, flatValues);
 };
 
 // Paginate results
 const paginate = async (sql, params = [], page = 1, limit = 20) => {
   const offset = (page - 1) * limit;
-  
+
   // Get total count
   const countSql = sql.replace(/SELECT[\s\S]*?FROM/i, 'SELECT COUNT(*) as total FROM');
   const [{ total }] = await query(countSql, params);
-  
+
   // Get paginated results
   const paginatedSql = `${sql} LIMIT ? OFFSET ?`;
   const results = await query(paginatedSql, [...params, limit, offset]);
-  
+
   return {
     items: results,
     pagination: {

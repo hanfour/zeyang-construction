@@ -46,18 +46,18 @@ const authService = {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    
+
     // Check for duplicate
-    const existing = mockUsers.find(u => 
+    const existing = mockUsers.find(u =>
       u.username === userData.username || u.email === userData.email
     );
     if (existing) {
       throw new Error('User already exists');
     }
-    
+
     mockUsers.push(newUser);
     const { password, ...userWithoutPassword } = newUser;
-    
+
     return {
       user: userWithoutPassword,
       token: jwt.sign(
@@ -72,18 +72,18 @@ const authService = {
       )
     };
   }),
-  
+
   login: jest.fn(async (username, password) => {
-    const user = mockUsers.find(u => 
+    const user = mockUsers.find(u =>
       u.username === username || u.email === username
     );
-    
+
     if (!user || password !== 'Test123!') {
       throw new Error('Invalid credentials');
     }
-    
+
     const { password: _, ...userWithoutPassword } = user;
-    
+
     return {
       user: userWithoutPassword,
       token: jwt.sign(
@@ -98,19 +98,19 @@ const authService = {
       )
     };
   }),
-  
+
   refreshToken: jest.fn(async (refreshToken) => {
     try {
       const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET || 'test-secret');
       if (decoded.type !== 'refresh') {
         throw new Error('Invalid token type');
       }
-      
+
       const user = mockUsers.find(u => u.id === decoded.id);
       if (!user) {
         throw new Error('User not found');
       }
-      
+
       return {
         token: jwt.sign(
           { id: user.id, username: user.username, role: user.role },
@@ -127,27 +127,27 @@ const authService = {
       throw new Error('Invalid refresh token');
     }
   }),
-  
+
   getCurrentUser: jest.fn(async (userId) => {
     const user = mockUsers.find(u => u.id === userId);
     if (!user) {
       throw new Error('User not found');
     }
-    
+
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }),
-  
+
   changePassword: jest.fn(async (userId, currentPassword, newPassword) => {
     const user = mockUsers.find(u => u.id === userId);
     if (!user) {
       throw new Error('User not found');
     }
-    
+
     if (currentPassword !== 'Test123!') {
       throw new Error('Current password is incorrect');
     }
-    
+
     user.password = `hashed_${newPassword}`;
     return { message: 'Password changed successfully' };
   })

@@ -49,10 +49,10 @@ describe('簡單 API 測試', () => {
 
   describe('認證測試', () => {
     test('生成測試 Token', () => {
-      const token = generateTestToken({ 
-        id: 1, 
-        username: 'testuser', 
-        role: 'admin' 
+      const token = generateTestToken({
+        id: 1,
+        username: 'testuser',
+        role: 'admin'
       });
 
       expect(token).toBeDefined();
@@ -70,7 +70,7 @@ describe('簡單 API 測試', () => {
 
     test('使用有效 Token 應可訪問受保護端點', async () => {
       const token = generateTestToken({ role: 'admin' });
-      
+
       const response = await request(app)
         .get('/api/system/health')
         .set('Authorization', `Bearer ${token}`)

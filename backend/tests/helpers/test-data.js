@@ -6,20 +6,8 @@ const testUsers = {
   admin: {
     username: 'admin',
     email: 'admin@test.com',
-    password: 'Admin123!',
+    password: 'admin123',
     role: 'admin'
-  },
-  editor: {
-    username: 'editor',
-    email: 'editor@test.com',
-    password: 'Editor123!',
-    role: 'editor'
-  },
-  viewer: {
-    username: 'viewer',
-    email: 'viewer@test.com',
-    password: 'Viewer123!',
-    role: 'viewer'
   }
 };
 

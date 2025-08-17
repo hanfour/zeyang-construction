@@ -104,13 +104,13 @@ describe('Projects API Tests', () => {
           type: i % 2 === 0 ? 'residential' : 'commercial',
           status: i < 3 ? 'in_progress' : 'completed'
         };
-        
+
         try {
           const response = await request(app)
             .post('/api/projects')
             .set(authHeader(adminToken))
             .send(projectData);
-          
+
           if (!response.body.success) {
             console.error('Failed to create test project:', response.body);
           }
@@ -320,7 +320,7 @@ describe('Projects API Tests', () => {
     });
 
     it.skip('should upload project image', async () => {
-      
+
       const response = await request(app)
         .post(`/api/projects/${testProjectIdentifier}/images`)
         .set(authHeader(adminToken))

@@ -150,7 +150,7 @@ describe('Auth API Tests', () => {
           username: 'testadmin',
           password: 'Test123!'
         });
-      
+
       if (loginResponse.body.success && loginResponse.body.data) {
         refreshToken = loginResponse.body.data.refreshToken;
       }
@@ -196,7 +196,7 @@ describe('Auth API Tests', () => {
           username: 'testadmin',
           password: 'Test123!'
         });
-      
+
       if (loginResponse.body.success && loginResponse.body.data) {
         authToken = loginResponse.body.data.accessToken;
       }
@@ -243,7 +243,7 @@ describe('Auth API Tests', () => {
           username: 'testeditor',
           password: 'Test123!'
         });
-      
+
       if (loginResponse.body.success && loginResponse.body.data) {
         authToken = loginResponse.body.data.accessToken;
       }
@@ -321,7 +321,7 @@ describe('Auth API Tests', () => {
           username: 'testadmin',
           password: 'Test123!'
         });
-      
+
       if (loginResponse.body.success && loginResponse.body.data) {
         authToken = loginResponse.body.data.accessToken;
       }

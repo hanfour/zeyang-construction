@@ -49,7 +49,7 @@ if (process.env.SUPPRESS_LOGS === 'true') {
     error: jest.fn(),
     warn: jest.fn(),
     info: jest.fn(),
-    debug: jest.fn(),
+    debug: jest.fn()
   };
 }
 

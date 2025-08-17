@@ -13,14 +13,14 @@ function generateTestToken(user = {}) {
   };
 
   return jwt.sign(
-    { 
+    {
       userId: defaultUser.id,
       username: defaultUser.username,
       email: defaultUser.email,
       role: defaultUser.role
     },
     process.env.JWT_SECRET || 'test-secret',
-    { 
+    {
       expiresIn: '1h',
       issuer: 'ZeYang',
       audience: 'ZeYang-users'

@@ -15,17 +15,17 @@ describe('Settings API Tests', () => {
         username: 'testadmin',
         password: 'Test123!'
       });
-    
+
     adminToken = adminLogin.body?.data?.accessToken;
 
     // Create editor user and get token
     const editorLogin = await request(app)
       .post('/api/auth/login')
       .send({
-        username: 'testeditor', 
+        username: 'testeditor',
         password: 'Test123!'
       });
-    
+
     editorToken = editorLogin.body?.data?.accessToken;
   });
 
@@ -39,7 +39,7 @@ describe('Settings API Tests', () => {
       expect(response.body.success).toBe(true);
       expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBeGreaterThan(0);
-      
+
       // Check if settings have expected structure
       const setting = response.body.data[0];
       expect(setting).toHaveProperty('key');
@@ -73,7 +73,7 @@ describe('Settings API Tests', () => {
 
       expect(response.body.success).toBe(true);
       expect(Array.isArray(response.body.data)).toBe(true);
-      
+
       // All returned settings should be from 'general' category
       response.body.data.forEach(setting => {
         expect(setting.category).toBe('general');
@@ -115,7 +115,7 @@ describe('Settings API Tests', () => {
   describe('PUT /api/settings/:key', () => {
     it('should update setting with valid data', async () => {
       const newValue = 'Updated ZeYang';
-      
+
       const response = await request(app)
         .put('/api/settings/site_name')
         .set(authHeader(adminToken))
@@ -208,7 +208,7 @@ describe('Settings API Tests', () => {
       // Accept either success or failure, but check response structure
       expect(response.body).toHaveProperty('success');
       expect(response.body).toHaveProperty('message');
-      
+
       if (!response.body.success) {
         // If it failed, it should have an error message
         expect(typeof response.body.message).toBe('string');
@@ -240,7 +240,7 @@ describe('Settings API Tests', () => {
       // Check that sensitive keys are masked or excluded
       const sensitiveKeys = ['smtp_password', 'api_keys', 'secret_key'];
       const settings = response.body.data;
-      
+
       settings.forEach(setting => {
         if (sensitiveKeys.includes(setting.key)) {
           expect(setting.value).toMatch(/^\*+$|^$|null/);
@@ -297,7 +297,7 @@ describe('Settings API Tests', () => {
   describe('Settings Performance', () => {
     it('should handle concurrent setting updates', async () => {
       const promises = [];
-      
+
       for (let i = 0; i < 5; i++) {
         promises.push(
           request(app)
@@ -308,7 +308,7 @@ describe('Settings API Tests', () => {
       }
 
       const responses = await Promise.all(promises);
-      
+
       // All requests should succeed (no race conditions)
       responses.forEach(response => {
         expect(response.status).toBe(200);

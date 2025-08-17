@@ -7,8 +7,8 @@ const verifyToken = async (req, res, next) => {
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith('Bearer ') 
-      ? authHeader.slice(7) 
+    const token = authHeader && authHeader.startsWith('Bearer ')
+      ? authHeader.slice(7)
       : null;
 
     if (!token) {

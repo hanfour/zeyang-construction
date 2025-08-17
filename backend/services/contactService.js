@@ -15,39 +15,39 @@ class ContactService {
         message,
         source
       } = data;
-      
+
       // Save to database
       const result = await query(
         `INSERT INTO contacts 
          (name, email, phone, company, subject, message, source)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
-          name, 
-          email, 
-          phone || null, 
-          company || null, 
-          subject || null, 
-          message, 
+          name,
+          email,
+          phone || null,
+          company || null,
+          subject || null,
+          message,
           source || 'website'
         ]
       );
-      
+
       // Send notification email to admin (async, don't wait)
       this.sendAdminNotification(data).catch(err => {
         logger.error('Failed to send admin notification:', err);
       });
-      
+
       // Send confirmation email to user (async, don't wait)
       this.sendUserConfirmation(data).catch(err => {
         logger.error('Failed to send user confirmation:', err);
       });
-      
-      logger.info('Contact form submitted', { 
+
+      logger.info('Contact form submitted', {
         contactId: result.insertId,
         email,
-        source 
+        source
       });
-      
+
       return {
         id: result.insertId,
         success: true
@@ -57,7 +57,7 @@ class ContactService {
       throw new Error('Failed to submit contact form');
     }
   }
-  
+
   // Get all contacts with filters
   static async getContacts(filters = {}, options = {}) {
     try {
@@ -69,14 +69,14 @@ class ContactService {
         dateFrom,
         dateTo
       } = filters;
-      
+
       const {
         page = 1,
         limit = 20,
         orderBy = 'created_at',
         orderDir = 'DESC'
       } = options;
-      
+
       let sql = `
         SELECT 
           c.*,
@@ -87,50 +87,50 @@ class ContactService {
         LEFT JOIN users u2 ON c.replied_by = u2.id
         WHERE c.is_archived = false
       `;
-      
+
       const params = [];
-      
+
       if (is_read !== undefined) {
         sql += ' AND c.is_read = ?';
         params.push(is_read);
       }
-      
+
       if (is_replied !== undefined) {
         sql += ' AND c.is_replied = ?';
         params.push(is_replied);
       }
-      
+
       if (source) {
         sql += ' AND c.source = ?';
         params.push(source);
       }
-      
+
       if (search) {
         sql += ' AND (c.name LIKE ? OR c.email LIKE ? OR c.subject LIKE ? OR c.message LIKE ?)';
         const searchPattern = `%${search}%`;
         params.push(searchPattern, searchPattern, searchPattern, searchPattern);
       }
-      
+
       if (dateFrom) {
         sql += ' AND DATE(c.created_at) >= ?';
         params.push(dateFrom);
       }
-      
+
       if (dateTo) {
         sql += ' AND DATE(c.created_at) <= ?';
         params.push(dateTo);
       }
-      
+
       // Add ordering
       const validColumns = ['created_at', 'name', 'email', 'is_read', 'is_replied'];
       const validDirs = ['ASC', 'DESC'];
-      
+
       if (validColumns.includes(orderBy) && validDirs.includes(orderDir.toUpperCase())) {
         sql += ` ORDER BY c.${orderBy} ${orderDir.toUpperCase()}`;
       } else {
         sql += ' ORDER BY c.created_at DESC';
       }
-      
+
       // Use the paginate utility function
       return await paginate(sql, params, page, limit);
     } catch (error) {
@@ -138,7 +138,7 @@ class ContactService {
       throw new Error('Failed to fetch contacts');
     }
   }
-  
+
   // Get single contact
   static async getContact(id) {
     try {
@@ -153,14 +153,14 @@ class ContactService {
          WHERE c.id = ? AND c.is_archived = false`,
         [id]
       );
-      
+
       return contact;
     } catch (error) {
       logger.error('Error fetching contact:', error);
       throw new Error('Failed to fetch contact');
     }
   }
-  
+
   // Mark contact as read
   static async markAsRead(id, userId) {
     try {
@@ -168,18 +168,18 @@ class ContactService {
         'UPDATE contacts SET is_read = true WHERE id = ? AND is_read = false',
         [id]
       );
-      
+
       if (result.affectedRows === 0) {
         throw new Error('Contact not found or already read');
       }
-      
+
       return { success: true };
     } catch (error) {
       logger.error('Error marking contact as read:', error);
       throw error;
     }
   }
-  
+
   // Mark multiple contacts as read
   static async bulkMarkAsRead(ids, userId) {
     try {
@@ -188,7 +188,7 @@ class ContactService {
         `UPDATE contacts SET is_read = true WHERE id IN (${placeholders}) AND is_read = false`,
         ids
       );
-      
+
       return {
         success: true,
         updated: result.affectedRows
@@ -198,7 +198,7 @@ class ContactService {
       throw new Error('Failed to mark contacts as read');
     }
   }
-  
+
   // Mark contact as replied (without sending email)
   static async markAsReplied(id, userId) {
     try {
@@ -206,20 +206,20 @@ class ContactService {
         'UPDATE contacts SET is_replied = true, replied_by = ?, replied_at = NOW() WHERE id = ?',
         [userId, id]
       );
-      
+
       if (result.affectedRows === 0) {
         throw new Error('Contact not found');
       }
-      
+
       logger.info('Contact marked as replied', { contactId: id, userId });
-      
+
       return { success: true };
     } catch (error) {
       logger.error('Error marking contact as replied:', error);
       throw error;
     }
   }
-  
+
   // Reply to contact
   static async replyToContact(id, replyData, userId) {
     try {
@@ -229,18 +229,18 @@ class ContactService {
         if (!contact) {
           throw new Error('Contact not found');
         }
-        
+
         // Update contact status
         await connection.execute(
           'UPDATE contacts SET is_replied = true, replied_by = ?, replied_at = NOW(), notes = ? WHERE id = ?',
           [userId, replyData.notes || null, id]
         );
-        
+
         // Send reply email
         await this.sendReplyEmail(contact, replyData.message);
-        
+
         logger.info('Contact replied', { contactId: id, userId });
-        
+
         return { success: true };
       });
     } catch (error) {
@@ -248,7 +248,7 @@ class ContactService {
       throw error;
     }
   }
-  
+
   // Update contact notes
   static async updateNotes(id, notes) {
     try {
@@ -256,13 +256,13 @@ class ContactService {
         'UPDATE contacts SET notes = ? WHERE id = ?',
         [notes, id]
       );
-      
+
       if (result.affectedRows === 0) {
         throw new Error('Contact not found');
       }
-      
+
       logger.info('Contact notes updated', { contactId: id });
-      
+
       return { success: true };
     } catch (error) {
       logger.error('Error updating contact notes:', error);
@@ -274,34 +274,34 @@ class ContactService {
   static async deleteContact(id, userId) {
     try {
       const result = await query(
-        'UPDATE contacts SET is_archived = true, archived_by = ?, archived_at = NOW() WHERE id = ? AND is_archived = false', 
+        'UPDATE contacts SET is_archived = true, archived_by = ?, archived_at = NOW() WHERE id = ? AND is_archived = false',
         [userId, id]
       );
-      
+
       if (result.affectedRows === 0) {
         throw new Error('Contact not found or already archived');
       }
-      
+
       logger.info('Contact archived', { contactId: id, userId });
-      
+
       return { success: true };
     } catch (error) {
       logger.error('Error archiving contact:', error);
       throw error;
     }
   }
-  
+
   // Bulk archive contacts (soft delete)
   static async bulkDeleteContacts(ids, userId) {
     try {
       const placeholders = ids.map(() => '?').join(',');
       const result = await query(
-        `UPDATE contacts SET is_archived = true, archived_by = ?, archived_at = NOW() WHERE id IN (${placeholders}) AND is_archived = false`, 
+        `UPDATE contacts SET is_archived = true, archived_by = ?, archived_at = NOW() WHERE id IN (${placeholders}) AND is_archived = false`,
         [userId, ...ids]
       );
-      
+
       logger.info('Contacts bulk archived', { contactIds: ids, userId, count: result.affectedRows });
-      
+
       return {
         success: true,
         deleted: result.affectedRows
@@ -311,7 +311,7 @@ class ContactService {
       throw new Error('Failed to archive contacts');
     }
   }
-  
+
   // Get contact statistics
   static async getContactStats(days = 30) {
     try {
@@ -329,7 +329,7 @@ class ContactService {
          ORDER BY date DESC`,
         [days]
       );
-      
+
       const summary = await findOne(
         `SELECT 
           COUNT(*) as total,
@@ -340,7 +340,7 @@ class ContactService {
          WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) AND is_archived = false`,
         [days]
       );
-      
+
       return {
         period: days,
         summary: {
@@ -358,23 +358,23 @@ class ContactService {
       throw new Error('Failed to fetch contact statistics');
     }
   }
-  
+
   // Send admin notification email
   static async sendAdminNotification(contactData) {
     try {
       // Get SMTP config to check if notifications should be sent
       const SettingsService = require('./settingsService');
       const smtpConfig = await SettingsService.getSmtpConfig();
-      
+
       if (!smtpConfig || !smtpConfig.enabled || !smtpConfig.sendAdminNotifications) {
         logger.info('Admin notifications disabled, skipping email');
         return;
       }
-      
-      const adminEmails = smtpConfig.adminEmails?.length > 0 
-        ? smtpConfig.adminEmails 
+
+      const adminEmails = smtpConfig.adminEmails?.length > 0
+        ? smtpConfig.adminEmails
         : (process.env.ADMIN_EMAILS?.split(',') || ['admin@ZeYang.com']);
-    
+
       const emailContent = `
         <h2>新的聯絡表單提交</h2>
         <p><strong>姓名：</strong> ${contactData.name}</p>
@@ -391,7 +391,7 @@ class ContactService {
         <hr>
         <p>請登入後台查看詳細資訊並回覆。</p>
       `;
-      
+
       for (const adminEmail of adminEmails) {
         if (adminEmail.trim()) {
           await sendEmail({
@@ -406,19 +406,19 @@ class ContactService {
       // Don't throw error to prevent contact form submission failure
     }
   }
-  
+
   // Send user confirmation email
   static async sendUserConfirmation(contactData) {
     try {
       // Get SMTP config to check if confirmations should be sent
       const SettingsService = require('./settingsService');
       const smtpConfig = await SettingsService.getSmtpConfig();
-      
+
       if (!smtpConfig || !smtpConfig.enabled || !smtpConfig.sendUserConfirmations) {
         logger.info('User confirmations disabled, skipping email');
         return;
       }
-      
+
       const emailContent = `
         <h2>感謝您的來信</h2>
         <p>親愛的 ${contactData.name}，</p>
@@ -435,7 +435,7 @@ class ContactService {
         <p>祝您有美好的一天！</p>
         <p><strong>ZeYang 團隊</strong></p>
       `;
-      
+
       await sendEmail({
         to: contactData.email,
         subject: '感謝您的來信 - ZeYang',
@@ -446,19 +446,19 @@ class ContactService {
       // Don't throw error to prevent contact form submission failure
     }
   }
-  
+
   // Send reply email to contact
   static async sendReplyEmail(contact, replyMessage) {
     try {
       // Get SMTP config to check if replies should be sent
       const SettingsService = require('./settingsService');
       const smtpConfig = await SettingsService.getSmtpConfig();
-      
+
       if (!smtpConfig || !smtpConfig.enabled) {
         logger.info('SMTP disabled, skipping reply email');
         return;
       }
-      
+
       const emailContent = `
         <h2>回覆：${contact.subject || '您的詢問'}</h2>
         <p>親愛的 ${contact.name}，</p>
@@ -476,13 +476,13 @@ class ContactService {
         <p>祝您有美好的一天！</p>
         <p><strong>ZeYang 團隊</strong></p>
       `;
-      
+
       await sendEmail({
         to: contact.email,
         subject: `Re: ${contact.subject || 'Your inquiry'} - ZeYang`,
         html: emailContent
       });
-      
+
       logger.info('Reply email sent successfully', { contactId: contact.id, email: contact.email });
     } catch (error) {
       logger.error('Failed to send reply email:', error);
@@ -495,41 +495,41 @@ class ContactService {
     try {
       let whereClause = '';
       const queryParams = [];
-      
+
       // Build where clause from filters
       const conditions = [];
-      
+
       if (filters.is_read !== undefined) {
         conditions.push('c.is_read = ?');
         queryParams.push(filters.is_read);
       }
-      
+
       if (filters.is_replied !== undefined) {
         conditions.push('c.is_replied = ?');
         queryParams.push(filters.is_replied);
       }
-      
+
       if (filters.source) {
         conditions.push('c.source = ?');
         queryParams.push(filters.source);
       }
-      
+
       if (filters.search) {
         conditions.push('(c.name LIKE ? OR c.email LIKE ? OR c.subject LIKE ? OR c.message LIKE ?)');
         const searchTerm = `%${filters.search}%`;
         queryParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
       }
-      
+
       if (filters.dateFrom) {
         conditions.push('DATE(c.created_at) >= ?');
         queryParams.push(filters.dateFrom);
       }
-      
+
       if (filters.dateTo) {
         conditions.push('DATE(c.created_at) <= ?');
         queryParams.push(filters.dateTo);
       }
-      
+
       if (conditions.length > 0) {
         whereClause = 'WHERE ' + conditions.join(' AND ');
       }
@@ -545,7 +545,7 @@ class ContactService {
         WHERE c.is_archived = false ${whereClause ? 'AND ' + whereClause.replace('WHERE ', '') : ''}
         ORDER BY c.created_at DESC
       `, queryParams);
-      
+
       return contacts;
     } catch (error) {
       logger.error('Error exporting contacts:', error);

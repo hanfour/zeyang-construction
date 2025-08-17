@@ -5,7 +5,7 @@ async function debugCreate() {
   try {
     await clearDatabase();
     await seedTestUsers();
-    
+
     const testData = {
       name: 'Test Project',
       type: 'residential',
@@ -17,12 +17,12 @@ async function debugCreate() {
       isFeatured: false,
       tags: ['luxury', 'modern']
     };
-    
+
     console.log('Test data:', testData);
-    
+
     const result = await Project.create(testData, 1); // userId = 1
     console.log('Result:', result);
-    
+
   } catch (error) {
     console.error('Error:', error);
     console.error('Stack:', error.stack);

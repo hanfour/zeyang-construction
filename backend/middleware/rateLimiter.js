@@ -23,20 +23,20 @@ const rateLimiter = rateLimit({
 });
 
 // Auth rate limiter (stricter)
-const authRateLimiter = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' 
+const authRateLimiter = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
   ? (req, res, next) => next() // Skip rate limiting in development/test
   : rateLimit({
-      windowMs: (RATE_LIMIT.AUTH.window || 15) * 60 * 1000,
-      max: RATE_LIMIT.AUTH.max || 5,
-      message: {
-        success: false,
-        message: 'Too many authentication attempts, please try again later',
-        error: {
-          code: ERROR_CODES.RATE_LIMIT_EXCEEDED
-        }
-      },
-      skipSuccessfulRequests: true
-    });
+    windowMs: (RATE_LIMIT.AUTH.window || 15) * 60 * 1000,
+    max: RATE_LIMIT.AUTH.max || 5,
+    message: {
+      success: false,
+      message: 'Too many authentication attempts, please try again later',
+      error: {
+        code: ERROR_CODES.RATE_LIMIT_EXCEEDED
+      }
+    },
+    skipSuccessfulRequests: true
+  });
 
 // Upload rate limiter
 const uploadRateLimiter = rateLimit({

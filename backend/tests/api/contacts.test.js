@@ -96,7 +96,7 @@ describe('Contacts API Tests', () => {
 
       const responses = await Promise.all(promises);
       const rateLimited = responses.some(res => res.status === 429);
-      
+
       // Rate limiting might be configured differently or disabled in test
       // So we just check if the endpoint handles multiple requests
       expect(responses.length).toBe(10);
@@ -230,7 +230,7 @@ describe('Contacts API Tests', () => {
           ...testContacts.valid,
           name: 'Unread Contact'
         });
-      
+
       unreadContactId = response.body.data.id;
     });
 
@@ -302,7 +302,7 @@ describe('Contacts API Tests', () => {
           ...testContacts.valid,
           name: 'Contact to Reply'
         });
-      
+
       contactToReply = response.body.data.id;
     });
 
@@ -343,7 +343,7 @@ describe('Contacts API Tests', () => {
           ...testContacts.valid,
           name: 'Contact to Delete'
         });
-      
+
       contactToDelete = response.body.data.id;
     });
 

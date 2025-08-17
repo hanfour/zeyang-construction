@@ -36,7 +36,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Middleware
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
@@ -109,19 +109,19 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Only start server if not in test environment
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-    
+
     // Log important configurations
     logger.info('Database connected to:', {
       host: process.env.DB_HOST,
       database: process.env.DB_NAME
     });
-    
+
     if (process.env.ENABLE_SWAGGER === 'true') {
       logger.info(`API Documentation available at http://localhost:${PORT}/api-docs`);
     }

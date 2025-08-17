@@ -1,6 +1,6 @@
 // Use real database pool or mock based on environment
 const USE_MOCK = process.env.USE_MOCK_DB === 'true' || process.env.NODE_ENV === 'test-mock';
-const database = USE_MOCK 
+const database = USE_MOCK
   ? require('../mocks/database.mock')
   : require('../../config/database');
 const { pool } = database;
@@ -19,10 +19,10 @@ async function clearDatabase() {
     database.initializeTestUsers();
   } else {
     const connection = await pool.getConnection();
-    
+
     try {
       await connection.execute('SET FOREIGN_KEY_CHECKS = 0');
-      
+
       // Clear tables in order
       await connection.execute('DELETE FROM project_images');
       await connection.execute('DELETE FROM project_tags');
@@ -30,7 +30,7 @@ async function clearDatabase() {
       await connection.execute('DELETE FROM contacts');
       await connection.execute('DELETE FROM tags');
       await connection.execute('DELETE FROM users WHERE username NOT IN ("admin", "editor", "viewer")');
-      
+
       await connection.execute('SET FOREIGN_KEY_CHECKS = 1');
     } finally {
       connection.release();
@@ -46,19 +46,19 @@ async function seedTestUsers() {
     // Mock database already has test users initialized
     return;
   }
-  
+
   const bcrypt = require('bcryptjs');
   const connection = await pool.getConnection();
-  
+
   try {
     const hashedPassword = await bcrypt.hash('Test123!', 10);
-    
+
     const users = [
       ['testadmin', 'testadmin@test.com', hashedPassword, 'admin'],
       ['testeditor', 'testeditor@test.com', hashedPassword, 'editor'],
       ['testviewer', 'testviewer@test.com', hashedPassword, 'viewer']
     ];
-    
+
     for (const user of users) {
       await connection.execute(
         'INSERT IGNORE INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
@@ -116,7 +116,7 @@ async function createTestProject(projectData = {}) {
     viewCount: 0,
     ...projectData
   };
-  
+
   if (USE_MOCK) {
     const query = require('../mocks/database.mock').query;
     // Add created_by and updated_by for mock
@@ -127,7 +127,7 @@ async function createTestProject(projectData = {}) {
       created_at: new Date(),
       updated_at: new Date()
     };
-    
+
     const [result] = await query(
       `INSERT INTO projects (identifier, name, nameEn, type, status, description, descriptionEn, location, locationEn, price, priceMin, priceMax, area, areaMin, areaMax, developer, developerEn, architect, architectEn, yearStarted, yearCompleted, units, floors, features, featuresEn, mainImage, videoUrl, website, brochureUrl, isFeatured, displayOrder, viewCount, created_by, updated_by) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -168,7 +168,7 @@ async function createTestProject(projectData = {}) {
         1  // updated_by
       ]
     );
-    
+
     return { id: result.insertId, ...defaultProject };
   } else {
     // Map test data fields to database columns
@@ -176,10 +176,10 @@ async function createTestProject(projectData = {}) {
       `INSERT INTO projects (identifier, name, nameEn, type, status, description, location, price, area, developer, architect, yearStarted, yearCompleted, isFeatured) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        defaultProject.identifier, 
-        defaultProject.name, 
+        defaultProject.identifier,
+        defaultProject.name,
         defaultProject.nameEn,
-        defaultProject.type, 
+        defaultProject.type,
         defaultProject.status,
         defaultProject.description,
         defaultProject.location,
@@ -192,7 +192,7 @@ async function createTestProject(projectData = {}) {
         defaultProject.isFeatured
       ]
     );
-    
+
     return { id: result.insertId, ...defaultProject };
   }
 }

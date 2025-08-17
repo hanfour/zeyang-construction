@@ -31,20 +31,20 @@ let totalFailed = 0;
 // 運行每個測試套件
 testSuites.forEach(suite => {
   console.log(`\n📋 運行 ${suite.name} 測試...`);
-  
+
   try {
     const output = execSync(
       `npx jest tests/api/${suite.file} --forceExit --json`,
       { encoding: 'utf-8', stdio: 'pipe' }
     );
-    
+
     const result = JSON.parse(output);
     const passed = result.numPassedTests;
     const failed = result.numFailedTests;
-    
+
     totalPassed += passed;
     totalFailed += failed;
-    
+
     results.push({
       name: suite.name,
       file: suite.file,
@@ -53,22 +53,22 @@ testSuites.forEach(suite => {
       total: passed + failed,
       success: failed === 0
     });
-    
+
     console.log(`✅ 通過: ${passed} / ${passed + failed}`);
   } catch (error) {
     // 即使測試失敗也要解析結果
     try {
       const output = error.stdout || error.output?.[1] || '';
       const jsonMatch = output.match(/{[\s\S]*}/);
-      
+
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0]);
         const passed = result.numPassedTests || 0;
         const failed = result.numFailedTests || 0;
-        
+
         totalPassed += passed;
         totalFailed += failed;
-        
+
         results.push({
           name: suite.name,
           file: suite.file,
@@ -77,7 +77,7 @@ testSuites.forEach(suite => {
           total: passed + failed,
           success: false
         });
-        
+
         console.log(`❌ 通過: ${passed} / ${passed + failed}`);
       } else {
         results.push({
@@ -89,10 +89,10 @@ testSuites.forEach(suite => {
           success: false,
           error: '無法運行測試'
         });
-        console.log(`❌ 測試運行失敗`);
+        console.log('❌ 測試運行失敗');
       }
     } catch (parseError) {
-      console.log(`❌ 無法解析測試結果`);
+      console.log('❌ 無法解析測試結果');
     }
   }
 });

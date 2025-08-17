@@ -1,11 +1,21 @@
-# ZeYang API 完整測試指南
+# ZeYang API 開發指南
 
-> 版本：2.0.0  
-> 更新日期：2025-08-14
+> 版本：2.1.0  
+> 更新日期：2025-08-17
 
 ## 概述
 
-ZeYang API 是一個房地產專案管理系統的 RESTful API，提供完整的專案管理、用戶認證、標籤管理和聯絡表單功能。
+ZeYang API 是一個現代化的房地產專案管理系統 RESTful API，提供完整的專案管理、用戶認證、標籤管理、聯絡表單、系統設定和統計分析等功能。
+
+### 主要特色
+- 現代化的 RESTful API 設計
+- JWT 基朮的認證系統
+- 角色基朮的權限控制 (RBAC)
+- 完整的資料驗證和錯誤處理
+- Swagger 文檔整合
+- 速率限制和安全防護
+- 支援圖片上傳和管理
+- 即時統計和報表
 
 ## 環境設置
 
@@ -26,7 +36,7 @@ cp .env.example .env
 DB_HOST=localhost
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
-DB_NAME=ZeYang
+DB_NAME=estatehub_db
 
 # JWT 配置
 JWT_SECRET=your-super-secret-jwt-key
@@ -34,21 +44,37 @@ REFRESH_SECRET=your-refresh-secret-key
 JWT_EXPIRES_IN=24h
 REFRESH_EXPIRES_IN=7d
 
-# 其他配置
-PORT=5000
+# 服務器配置
+PORT=5001
 NODE_ENV=development
 ENABLE_SWAGGER=true
 ALLOWED_ORIGINS=http://localhost:3000
+
+# 檔案上傳配置
+UPLOAD_MAX_SIZE=300mb
+UPLOAD_PATH=./uploads
+
+# 郵件配置（可選）
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=noreply@zeyang.com
 ```
 
 ### 3. 資料庫初始化
 ```bash
 # 創建資料庫和表結構
-mysql -u root -p < database/init.sql
+mysql -u root -p < ../database/init.sql
 
 # 載入範例資料（可選）
-mysql -u root -p ZeYang < database/seeds/sample-data.sql
+mysql -u root -p estatehub_db < ../database/seeds/sample-data.sql
 ```
+
+**預設管理員帳號：**
+- 用戶名：`admin`
+- 密碼：`admin123`
+- 電子郵件：`admin@ZeYang.com`
 
 ### 4. 啟動服務
 ```bash
@@ -78,9 +104,16 @@ curl -X POST http://localhost:5001/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "admin",
-    "password": "Admin123!"
+    "password": "admin123"
   }'
 ```
+
+**密碼強度要求：**
+- 至少 8 個字元
+- 必須包含大寫字母
+- 必須包含小寫字母
+- 必須包含數字
+- 必須包含特殊符號
 
 **回應範例：**
 ```json
@@ -151,23 +184,27 @@ curl -X POST http://localhost:5001/api/auth/logout \
 curl -X GET http://localhost:5001/api/projects
 
 # 帶篩選條件
-curl -X GET "http://localhost:5001/api/projects?type=residential&status=in_progress&page=1&limit=10&isFeatured=true"
+curl -X GET "http://localhost:5001/api/projects?category=住宅&status=in_progress&page=1&limit=10&isFeatured=true"
+
+# 按顯示頁面篩選
+curl -X GET "http://localhost:5001/api/projects?display_page=澤暘作品&limit=10"
 
 # 排序
-curl -X GET "http://localhost:5001/api/projects?orderBy=viewCount&orderDir=DESC&limit=5"
+curl -X GET "http://localhost:5001/api/projects?orderBy=view_count&orderDir=DESC&limit=5"
 
 # 搜尋關鍵字
-curl -X GET "http://localhost:5001/api/projects?search=台北&type=residential"
+curl -X GET "http://localhost:5001/api/projects?search=台北&category=住宅"
 ```
 
 **查詢參數：**
 - `page`: 頁碼 (預設: 1)
 - `limit`: 每頁筆數 (預設: 20, 最大: 100)
-- `type`: 專案類型 (`residential`, `commercial`, `mixed`, `other`)
-- `status`: 專案狀態 (`planning`, `in_progress`, `completed`, `on_hold`)
+- `category`: 專案分類 (`住宅`, `商辦`, `公共工程`, `其他`)
+- `status`: 專案狀態 (`planning`, `pre_sale`, `on_sale`, `sold_out`, `completed`)
+- `display_page`: 顯示頁面 (`開發專區`, `澤暘作品`)
 - `isFeatured`: 是否精選專案 (`true`, `false`)
 - `search`: 搜尋關鍵字
-- `orderBy`: 排序欄位 (`displayOrder`, `created_at`, `viewCount`, `name`)
+- `orderBy`: 排序欄位 (`displayOrder`, `created_at`, `view_count`, `name`)
 - `orderDir`: 排序方向 (`ASC`, `DESC`)
 
 #### 2.2 獲取精選專案
@@ -235,15 +272,16 @@ curl -X PATCH http://localhost:5001/api/projects/taipei-luxury-residence/status 
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "status": "in_progress"
+    "status": "pre_sale"
   }'
 ```
 
 **可用狀態：**
 - `planning`: 規劃中
-- `in_progress`: 進行中  
+- `pre_sale`: 預售
+- `on_sale`: 銷售中  
+- `sold_out`: 完銷
 - `completed`: 已完成
-- `on_hold`: 暫停
 
 #### 2.9 切換精選狀態
 ```bash
@@ -435,7 +473,63 @@ curl -X GET "http://localhost:5001/api/contacts/statistics?days=30" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-### 5. 專案圖片管理 API
+### 5. 系統設定 API
+
+#### 5.1 獲取所有設定（管理員）
+```bash
+curl -X GET http://localhost:5001/api/settings \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### 5.2 獲取分類設定
+```bash
+curl -X GET "http://localhost:5001/api/settings?category=email" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### 5.3 更新設定
+```bash
+curl -X PUT http://localhost:5001/api/settings \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "settings": {
+      "site_name": {
+        "value": "ZeYang 建設",
+        "type": "string",
+        "category": "general"
+      }
+    }
+  }'
+```
+
+#### 5.4 郵件設定管理
+```bash
+# 獲取郵件設定
+curl -X GET http://localhost:5001/api/settings/category/email \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# 更新郵件設定
+curl -X PUT http://localhost:5001/api/settings/category/email \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "smtp_enabled": true,
+    "smtp_host": "smtp.gmail.com",
+    "smtp_port": 587,
+    "smtp_secure": false,
+    "smtp_username": "your-email@gmail.com",
+    "smtp_password": "your-app-password",
+    "smtp_from_email": "noreply@zeyang.com",
+    "smtp_from_name": "ZeYang 建設"
+  }'
+
+# 測試 SMTP 連線
+curl -X POST http://localhost:5001/api/settings/smtp/test \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### 6. 專案圖片管理 API
 
 > 注意：圖片管理功能需要額外的上傳中介軟體和檔案處理服務
 
@@ -503,7 +597,28 @@ curl -X PUT http://localhost:5001/api/projects/taipei-luxury-residence/images/re
   }'
 ```
 
-### 6. 系統管理 API
+### 7. 統計和分析 API
+
+#### 7.1 獲取專案統計（管理員）
+```bash
+curl -X GET "http://localhost:5001/api/projects/taipei-luxury-residence/statistics?days=30" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### 7.2 獲取聯絡表單統計
+```bash
+curl -X GET "http://localhost:5001/api/contacts/statistics?days=30" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### 7.3 匯出聯絡表單資料
+```bash
+curl -X GET "http://localhost:5001/api/contacts/export" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -o contacts.csv
+```
+
+### 8. 系統管理 API
 
 #### 6.1 健康檢查（公開）
 ```bash
@@ -595,10 +710,10 @@ if (pm.response.code === 200) {
 pip install httpie
 
 # 登入並儲存 token
-http POST :5000/api/auth/login username=admin password=Admin123!
+http POST :5001/api/auth/login username=admin password=admin123
 
 # 使用 token 存取需要認證的端點
-http GET :5000/api/auth/me "Authorization:Bearer YOUR_TOKEN"
+http GET :5001/api/auth/me "Authorization:Bearer YOUR_TOKEN"
 ```
 
 ### 使用 JavaScript/Node.js 測試
@@ -619,7 +734,7 @@ async function login() {
   try {
     const response = await api.post('/auth/login', {
       username: 'admin',
-      password: 'Admin123!'
+      password: 'admin123'
     });
     
     const { accessToken } = response.data.data;
@@ -808,7 +923,162 @@ runTest();
 
 ---
 
+## 開發指南
+
+### API 設計原則
+
+1. **RESTful 設計**：遵循 REST 架構風格
+2. **統一回應格式**：所有 API 都使用統一的回應結構
+3. **適當的 HTTP 狀態碼**：使用適當的 HTTP 狀態碼表示不同的情況
+4. **資料驗證**：所有輸入資料都經過嚴格驗證
+5. **安全性**：實施完整的認證和授權機制
+
+### 資料庫結構
+
+#### 主要表格
+
+1. **users** - 用戶管理
+   - 支援多種角色 (admin, editor, viewer)
+   - 密碼加密儲存
+   - 最後登入時間追蹤
+
+2. **projects** - 專案主表
+   - UUID 和 slug 雙重識別符
+   - 支援多種狀態和分類
+   - 顯示順序和精選功能
+   - 瀏覽次數統計
+
+3. **project_details** - 專案詳細資訊
+   - JSON 格式儲存彈性資料
+   - 支援多媒體內容
+
+4. **project_images** - 專案圖片
+   - 多種圖片類型支援
+   - 自動縮圖生成
+   - 排序和顯示控制
+
+5. **tags** - 標籤系統
+   - 自動使用次數統計
+   - 支援標籤合併
+
+6. **contacts** - 聯絡表單
+   - 完整的狀態追蹤
+   - 支援回復和備註
+
+7. **project_statistics** - 專案統計
+   - 日粒度統計資料
+   - 支援訪客和流量分析
+
+### 權限系統
+
+#### 角色定義
+
+1. **admin** - 管理員
+   - 所有功能的完整存取權
+   - 用戶管理
+   - 系統設定
+   - 數據分析
+
+2. **editor** - 編輯者
+   - 專案管理
+   - 聯絡表單處理
+   - 標籤管理
+
+3. **viewer** - 檢視者
+   - 唯讀存取
+   - 基本查詢功能
+
+### 安全性考量
+
+#### 認證機制
+- JWT 基朮的無狀態認證
+- Refresh Token 支援
+- 令牌自動過期和更新
+
+#### 輸入驗證
+- 所有輸入都經過驗證
+- SQL 注入防護
+- XSS 防護
+- CSRF 防護
+
+#### 速率限制
+- 全局速率限制
+- 特定端點的額外限制
+- IP 基朮的限制
+
+### 錯誤處理
+
+#### 統一錯誤格式
+所有 API 都使用統一的錯誤回應格式，包含：
+- 錯誤代碼
+- 錯誤訊息
+- 驗證錯誤詳情
+- 堆疊追蹤（開發環境）
+
+#### 日誌系統
+- 結構化日誌輸出
+- 不同等級的日誌記錄
+- 安全事件記錄
+
+### 效能優化
+
+#### 數據庫優化
+- 適當的索引設計
+- 查詢優化
+- 連接池管理
+
+#### 快取策略
+- HTTP 快取標頭
+- 條件性請求支援
+- 內容壓縮
+
+#### 分頁和篩選
+- 適當的默認分頁大小
+- 高效的篩選實現
+- 搜尋功能優化
+
+### 監控和維護
+
+#### 健康檢查
+- 应用程序狀態
+- 数据库连接状态
+- 外部服務依賴
+
+#### 效能指標
+- 響应時間監控
+- 內存使用情況
+- 系統資源使用
+
+#### 日誌管理
+- 結構化日誌
+- 日誌輪轉和清理
+- 安全事件追蹤
+
+### 部署指南
+
+#### 環境配置
+- 開發環境設定
+- 測試環境配置
+- 生產環境部署
+
+#### 容器化部署
+- Docker 支援
+- docker-compose 配置
+- 環境變數管理
+
+#### CI/CD 整合
+- 自動化測試
+- 程式碼品質檢查
+- 自動化部署
+
 ## 更新日誌
+
+### v2.1.0 (2025-08-17)
+- 新增系統設定管理功能
+- 支援 SMTP 郵件配置
+- 優化專案狀態管理
+- 改進資料庫結構
+- 完善 API 文檔
 
 ### v2.0.0 (2025-08-14)
 - 重新設計 API 架構

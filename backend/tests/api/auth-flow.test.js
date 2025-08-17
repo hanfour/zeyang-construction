@@ -75,7 +75,7 @@ describe('Authentication Flow Tests', () => {
       expect(loginResponse.body.success).toBe(true);
       expect(loginResponse.body.data).toHaveProperty('accessToken');
       expect(loginResponse.body.data).toHaveProperty('refreshToken');
-      
+
       const newAccessToken = loginResponse.body.data.accessToken;
       const newRefreshToken = loginResponse.body.data.refreshToken;
 

@@ -11,7 +11,7 @@ dotenv.config({ path: '.env.test' });
  */
 async function setupTestDatabase() {
   let connection;
-  
+
   try {
     // Connect without specifying database
     connection = await mysql.createConnection({
@@ -36,7 +36,7 @@ async function setupTestDatabase() {
     const schemaPath = path.join(__dirname, '../database/schema.sql');
     if (fs.existsSync(schemaPath)) {
       const schema = fs.readFileSync(schemaPath, 'utf8');
-      
+
       // Split by delimiter and execute each statement
       const statements = schema
         .split(';')
@@ -52,7 +52,7 @@ async function setupTestDatabase() {
           }
         }
       }
-      
+
       console.log('Database schema created successfully');
     } else {
       console.log('Schema file not found, assuming tables already exist');

@@ -50,7 +50,7 @@ router.post('/', rateLimiter, createContactValidation, asyncHandler(async (req, 
     req.ip,
     req.get('user-agent')
   );
-  
+
   res.status(201).json({
     success: true,
     message: '感謝您的來信，我們會盡快回覆',
@@ -59,8 +59,8 @@ router.post('/', rateLimiter, createContactValidation, asyncHandler(async (req, 
 }));
 
 // Get all contacts (admin only)
-router.get('/', 
-  authenticate, 
+router.get('/',
+  authenticate,
   authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
   listContactsValidation,
   asyncHandler(async (req, res) => {
@@ -72,16 +72,16 @@ router.get('/',
       dateFrom: req.query.dateFrom,
       dateTo: req.query.dateTo
     };
-    
+
     const options = {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 20,
       orderBy: req.query.orderBy || 'created_at',
       orderDir: req.query.orderDir || 'DESC'
     };
-    
+
     const result = await ContactService.getContacts(filters, options);
-    
+
     res.json({
       success: true,
       data: result
@@ -90,13 +90,13 @@ router.get('/',
 );
 
 // Get contact statistics (admin only)
-router.get('/statistics', 
-  authenticate, 
+router.get('/statistics',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   asyncHandler(async (req, res) => {
     const days = parseInt(req.query.days) || 30;
     const stats = await ContactService.getContactStats(days);
-    
+
     res.json({
       success: true,
       data: stats
@@ -105,8 +105,8 @@ router.get('/statistics',
 );
 
 // Export contacts to CSV (admin only)
-router.get('/export', 
-  authenticate, 
+router.get('/export',
+  authenticate,
   authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
   asyncHandler(async (req, res) => {
     const filters = {
@@ -117,17 +117,17 @@ router.get('/export',
       dateFrom: req.query.dateFrom,
       dateTo: req.query.dateTo
     };
-    
+
     const contacts = await ContactService.exportContacts(filters);
-    
+
     // Convert to CSV format
     const headers = [
-      'ID', 'Name', 'Email', 'Phone', 'Company', 'Subject', 'Message', 
+      'ID', 'Name', 'Email', 'Phone', 'Company', 'Subject', 'Message',
       'Source', 'Read', 'Replied', 'Created At', 'Notes', 'Read By', 'Replied By'
     ];
-    
+
     let csvContent = headers.join(',') + '\n';
-    
+
     contacts.forEach(contact => {
       const row = [
         contact.id,
@@ -147,7 +147,7 @@ router.get('/export',
       ];
       csvContent += row.join(',') + '\n';
     });
-    
+
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="contacts.csv"');
     res.send(csvContent);
@@ -155,19 +155,19 @@ router.get('/export',
 );
 
 // Get single contact (admin only)
-router.get('/:id', 
-  authenticate, 
+router.get('/:id',
+  authenticate,
   authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
   asyncHandler(async (req, res) => {
     const contact = await ContactService.getContact(parseInt(req.params.id));
-    
+
     if (!contact) {
       return res.status(404).json({
         success: false,
         message: 'Contact not found'
       });
     }
-    
+
     res.json({
       success: true,
       data: contact
@@ -176,12 +176,12 @@ router.get('/:id',
 );
 
 // Mark as read (admin only)
-router.put('/:id/read', 
-  authenticate, 
+router.put('/:id/read',
+  authenticate,
   authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
   asyncHandler(async (req, res) => {
     await ContactService.markAsRead(parseInt(req.params.id), req.user.id);
-    
+
     res.json({
       success: true,
       message: 'Contact marked as read'
@@ -190,8 +190,8 @@ router.put('/:id/read',
 );
 
 // Bulk mark as read (admin only)
-router.put('/bulk-read', 
-  authenticate, 
+router.put('/bulk-read',
+  authenticate,
   authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
   [
     body('ids').isArray().withMessage('IDs must be an array'),
@@ -200,7 +200,7 @@ router.put('/bulk-read',
   ],
   asyncHandler(async (req, res) => {
     const result = await ContactService.bulkMarkAsRead(req.body.ids, req.user.id);
-    
+
     res.json({
       success: true,
       message: `${result.updated} contacts marked as read`,
@@ -210,8 +210,8 @@ router.put('/bulk-read',
 );
 
 // Reply to contact (admin only)
-router.put('/:id/reply', 
-  authenticate, 
+router.put('/:id/reply',
+  authenticate,
   authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
   replyContactValidation,
   asyncHandler(async (req, res) => {
@@ -220,7 +220,7 @@ router.put('/:id/reply',
       req.body,
       req.user.id
     );
-    
+
     res.json({
       success: true,
       message: 'Reply sent successfully'
@@ -229,12 +229,12 @@ router.put('/:id/reply',
 );
 
 // Mark as replied (admin only)
-router.put('/:id/mark-replied', 
-  authenticate, 
+router.put('/:id/mark-replied',
+  authenticate,
   authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
   asyncHandler(async (req, res) => {
     await ContactService.markAsReplied(parseInt(req.params.id), req.user.id);
-    
+
     res.json({
       success: true,
       message: 'Contact marked as replied'
@@ -243,8 +243,8 @@ router.put('/:id/mark-replied',
 );
 
 // Update contact notes (admin only)
-router.put('/:id/notes', 
-  authenticate, 
+router.put('/:id/notes',
+  authenticate,
   authorize(USER_ROLES.ADMIN, USER_ROLES.EDITOR),
   [
     param('id').isInt().withMessage('Invalid contact ID'),
@@ -253,7 +253,7 @@ router.put('/:id/notes',
   ],
   asyncHandler(async (req, res) => {
     await ContactService.updateNotes(parseInt(req.params.id), req.body.notes);
-    
+
     res.json({
       success: true,
       message: 'Notes updated successfully'
@@ -262,12 +262,12 @@ router.put('/:id/notes',
 );
 
 // Archive contact (admin only)
-router.delete('/:id', 
-  authenticate, 
+router.delete('/:id',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   asyncHandler(async (req, res) => {
     await ContactService.deleteContact(parseInt(req.params.id), req.user.id);
-    
+
     res.json({
       success: true,
       message: '聯絡表單已封存'
@@ -276,8 +276,8 @@ router.delete('/:id',
 );
 
 // Bulk archive contacts (admin only)
-router.post('/bulk-delete', 
-  authenticate, 
+router.post('/bulk-delete',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   [
     body('ids').isArray().withMessage('IDs must be an array'),
@@ -286,7 +286,7 @@ router.post('/bulk-delete',
   ],
   asyncHandler(async (req, res) => {
     const result = await ContactService.bulkDeleteContacts(req.body.ids, req.user.id);
-    
+
     res.json({
       success: true,
       message: `已封存 ${result.deleted} 個聯絡表單`,

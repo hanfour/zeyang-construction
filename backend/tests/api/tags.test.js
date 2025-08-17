@@ -146,7 +146,7 @@ describe('Tags API Tests', () => {
 
       expect(response.body.success).toBe(true);
       expect(Array.isArray(response.body.data)).toBe(true);
-      
+
       // Popular tags should be sorted by usage count
       if (response.body.data.length > 1) {
         for (let i = 0; i < response.body.data.length - 1; i++) {
@@ -278,7 +278,7 @@ describe('Tags API Tests', () => {
           nameEn: 'Source Tag',
           category: 'style'
         });
-      
+
       if (sourceResponse.body.success) {
         sourceTagId = sourceResponse.body.data.id;
       }
@@ -291,7 +291,7 @@ describe('Tags API Tests', () => {
           nameEn: 'Target Tag',
           category: 'style'
         });
-      
+
       if (targetResponse.body.success) {
         targetTagId = targetResponse.body.data.id;
       }
@@ -312,7 +312,7 @@ describe('Tags API Tests', () => {
 
       // Verify source tag is deleted
       await request(app)
-        .get(`/api/tags/sourcetag`)
+        .get('/api/tags/sourcetag')
         .expect(404);
     });
 
@@ -368,7 +368,7 @@ describe('Tags API Tests', () => {
           nameEn: 'Delete Tag',
           category: 'feature'
         });
-      
+
       tagToDelete = response.body.data.identifier;
     });
 

@@ -43,9 +43,9 @@ const reorderImagesValidation = [
 router.get('/', asyncHandler(async (req, res) => {
   const { identifier } = req.params;
   const { image_type } = req.query;
-  
+
   const images = await ProjectImageService.getProjectImages(identifier, image_type);
-  
+
   res.json({
     success: true,
     data: { images }
@@ -53,7 +53,7 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 // Upload images
-router.post('/', 
+router.post('/',
   autoCleanup,
   uploadMultiple,
   handleMulterError,
@@ -61,14 +61,14 @@ router.post('/',
   asyncHandler(async (req, res) => {
     const { identifier } = req.params;
     const { image_type = IMAGE_TYPES.GALLERY, alt_text } = req.body;
-    
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         success: false,
         message: 'No files uploaded'
       });
     }
-    
+
     const results = await ProjectImageService.uploadImages(
       identifier,
       req.files,
@@ -78,7 +78,7 @@ router.post('/',
         userId: req.user.id
       }
     );
-    
+
     res.status(201).json({
       success: true,
       message: SUCCESS_MESSAGES.UPLOAD_SUCCESS,
@@ -93,13 +93,13 @@ router.post('/',
 // Update image details
 router.put('/:imageId', updateImageValidation, asyncHandler(async (req, res) => {
   const { identifier, imageId } = req.params;
-  
+
   const image = await ProjectImageService.updateImage(
     identifier,
     parseInt(imageId),
     req.body
   );
-  
+
   res.json({
     success: true,
     message: SUCCESS_MESSAGES.UPDATED,
@@ -114,9 +114,9 @@ router.post('/:imageId/set-main', [
   handleValidationErrors
 ], asyncHandler(async (req, res) => {
   const { identifier, imageId } = req.params;
-  
+
   await ProjectImageService.setMainImage(identifier, parseInt(imageId));
-  
+
   res.json({
     success: true,
     message: 'Main image set successfully'
@@ -130,9 +130,9 @@ router.delete('/:imageId', [
   handleValidationErrors
 ], asyncHandler(async (req, res) => {
   const { identifier, imageId } = req.params;
-  
+
   await ProjectImageService.deleteImage(identifier, parseInt(imageId));
-  
+
   res.json({
     success: true,
     message: SUCCESS_MESSAGES.DELETED
@@ -143,9 +143,9 @@ router.delete('/:imageId', [
 router.put('/reorder', reorderImagesValidation, asyncHandler(async (req, res) => {
   const { identifier } = req.params;
   const { orders } = req.body;
-  
+
   const result = await ProjectImageService.reorderImages(identifier, orders);
-  
+
   res.json({
     success: true,
     message: 'Image order updated successfully',
@@ -162,9 +162,9 @@ router.post('/bulk-delete', [
 ], asyncHandler(async (req, res) => {
   const { identifier } = req.params;
   const { imageIds } = req.body;
-  
+
   const result = await ProjectImageService.bulkDeleteImages(identifier, imageIds);
-  
+
   res.json({
     success: true,
     message: `${result.deleted} images deleted successfully`,

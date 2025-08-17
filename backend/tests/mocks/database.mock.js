@@ -27,7 +27,7 @@ const initializeTestData = () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     });
-    
+
     storage.users.push({
       id: 2,
       username: 'testeditor',
@@ -73,7 +73,7 @@ const mockPool = {
 async function mockExecute(sql, params = []) {
   // Parse SQL to determine operation
   const sqlLower = sql.toLowerCase().trim();
-  
+
   if (sqlLower.startsWith('select')) {
     return handleSelect(sql, params);
   } else if (sqlLower.startsWith('insert')) {
@@ -85,13 +85,13 @@ async function mockExecute(sql, params = []) {
   } else if (sqlLower.includes('set foreign_key_checks')) {
     return [[]];
   }
-  
+
   return [[]];
 }
 
 function handleSelect(sql, params) {
   const sqlLower = sql.toLowerCase();
-  
+
   // Handle COUNT queries
   if (sqlLower.includes('count(')) {
     if (sqlLower.includes('from projects')) {
@@ -108,20 +108,20 @@ function handleSelect(sql, params) {
     }
     return [[{ total: 0 }]];
   }
-  
+
   // Handle system queries
   if (sqlLower.includes('select version()')) {
     return [[{ 'VERSION()': '8.0.0' }]];
   }
-  
+
   if (sqlLower.includes('select database()')) {
     return [[{ 'DATABASE()': 'ZeYang_test' }]];
   }
-  
+
   // Handle project queries
   if (sqlLower.includes('from projects')) {
     let results = [...storage.projects];
-    
+
     // Apply WHERE conditions
     if (sqlLower.includes('where')) {
       if (sqlLower.includes('identifier = ?')) {
@@ -152,20 +152,20 @@ function handleSelect(sql, params) {
         }
       }
     }
-    
+
     // Handle search queries
     if (sqlLower.includes('like ?')) {
       const searchIndex = params.findIndex(p => typeof p === 'string' && p.includes('%'));
       if (searchIndex >= 0) {
         const searchTerm = params[searchIndex].replace(/%/g, '');
-        results = results.filter(p => 
+        results = results.filter(p =>
           (p.name && p.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (p.location && p.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (p.description && p.description.toLowerCase().includes(searchTerm.toLowerCase()))
         );
       }
     }
-    
+
     // Apply ORDER BY
     if (sqlLower.includes('order by')) {
       if (sqlLower.includes('displayorder')) {
@@ -175,26 +175,26 @@ function handleSelect(sql, params) {
         results.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       }
     }
-    
+
     // Apply LIMIT and OFFSET
     if (sqlLower.includes('limit')) {
       const limitMatch = sqlLower.match(/limit\s+(\d+)/);
       const offsetMatch = sqlLower.match(/offset\s+(\d+)/);
-      
+
       if (limitMatch) {
         const limit = parseInt(limitMatch[1]);
         const offset = offsetMatch ? parseInt(offsetMatch[1]) : 0;
         results = results.slice(offset, offset + limit);
       }
     }
-    
+
     return [results];
   }
-  
+
   // Handle user queries
   if (sqlLower.includes('from users')) {
     let results = [...storage.users];
-    
+
     if (sqlLower.includes('where username = ?') && !sqlLower.includes('or email')) {
       results = results.filter(u => u.username === params[0]);
     } else if (sqlLower.includes('where (username = ? or email = ?)')) {
@@ -203,7 +203,7 @@ function handleSelect(sql, params) {
     } else if (sqlLower.includes('where email = ?')) {
       results = results.filter(u => u.email === params[0]);
     }
-    
+
     if (sqlLower.includes('and is_active = true') || sqlLower.includes('and is_active = 1')) {
       results = results.filter(u => u.is_active === 1 || u.is_active === true);
     } else if (sqlLower.includes('where') && sqlLower.includes('is_active')) {
@@ -213,44 +213,44 @@ function handleSelect(sql, params) {
         results = results.filter(u => u.is_active === isActiveValue);
       }
     }
-    
+
     return [results];
   }
-  
+
   // Handle project_images queries
   if (sqlLower.includes('from project_images')) {
     let results = [...storage.project_images];
-    
+
     if (sqlLower.includes('where project_id = ?')) {
       results = results.filter(i => i.project_id === params[0]);
     }
-    
+
     return [results];
   }
-  
+
   // Handle tags queries
   if (sqlLower.includes('from tags')) {
     let results = [...storage.tags];
-    
+
     if (sqlLower.includes('where id = ?')) {
       results = results.filter(t => t.id === params[0]);
     }
-    
+
     if (sqlLower.includes('where identifier = ?')) {
       results = results.filter(t => t.identifier === params[0]);
     }
-    
+
     if (sqlLower.includes('where name = ?')) {
       results = results.filter(t => t.name === params[0]);
     }
-    
+
     // Apply ORDER BY
     if (sqlLower.includes('order by')) {
       if (sqlLower.includes('created_at desc')) {
         results.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       }
     }
-    
+
     // Apply LIMIT
     if (sqlLower.includes('limit')) {
       const limitMatch = sqlLower.match(/limit\s+(\d+)/);
@@ -259,66 +259,66 @@ function handleSelect(sql, params) {
         results = results.slice(0, limit);
       }
     }
-    
+
     return [results];
   }
-  
+
   // Handle contacts queries
   if (sqlLower.includes('from contacts')) {
     let results = [...storage.contacts];
-    
+
     if (sqlLower.includes('where id = ?')) {
       results = results.filter(c => c.id === params[0]);
     }
-    
+
     if (sqlLower.includes('is_read = ?')) {
       const isRead = params.find(p => p === 0 || p === 1);
       if (isRead !== undefined) {
         results = results.filter(c => c.is_read === isRead);
       }
     }
-    
+
     // Apply ORDER BY
     if (sqlLower.includes('order by created_at desc')) {
       results.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
-    
+
     // Apply LIMIT and OFFSET
     if (sqlLower.includes('limit')) {
       const limitMatch = sqlLower.match(/limit\s+(\d+)/);
       const offsetMatch = sqlLower.match(/offset\s+(\d+)/);
-      
+
       if (limitMatch) {
         const limit = parseInt(limitMatch[1]);
         const offset = offsetMatch ? parseInt(offsetMatch[1]) : 0;
         results = results.slice(offset, offset + limit);
       }
     }
-    
+
     return [results];
   }
-  
+
   // Handle settings queries
   if (sqlLower.includes('from settings')) {
     let results = [...storage.settings];
-    
+
     if (sqlLower.includes('where `key` = ?')) {
       results = results.filter(s => s.key === params[0]);
     }
-    
+
     if (sqlLower.includes('where category = ?')) {
       results = results.filter(s => s.category === params[0]);
     }
-    
+
     return [results];
   }
-  
+
   return [[]];
 }
 
 function handleInsert(sql, params) {
   const sqlLower = sql.toLowerCase();
-  
+
   if (sqlLower.includes('into projects')) {
     const project = {
       id: storage.projects.length + 1,
@@ -359,15 +359,15 @@ function handleInsert(sql, params) {
       created_at: new Date(),
       updated_at: new Date()
     };
-    
+
     storage.projects.push(project);
-    
+
     return [{
       insertId: project.id,
       affectedRows: 1
     }, [project]];
   }
-  
+
   if (sqlLower.includes('into users')) {
     const user = {
       id: storage.users.length + 1,
@@ -379,7 +379,7 @@ function handleInsert(sql, params) {
       created_at: new Date(),
       updated_at: new Date()
     };
-    
+
     // Handle INSERT IGNORE
     if (sqlLower.includes('ignore')) {
       const existing = storage.users.find(u => u.username === user.username || u.email === user.email);
@@ -387,15 +387,15 @@ function handleInsert(sql, params) {
         return [{ insertId: existing.id, affectedRows: 0 }];
       }
     }
-    
+
     storage.users.push(user);
-    
+
     return [{
       insertId: user.id,
       affectedRows: 1
     }];
   }
-  
+
   if (sqlLower.includes('into tags')) {
     const tag = {
       id: storage.tags.length + 1,
@@ -407,28 +407,28 @@ function handleInsert(sql, params) {
       created_at: new Date(),
       updated_at: new Date()
     };
-    
+
     storage.tags.push(tag);
-    
+
     return [{
       insertId: tag.id,
       affectedRows: 1
     }];
   }
-  
+
   if (sqlLower.includes('into project_tags')) {
     const projectTag = {
       project_id: params[0],
       tag_id: params[1]
     };
-    
+
     storage.project_tags.push(projectTag);
-    
+
     return [{
       affectedRows: 1
     }];
   }
-  
+
   if (sqlLower.includes('into contacts')) {
     const contact = {
       id: storage.contacts.length + 1,
@@ -444,15 +444,15 @@ function handleInsert(sql, params) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
-    
+
     storage.contacts.push(contact);
-    
+
     return [{
       insertId: contact.id,
       affectedRows: 1
     }];
   }
-  
+
   if (sqlLower.includes('into settings')) {
     const setting = {
       key: params[0],
@@ -462,14 +462,14 @@ function handleInsert(sql, params) {
       description: params[4] || null,
       updated_at: new Date().toISOString()
     };
-    
+
     storage.settings.push(setting);
-    
+
     return [{
       affectedRows: 1
     }];
   }
-  
+
   if (sqlLower.includes('into users')) {
     const user = {
       id: storage.users.length + 1,
@@ -482,28 +482,28 @@ function handleInsert(sql, params) {
       updated_at: new Date().toISOString(),
       last_login_at: null
     };
-    
+
     storage.users.push(user);
-    
+
     return [{
       insertId: user.id,
       affectedRows: 1
     }];
   }
-  
+
   return [{ insertId: 1, affectedRows: 1 }];
 }
 
 function handleUpdate(sql, params) {
   const sqlLower = sql.toLowerCase();
-  
+
   if (sqlLower.includes('projects set')) {
     // Find project by identifier
     const whereMatch = sqlLower.match(/where\s+identifier\s*=\s*\?/);
     if (whereMatch) {
       const identifier = params[params.length - 1];
       const project = storage.projects.find(p => p.identifier === identifier);
-      
+
       if (project) {
         // Update fields based on SET clause
         if (sqlLower.includes('isfeatured')) {
@@ -513,19 +513,19 @@ function handleUpdate(sql, params) {
           project.status = params[0];
         }
         project.updated_at = new Date();
-        
+
         return [{ affectedRows: 1 }];
       }
     }
   }
-  
+
   if (sqlLower.includes('contacts set')) {
     // Find contact by id
     const whereMatch = sqlLower.match(/where\s+id\s*=\s*\?/);
     if (whereMatch) {
       const id = params[params.length - 1];
       const contact = storage.contacts.find(c => c.id === id);
-      
+
       if (contact) {
         // Update fields based on SET clause
         if (sqlLower.includes('is_read')) {
@@ -538,31 +538,31 @@ function handleUpdate(sql, params) {
           contact.notes = params[0];
         }
         contact.updated_at = new Date().toISOString();
-        
+
         return [{ affectedRows: 1 }];
       }
     }
   }
-  
+
   if (sqlLower.includes('settings set')) {
     // Find setting by key
     const whereMatch = sqlLower.match(/where\s+`?key`?\s*=\s*\?/);
     if (whereMatch) {
       const key = params[params.length - 1];
       const setting = storage.settings.find(s => s.key === key);
-      
+
       if (setting) {
         // Update value
         if (sqlLower.includes('value')) {
           setting.value = params[0];
           setting.updated_at = new Date().toISOString();
         }
-        
+
         return [{ affectedRows: 1 }];
       }
     }
   }
-  
+
   if (sqlLower.includes('users set')) {
     // Update last login
     if (sqlLower.includes('last_login_at')) {
@@ -574,53 +574,53 @@ function handleUpdate(sql, params) {
       }
     }
   }
-  
+
   return [{ affectedRows: 0 }];
 }
 
 function handleDelete(sql, params) {
   const sqlLower = sql.toLowerCase();
-  
+
   if (sqlLower.includes('from projects')) {
     const initialLength = storage.projects.length;
-    
+
     if (sqlLower.includes('where identifier = ?')) {
       storage.projects = storage.projects.filter(p => p.identifier !== params[0]);
     } else {
       storage.projects = [];
     }
-    
+
     return [{ affectedRows: initialLength - storage.projects.length }];
   }
-  
+
   if (sqlLower.includes('from project_images')) {
     storage.project_images = [];
     return [{ affectedRows: 1 }];
   }
-  
+
   if (sqlLower.includes('from project_tags')) {
     storage.project_tags = [];
     return [{ affectedRows: 1 }];
   }
-  
+
   if (sqlLower.includes('from tags')) {
     storage.tags = [];
     return [{ affectedRows: 1 }];
   }
-  
+
   if (sqlLower.includes('from contacts')) {
     storage.contacts = [];
     return [{ affectedRows: 1 }];
   }
-  
+
   if (sqlLower.includes('from users')) {
     // Keep test users when clearing database
-    storage.users = storage.users.filter(u => 
+    storage.users = storage.users.filter(u =>
       ['testadmin', 'testeditor', 'testviewer'].includes(u.username)
     );
     return [{ affectedRows: 1 }];
   }
-  
+
   return [{ affectedRows: 0 }];
 }
 
@@ -642,7 +642,7 @@ async function mockTransaction(callback) {
     execute: mockExecute,
     release: () => {}
   };
-  
+
   try {
     return await callback(connection);
   } catch (error) {
@@ -664,7 +664,7 @@ function clearStorage() {
 function initializeTestUsers() {
   // Use pre-hashed password for testing (Test123!)
   const hashedPassword = '$2a$10$N9qo8uLOickgx2ZMRZoMye1qm8VJ5VK9K8QJzLjKLCEqAoONEK.2u';
-  
+
   storage.users = [
     {
       id: 1,

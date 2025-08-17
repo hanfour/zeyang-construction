@@ -14,8 +14,8 @@ const updateSettingsValidation = [
 ];
 
 // Get all settings or settings by category (admin only)
-router.get('/', 
-  authenticate, 
+router.get('/',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   [
     queryValidator('category').optional().isString().withMessage('Category must be a string'),
@@ -23,7 +23,7 @@ router.get('/',
   ],
   asyncHandler(async (req, res) => {
     const settings = await SettingsService.getSettings(req.query.category);
-    
+
     res.json({
       success: true,
       data: settings
@@ -32,8 +32,8 @@ router.get('/',
 );
 
 // Get single setting (admin only)
-router.get('/:key', 
-  authenticate, 
+router.get('/:key',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   [
     param('key').notEmpty().withMessage('Setting key is required'),
@@ -41,14 +41,14 @@ router.get('/:key',
   ],
   asyncHandler(async (req, res) => {
     const setting = await SettingsService.getSetting(req.params.key);
-    
+
     if (!setting) {
       return res.status(404).json({
         success: false,
         message: 'Setting not found'
       });
     }
-    
+
     res.json({
       success: true,
       data: setting
@@ -57,13 +57,13 @@ router.get('/:key',
 );
 
 // Update settings (admin only)
-router.put('/', 
-  authenticate, 
+router.put('/',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   updateSettingsValidation,
   asyncHandler(async (req, res) => {
     const results = await SettingsService.updateSettings(req.body.settings, req.user.id);
-    
+
     res.json({
       success: true,
       message: 'Settings updated successfully',
@@ -73,12 +73,12 @@ router.put('/',
 );
 
 // Test SMTP connection (admin only)
-router.post('/smtp/test', 
-  authenticate, 
+router.post('/smtp/test',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   asyncHandler(async (req, res) => {
     const testResult = await SettingsService.testSmtpConnection();
-    
+
     if (testResult.success) {
       res.json({
         success: true,
@@ -96,12 +96,12 @@ router.post('/smtp/test',
 );
 
 // Get email settings specifically (admin only)
-router.get('/category/email', 
-  authenticate, 
+router.get('/category/email',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   asyncHandler(async (req, res) => {
     const emailSettings = await SettingsService.getSettings('email');
-    
+
     // Don't return the actual password, just indicate if it's set
     if (emailSettings.smtp_password) {
       emailSettings.smtp_password = {
@@ -109,7 +109,7 @@ router.get('/category/email',
         value: emailSettings.smtp_password.value ? '••••••••' : ''
       };
     }
-    
+
     res.json({
       success: true,
       data: emailSettings
@@ -118,8 +118,8 @@ router.get('/category/email',
 );
 
 // Update email settings specifically (admin only)
-router.put('/category/email', 
-  authenticate, 
+router.put('/category/email',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   [
     body('smtp_enabled').optional().isBoolean().withMessage('SMTP enabled must be boolean'),
@@ -138,10 +138,10 @@ router.put('/category/email',
   asyncHandler(async (req, res) => {
     // Build settings object
     const settings = {};
-    
+
     const emailFields = [
       'smtp_enabled',
-      'smtp_host', 
+      'smtp_host',
       'smtp_port',
       'smtp_secure',
       'smtp_username',
@@ -152,7 +152,7 @@ router.put('/category/email',
       'send_admin_notifications',
       'send_user_confirmations'
     ];
-    
+
     for (const field of emailFields) {
       if (req.body[field] !== undefined) {
         let type = 'string';
@@ -161,7 +161,7 @@ router.put('/category/email',
         } else if (field === 'smtp_port') {
           type = 'number';
         }
-        
+
         settings[field] = {
           value: req.body[field],
           type,
@@ -169,9 +169,9 @@ router.put('/category/email',
         };
       }
     }
-    
+
     const results = await SettingsService.updateSettings(settings, req.user.id);
-    
+
     res.json({
       success: true,
       message: 'Email settings updated successfully',
@@ -181,12 +181,12 @@ router.put('/category/email',
 );
 
 // Delete email settings (admin only)
-router.delete('/category/email', 
-  authenticate, 
+router.delete('/category/email',
+  authenticate,
   authorize(USER_ROLES.ADMIN),
   asyncHandler(async (req, res) => {
     const result = await SettingsService.deleteSettingsByCategory('email', req.user.id);
-    
+
     res.json({
       success: true,
       message: 'Email settings deleted successfully',

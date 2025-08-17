@@ -11,7 +11,7 @@ const createUploadDirs = () => {
     'uploads/temp',
     'uploads/avatars'
   ];
-  
+
   dirs.forEach(dir => {
     const fullPath = path.join(__dirname, '..', dir);
     if (!fs.existsSync(fullPath)) {
@@ -26,13 +26,13 @@ createUploadDirs();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadPath = 'uploads/temp';
-    
+
     if (req.baseUrl.includes('/projects')) {
       uploadPath = 'uploads/projects';
     } else if (req.baseUrl.includes('/users')) {
       uploadPath = 'uploads/avatars';
     }
-    
+
     cb(null, path.join(__dirname, '..', uploadPath));
   },
   filename: (req, file, cb) => {
@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
 // File filter
 const fileFilter = (req, file, cb) => {
   const allowedMimeTypes = UPLOAD.ALLOWED_MIME_TYPES;
-  
+
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -72,20 +72,20 @@ const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     let message = 'File upload error';
     let code = ERROR_CODES.UPLOAD_FAILED;
-    
+
     switch (err.code) {
-      case 'LIMIT_FILE_SIZE':
-        message = `File too large. Maximum size is ${Math.floor(UPLOAD.MAX_FILE_SIZE / 1024 / 1024)}MB`;
-        code = ERROR_CODES.FILE_TOO_LARGE;
-        break;
-      case 'LIMIT_FILE_COUNT':
-        message = 'Too many files. Maximum 10 files allowed';
-        break;
-      case 'LIMIT_UNEXPECTED_FILE':
-        message = 'Unexpected field name';
-        break;
+    case 'LIMIT_FILE_SIZE':
+      message = `File too large. Maximum size is ${Math.floor(UPLOAD.MAX_FILE_SIZE / 1024 / 1024)}MB`;
+      code = ERROR_CODES.FILE_TOO_LARGE;
+      break;
+    case 'LIMIT_FILE_COUNT':
+      message = 'Too many files. Maximum 10 files allowed';
+      break;
+    case 'LIMIT_UNEXPECTED_FILE':
+      message = 'Unexpected field name';
+      break;
     }
-    
+
     return res.status(400).json({
       success: false,
       message,
@@ -95,7 +95,7 @@ const handleMulterError = (err, req, res, next) => {
       }
     });
   }
-  
+
   if (err.code === ERROR_CODES.INVALID_FILE_TYPE) {
     return res.status(400).json({
       success: false,
@@ -105,16 +105,16 @@ const handleMulterError = (err, req, res, next) => {
       }
     });
   }
-  
+
   next(err);
 };
 
 // Clean up uploaded files on error
 const cleanupFiles = (files) => {
   if (!files) return;
-  
+
   const fileList = Array.isArray(files) ? files : Object.values(files).flat();
-  
+
   fileList.forEach(file => {
     fs.unlink(file.path, (err) => {
       if (err) console.error('Error deleting file:', err);
@@ -125,19 +125,19 @@ const cleanupFiles = (files) => {
 // Middleware to clean up files on request error
 const autoCleanup = (req, res, next) => {
   const originalSend = res.send;
-  
+
   res.send = function(data) {
     res.send = originalSend;
-    
+
     // If response status is error and files were uploaded, clean them up
     if (res.statusCode >= 400 && (req.file || req.files)) {
       const files = req.file ? [req.file] : req.files;
       cleanupFiles(files);
     }
-    
+
     return res.send(data);
   };
-  
+
   next();
 };
 
@@ -146,7 +146,7 @@ module.exports = {
   handleMulterError,
   cleanupFiles,
   autoCleanup,
-  
+
   // Specific upload configurations
   uploadSingle: upload.single('file'),
   uploadMultiple: upload.array('files', 10),
