@@ -134,7 +134,7 @@ JWT_SECRET=your-jwt-secret-key
 REFRESH_SECRET=your-refresh-secret-key
 
 # 服務配置
-PORT=5000
+PORT=5001
 NODE_ENV=development
 
 # 郵件服務配置
@@ -153,7 +153,7 @@ cp .env.example .env
 編輯 `frontend/.env`：
 ```env
 # API 服務配置
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:5001
 VITE_API_PREFIX=/api
 
 # 應用配置
@@ -205,16 +205,15 @@ npm run start:prod
 啟動成功後可訪問：
 
 - **🎨 前端網站**: http://localhost:5173
-- **🔗 後端 API**: http://localhost:5000
-- **📚 API 文檔**: http://localhost:5000/api-docs
-- **💚 健康檢查**: http://localhost:5000/health
+- **🔗 後端 API**: http://localhost:5001
+- **📚 API 文檔**: http://localhost:5001/api-docs
+- **💚 健康檢查**: http://localhost:5001/health
 
 ### 🔑 預設帳號
 
 | 角色 | 帳號 | 密碼 | 說明 |
 |------|------|------|------|
-| 管理員 | `admin` | `Admin123456` | 完整系統權限 |
-| 編輯者 | `editor` | `Editor123!` | 內容編輯權限 |
+| 管理員 | `admin` | `admin123` | 完整系統權限 |
 
 > ⚠️ **重要**: 生產環境請務必變更預設密碼！
 
@@ -380,7 +379,7 @@ pm2 start ecosystem.config.js
 ## 📚 相關文檔
 
 - [API 測試指南](backend/API-GUIDE.md)
-- [Swagger API 文檔](http://localhost:5000/api-docs)
+- [Swagger API 文檔](http://localhost:5001/api-docs)
 - [測試結果報告](backend/tests/FINAL-REPORT.md)
 - [資料庫架構](database/init.sql)
 

@@ -523,7 +523,7 @@ chore:    維護工作
 ```env
 # 基礎設定
 NODE_ENV=development
-PORT=5000
+PORT=5001
 CLIENT_URL=http://localhost:3000
 
 # 資料庫

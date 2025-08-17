@@ -219,7 +219,7 @@ const CustomCarousel: React.FC<CustomCarouselProps> = ({
 
     const interval = setInterval(() => {
       goToNext();
-    }, config.autoPlayInterval || 5000);
+    }, config.autoPlayInterval || 5001);
 
     return () => clearInterval(interval);
   }, [config.autoPlay, config.autoPlayInterval, goToNext, images.length]);

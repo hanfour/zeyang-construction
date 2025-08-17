@@ -121,7 +121,7 @@ const LoginPage: React.FC = () => {
 
               <div className="mt-6">
                 <p className="text-sm text-gray-600 text-center">
-                  預設管理員帳號：admin / Admin@123
+                  預設管理員帳號：admin / admin123
                 </p>
               </div>
             </div>

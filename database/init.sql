@@ -188,8 +188,8 @@ CREATE TABLE IF NOT EXISTS project_statistics (
     INDEX idx_date (date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insert default admin user (password: Admin@123)
--- Note: This is the bcrypt hash for 'Admin@123'
+-- Insert default admin user (password: admin123)
+-- Note: This is the bcrypt hash for 'admin123'
 INSERT INTO users (username, password, email, role) VALUES 
 ('admin', '$2a$10$Vxh2r7J5xYZu6.BmQBwJqOm0KxdKLJv.gYNnF8.iLqxZ8Kv0YXMK6', 'admin@ZeYang.com', 'admin');
 

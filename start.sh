@@ -51,7 +51,7 @@ echo "   API Docs: http://localhost:5001/api-docs"
 echo ""
 echo "   Default admin login:"
 echo "   Username: admin"
-echo "   Password: Admin@123"
+echo "   Password: admin123"
 echo ""
 echo "Press Ctrl+C to stop the servers."
 

@@ -430,7 +430,7 @@ describe('CustomCarousel', () => {
       );
       
       // Fast-forward time
-      jest.advanceTimersByTime(5000);
+      jest.advanceTimersByTime(5001);
       
       expect(onSlideChange).not.toHaveBeenCalled();
     });
