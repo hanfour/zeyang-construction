@@ -1,7 +1,10 @@
+import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'react-hot-toast';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import Router from './router';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -16,6 +19,15 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  useEffect(() => {
+    AOS.init({
+      duration: 1500,
+      once: false,
+      easing: 'ease-out-cubic',
+      offset: 120,
+    });
+  }, []);
+
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>

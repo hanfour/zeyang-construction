@@ -35,6 +35,7 @@ const createProjectValidation = [
 const updateProjectValidation = [
   param('identifier').notEmpty(),
   body('title').optional().trim(),
+  body('subtitle').optional().trim(),
   body('category').optional()
     .custom(value => {
       if (value === null || value === undefined || value === '') return true;
@@ -44,9 +45,22 @@ const updateProjectValidation = [
     .isIn(Object.values(PROJECT_STATUS)).withMessage('Invalid status'),
   body('display_page').optional()
     .isIn(['開發專區', '澤暘作品']).withMessage('Invalid display page'),
+  body('location').optional().trim(),
+  body('base_address').optional().trim(),
   body('year').optional().isInt({ min: 1900, max: 2100 }).withMessage('Invalid year'),
+  body('area').optional().trim(),
+  body('floor_plan_info').optional().trim(),
+  body('unit_count').optional().isInt({ min: 0 }).withMessage('Invalid unit count'),
   body('display_order').optional().isInt({ min: 0 }).withMessage('Invalid display order'),
   body('is_featured').optional().isBoolean().withMessage('Invalid featured status'),
+  body('facebook_page').optional().trim(),
+  body('booking_phone').optional().trim(),
+  body('info_website').optional().trim(),
+  body('meta_title').optional().trim(),
+  body('meta_description').optional().trim(),
+  body('description').optional().trim(),
+  body('detail_content').optional().trim(),
+  body('custom_fields').optional().isArray().withMessage('Custom fields must be an array'),
   body('tags').optional().isArray().withMessage('Tags must be an array'),
   handleValidationErrors
 ];

@@ -43,6 +43,7 @@ class Project {
         p.info_website,
         p.meta_title,
         p.meta_description,
+        p.custom_fields,
         p.created_at,
         p.updated_at,
         u1.username as created_by_name,
@@ -165,6 +166,17 @@ class Project {
         }
       }
 
+      // Parse custom_fields JSON
+      if (project.custom_fields && typeof project.custom_fields === 'string') {
+        try {
+          project.custom_fields = JSON.parse(project.custom_fields);
+        } catch (e) {
+          project.custom_fields = [];
+        }
+      } else if (!project.custom_fields) {
+        project.custom_fields = [];
+      }
+
       // Parse main image thumbnails
       if (project.main_image_thumbnails && typeof project.main_image_thumbnails === 'string') {
         try {
@@ -265,6 +277,17 @@ class Project {
       } catch (e) {
         project.featuresEn = [];
       }
+    }
+
+    // Parse custom_fields JSON for single project
+    if (project.custom_fields && typeof project.custom_fields === 'string') {
+      try {
+        project.custom_fields = JSON.parse(project.custom_fields);
+      } catch (e) {
+        project.custom_fields = [];
+      }
+    } else if (!project.custom_fields) {
+      project.custom_fields = [];
     }
 
     return {
@@ -392,15 +415,27 @@ class Project {
 
       const project = existing[0];
       const {
-        name: title,
-        nameEn: subtitle,
-        type: category,
+        title,
+        subtitle,
+        category,
         status,
         display_page,
         location,
+        base_address,
         year,
         area,
-        isFeatured: is_featured,
+        floor_plan_info,
+        unit_count,
+        display_order,
+        is_featured,
+        facebook_page,
+        booking_phone,
+        info_website,
+        meta_title,
+        meta_description,
+        description,
+        detail_content,
+        custom_fields,
         tags
       } = data;
 
@@ -438,6 +473,11 @@ class Project {
         updateParams.push(location);
       }
 
+      if (base_address !== undefined) {
+        updateFields.push('base_address = ?');
+        updateParams.push(base_address);
+      }
+
       if (year !== undefined) {
         updateFields.push('year = ?');
         updateParams.push(year);
@@ -448,9 +488,54 @@ class Project {
         updateParams.push(area);
       }
 
+      if (floor_plan_info !== undefined) {
+        updateFields.push('floor_plan_info = ?');
+        updateParams.push(floor_plan_info);
+      }
+
+      if (unit_count !== undefined) {
+        updateFields.push('unit_count = ?');
+        updateParams.push(unit_count);
+      }
+
+      if (display_order !== undefined) {
+        updateFields.push('display_order = ?');
+        updateParams.push(display_order);
+      }
+
       if (is_featured !== undefined) {
         updateFields.push('is_featured = ?');
         updateParams.push(is_featured);
+      }
+
+      if (facebook_page !== undefined) {
+        updateFields.push('facebook_page = ?');
+        updateParams.push(facebook_page);
+      }
+
+      if (booking_phone !== undefined) {
+        updateFields.push('booking_phone = ?');
+        updateParams.push(booking_phone);
+      }
+
+      if (info_website !== undefined) {
+        updateFields.push('info_website = ?');
+        updateParams.push(info_website);
+      }
+
+      if (meta_title !== undefined) {
+        updateFields.push('meta_title = ?');
+        updateParams.push(meta_title);
+      }
+
+      if (meta_description !== undefined) {
+        updateFields.push('meta_description = ?');
+        updateParams.push(meta_description);
+      }
+
+      if (custom_fields !== undefined) {
+        updateFields.push('custom_fields = ?');
+        updateParams.push(JSON.stringify(custom_fields));
       }
 
       if (updateFields.length > 0) {

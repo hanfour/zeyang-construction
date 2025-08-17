@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import PageBanner from '@/components/Layout/PageBanner';
 import MenuButton from '@/components/Layout/MenuButton';
 import NavigationMenu from '@/components/Layout/NavigationMenu';
+import SuccessModal from '@/components/Common/SuccessModal';
 import contactService from '@/services/contact.service';
 
 interface ContactFormData {
@@ -20,6 +21,7 @@ interface ContactFormData {
 const ContactPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const {
     register,
@@ -39,7 +41,7 @@ const ContactPage: React.FC = () => {
     mutationFn: contactService.createContact,
     onSuccess: (response) => {
       if (response.success) {
-        toast.success('您的訊息已成功送出，我們會盡快與您聯繫！');
+        setShowSuccessModal(true);
         reset();
       } else {
         toast.error(response.message || '送出失敗，請稍後再試');
@@ -279,6 +281,16 @@ const ContactPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="訊息已送出"
+        message="您的訊息已成功送出，我們會盡快與您聯繫！"
+        autoCloseDelay={1500}
+        showCloseButton={true}
+      />
 
     </>
   );

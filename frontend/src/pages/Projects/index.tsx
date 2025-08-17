@@ -180,6 +180,56 @@ const ProjectCard: React.FC<{
               </div>
             )}
             
+            {/* Info Website */}
+            {project.info_website && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">專案網站</span>
+                <span className="font-medium">
+                  <a 
+                    href={project.info_website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary-more hover:underline"
+                  >
+                    {project.info_website}
+                  </a>
+                </span>
+              </div>
+            )}
+            
+            {/* Facebook Page */}
+            {project.facebook_page && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">Facebook</span>
+                <span className="font-medium">
+                  <a 
+                    href={project.facebook_page} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary-more hover:underline"
+                  >
+                    Facebook 專頁
+                  </a>
+                </span>
+              </div>
+            )}
+            
+            {/* Subtitle */}
+            {project.subtitle && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">副標題</span>
+                <span className="font-medium">{project.subtitle}</span>
+              </div>
+            )}
+            
+            {/* Description */}
+            {project.description && (
+              <div className="flex justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">
+                <span className="w-[6.25em]">專案描述</span>
+                <span className="font-medium">{project.description}</span>
+              </div>
+            )}
+            
             {/* Status Display */}
             {project.status && (
               <div className="!hidden justify-start space-x-4 border-b border-primary-line pb-1 text-black tracking-widest">

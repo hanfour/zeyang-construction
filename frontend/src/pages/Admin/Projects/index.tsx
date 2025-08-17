@@ -9,6 +9,7 @@ import {
   StarIcon,
   PhotoIcon,
   ArrowsUpDownIcon,
+  CloudArrowUpIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { Dialog } from '@headlessui/react';
@@ -16,9 +17,10 @@ import projectService from '@/services/project.service';
 import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import DynamicFieldManager from '@/components/Admin/DynamicFieldManager';
 import ProjectImageManager from '@/components/Admin/ProjectImageManager';
-import ProjectImageUploader, { LocalImage } from '@/components/Admin/ProjectImageUploader';
 import TagSelector from '@/components/Common/TagSelector';
-import { Project, ProjectFormData, ProjectFilters, CustomField, ProjectImage } from '@/types';
+import { Project, ProjectFormData, ProjectFilters, ProjectImage } from '@/types';
+import { LocalImage } from '@/components/Admin/ProjectImageUploader';
+import { getImageUrl } from '@/utils/image';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
@@ -66,13 +68,6 @@ const AdminProjects: React.FC = () => {
   });
 
   // const categories = ['住宅', '商辦', '公共工程', '其他'];
-  const statuses = [
-    { value: 'planning', label: '規劃中' },
-    { value: 'pre_sale', label: '預售' },
-    { value: 'on_sale', label: '銷售中' },
-    { value: 'sold_out', label: '已售罄' },
-    { value: 'completed', label: '已完工' },
-  ];
 
   useEffect(() => {
     const filters: ProjectFilters = {
@@ -160,7 +155,7 @@ const AdminProjects: React.FC = () => {
       } else {
         const response = await projectService.createProject(formData);
         if (response.success && response.data) {
-          projectUuid = response.data.uuid;
+          projectUuid = response.data.project.uuid;
           toast.success('專案已建立');
         } else {
           throw new Error('建立失敗');
@@ -169,21 +164,29 @@ const AdminProjects: React.FC = () => {
       
       // 上傳新圖片
       if (newImages.length > 0 && projectUuid) {
-        const files = newImages.map(img => img.file);
-        const mainImageIndex = newImages.findIndex(img => img.isMain);
-        
-        const uploadResponse = await projectService.uploadImages(
-          projectUuid,
-          files,
-          'gallery'
-        );
-        
-        if (uploadResponse.success && uploadResponse.data?.uploaded && mainImageIndex >= 0) {
-          // 設定主圖
-          const uploadedImages = uploadResponse.data.uploaded;
-          if (uploadedImages[mainImageIndex]) {
-            await projectService.setMainImage(projectUuid, uploadedImages[mainImageIndex].id);
+        try {
+          const files = newImages.map(img => img.file);
+          const mainImageIndex = newImages.findIndex(img => img.isMain);
+          
+          const uploadResponse = await projectService.uploadImages(
+            projectUuid,
+            files,
+            'gallery'
+          );
+          
+          if (uploadResponse.success && uploadResponse.data?.uploaded) {
+            const uploadedImages = uploadResponse.data.uploaded;
+            // 如果有標記主圖，設定主圖；否則設定第一張為主圖
+            const mainIndex = mainImageIndex >= 0 ? mainImageIndex : 0;
+            if (uploadedImages[mainIndex]) {
+              await projectService.setMainImage(projectUuid, uploadedImages[mainIndex].id);
+            }
+          } else {
+            throw new Error('圖片上傳失敗');
           }
+        } catch (imageError) {
+          console.error('Image upload error:', imageError);
+          toast.error('圖片上傳失敗，但專案已建立');
         }
       }
       
@@ -195,9 +198,23 @@ const AdminProjects: React.FC = () => {
     }
   };
 
-  const handleEdit = (project: Project) => {
-    setEditingProject(project);
-    setFormImages(project.images || []);
+  const handleEdit = async (project: Project) => {
+    try {
+      // 先設定基本資料
+      setEditingProject(project);
+      setFormImages(project.images || []);
+      
+      // 重新獲取專案完整資訊，確保圖片資料是最新的
+      const response = await projectService.getProject(project.uuid);
+      if (response.success && response.data?.project.images) {
+        setFormImages(response.data.project.images);
+      }
+    } catch (error) {
+      console.error('Failed to fetch project details:', error);
+      // 如果獲取失敗，仍然使用原有的圖片資料
+      setFormImages(project.images || []);
+    }
+    
     setFormData({
       title: project.title,
       subtitle: project.subtitle || '',
@@ -398,25 +415,29 @@ const AdminProjects: React.FC = () => {
               <div className="px-4 py-4 sm:px-6 hover:bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    {project.image_count ? (
-                      <PhotoIcon className="h-12 w-12 text-gray-400 mr-4" />
+                    {project.image_count && project.main_image ? (
+                      <div className='h-12 w-12 bg-gray-200 rounded mr-4'>
+                        <img
+                          src={getImageUrl(project.main_image.file_path)}
+                          alt="主圖"
+                          className="w-full aspect-square object-scale-down rounded-lg"
+                        />
+                      </div>
                     ) : (
-                      <div className="h-12 w-12 bg-gray-200 rounded mr-4" />
+                      <PhotoIcon className="h-12 w-12 text-gray-400 mr-4" />
                     )}
                     <div>
                       <div className="flex items-center">
                         <p className="text-sm font-medium text-primary-600 truncate">
                           {project.title}
                         </p>
-                        {project.is_featured && (
-                          <StarIconSolid className="ml-2 h-5 w-5 text-yellow-400" />
-                        )}
                       </div>
                       <div className="mt-1 flex items-center text-sm text-gray-500">
                         <span className="truncate">{project.location}</span>
-                        <span className="!hidden mx-2">•</span>
-                        <span className="!hidden inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                          {statuses.find(s => s.value === project.status)?.label || project.status}
+                        <span className="mx-2">•</span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                          {/* {statuses.find(s => s.value === project.status)?.label || project.status} */}
+                          {project.display_page}
                         </span>
                       </div>
                       <div className="mt-1 flex items-center text-sm text-gray-500">
@@ -574,21 +595,23 @@ const AdminProjects: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="sm:col-span-2">
-                    <label htmlFor="subtitle" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      副標題
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <input
-                        type="text"
-                        id="subtitle"
-                        value={formData.subtitle}
-                        onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div className="!hidden sm:col-span-2">
+                      <label htmlFor="subtitle" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        副標題
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-我more"></div>
+                        <input
+                          type="text"
+                          id="subtitle"
+                          value={formData.subtitle}
+                          onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                          className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Category field hidden - removed from form */}
 
@@ -596,14 +619,36 @@ const AdminProjects: React.FC = () => {
 
                   <div>
                     <label htmlFor="display_page" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      上架頁面
+                      上架頁面 *
                     </label>
                     <div className="relative">
                       <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
                       <select
                         id="display_page"
+                        required
                         value={formData.display_page || ''}
-                        onChange={(e) => setFormData({ ...formData, display_page: e.target.value as Project['display_page'] })}
+                        onChange={(e) => {
+                          const newDisplayPage = e.target.value as Project['display_page'];
+                          const updatedFormData = { ...formData, display_page: newDisplayPage };
+                          
+                          // 如果選擇開發專區，清空隱藏欄位並取消精選
+                          if (newDisplayPage === '開發專區') {
+                            updatedFormData.subtitle = '';
+                            updatedFormData.base_address = '';
+                            updatedFormData.year = new Date().getFullYear();
+                            updatedFormData.area = '';
+                            updatedFormData.floor_plan_info = '';
+                            updatedFormData.unit_count = undefined;
+                            updatedFormData.description = '';
+                            updatedFormData.facebook_page = '';
+                            updatedFormData.booking_phone = '';
+                            updatedFormData.info_website = '';
+                            updatedFormData.custom_fields = [];
+                            updatedFormData.is_featured = false;
+                          }
+                          
+                          setFormData(updatedFormData);
+                        }}
                         className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none appearance-none"
                       >
                         <option value="">選擇上架頁面</option>
@@ -635,155 +680,173 @@ const AdminProjects: React.FC = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label htmlFor="base_address" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      基地地址
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <input
-                        type="text"
-                        id="base_address"
-                        value={formData.base_address}
-                        onChange={(e) => setFormData({ ...formData, base_address: e.target.value })}
-                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div>
+                      <label htmlFor="base_address" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        基地地址
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                        <input
+                          type="text"
+                          id="base_address"
+                          value={formData.base_address}
+                          onChange={(e) => setFormData({ ...formData, base_address: e.target.value })}
+                          className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <label htmlFor="year" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      年份
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <input
-                        type="number"
-                        id="year"
-                        value={formData.year}
-                        onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div>
+                      <label htmlFor="year" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        年份
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                        <input
+                          type="number"
+                          id="year"
+                          value={formData.year}
+                          onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                          className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <label htmlFor="area" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      面積
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <input
-                        type="text"
-                        id="area"
-                        value={formData.area}
-                        onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div>
+                      <label htmlFor="area" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        面積
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                        <input
+                          type="text"
+                          id="area"
+                          value={formData.area}
+                          onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                          className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <label htmlFor="floor_plan_info" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      樓層規劃
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <input
-                        type="text"
-                        id="floor_plan_info"
-                        value={formData.floor_plan_info}
-                        onChange={(e) => setFormData({ ...formData, floor_plan_info: e.target.value })}
-                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
-                        placeholder="例：地上15層/地下3層"
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div>
+                      <label htmlFor="floor_plan_info" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        樓層規劃
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                        <input
+                          type="text"
+                          id="floor_plan_info"
+                          value={formData.floor_plan_info}
+                          onChange={(e) => setFormData({ ...formData, floor_plan_info: e.target.value })}
+                          className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                          placeholder="例：地上15層/地下3層"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <label htmlFor="unit_count" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      戶數
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <input
-                        type="number"
-                        id="unit_count"
-                        value={formData.unit_count || ''}
-                        onChange={(e) => setFormData({ ...formData, unit_count: e.target.value ? parseInt(e.target.value) : undefined })}
-                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div>
+                      <label htmlFor="unit_count" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        戶數
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                        <input
+                          type="number"
+                          id="unit_count"
+                          value={formData.unit_count || ''}
+                          onChange={(e) => setFormData({ ...formData, unit_count: e.target.value ? parseInt(e.target.value) : undefined })}
+                          className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <label htmlFor="facebook_page" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      Facebook粉絲團
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <input
-                        type="url"
-                        id="facebook_page"
-                        value={formData.facebook_page}
-                        onChange={(e) => setFormData({ ...formData, facebook_page: e.target.value })}
-                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
-                        placeholder="https://facebook.com/..."
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div>
+                      <label htmlFor="facebook_page" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        Facebook粉絲團
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                        <input
+                          type="url"
+                          id="facebook_page"
+                          value={formData.facebook_page}
+                          onChange={(e) => setFormData({ ...formData, facebook_page: e.target.value })}
+                          className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                          placeholder="https://facebook.com/..."
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <label htmlFor="booking_phone" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      預約專線
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <input
-                        type="tel"
-                        id="booking_phone"
-                        value={formData.booking_phone}
-                        onChange={(e) => setFormData({ ...formData, booking_phone: e.target.value })}
-                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
-                        placeholder="02-1234-5678"
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div className="sm:col-span-2">
+                      <label htmlFor="booking_phone" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        預約專線
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                        <input
+                          type="tel"
+                          id="booking_phone"
+                          value={formData.booking_phone}
+                          onChange={(e) => setFormData({ ...formData, booking_phone: e.target.value })}
+                          className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                          placeholder="02-1234-5678"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="sm:col-span-2">
-                    <label htmlFor="info_website" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      介紹網站
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <input
-                        type="url"
-                        id="info_website"
-                        value={formData.info_website}
-                        onChange={(e) => setFormData({ ...formData, info_website: e.target.value })}
-                        className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
-                        placeholder="https://..."
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div className="sm:col-span-2">
+                      <label htmlFor="info_website" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        介紹網站
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                        <input
+                          type="url"
+                          id="info_website"
+                          value={formData.info_website}
+                          onChange={(e) => setFormData({ ...formData, info_website: e.target.value })}
+                          className="w-full h-12 !pr-4 !pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none"
+                          placeholder="https://..."
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="sm:col-span-2">
-                    <label htmlFor="description" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
-                      描述
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
-                      <textarea
-                        id="description"
-                        rows={3}
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-4 py-3 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none resize-none"
-                      />
+                  {formData.display_page !== '開發專區' && (
+                    <div className="!hidden sm:col-span-2">
+                      <label htmlFor="description" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
+                        描述
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
+                        <textarea
+                          id="description"
+                          rows={3}
+                          value={formData.description}
+                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          className="w-full px-4 py-3 pl-6 bg-gray-100 border-0 text-content-mobile lg:text-content-desktop focus:ring-0 focus:outline-none resize-none"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="sm:col-span-2 !hidden">
+                  <div className="!hidden sm:col-span-2">
                     <label htmlFor="tags" className="block text-content-mobile lg:text-content-desktop font-medium text-gray-700 mb-1 tracking-wider">
                       標籤
                     </label>
@@ -791,7 +854,7 @@ const AdminProjects: React.FC = () => {
                       <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary-more"></div>
                       <div className="pl-6">
                         <TagSelector
-                          value={formData.tags}
+                          value={formData.tags || []}
                           onChange={(tags) => setFormData({ ...formData, tags })}
                           placeholder="輸入標籤名稱或選擇現有標籤"
                         />
@@ -802,49 +865,213 @@ const AdminProjects: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="sm:col-span-2">
-                    <DynamicFieldManager
-                      fields={formData.custom_fields || []}
-                      onChange={(fields) => setFormData({ ...formData, custom_fields: fields })}
-                      label="自訂欄位"
-                    />
-                  </div>
+                  {formData.display_page !== '開發專區' && (
+                    <div className="sm:col-span-2">
+                      <DynamicFieldManager
+                        fields={formData.custom_fields ?? []}
+                        onChange={(fields) => setFormData({ ...formData, custom_fields: fields })}
+                        label="自訂欄位"
+                      />
+                    </div>
+                  )}
 
                   {/* 圖片管理區域 */}
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       專案圖片
                     </label>
-                    {editingProject ? (
-                      // 編輯模式：顯示現有圖片和新圖片上傳
-                      <div className="space-y-4">
-                        {formImages.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-600 mb-2">現有圖片</h4>
-                            <ProjectImageManager
-                              projectUuid={editingProject.uuid}
-                              images={formImages}
-                              onImagesChange={setFormImages}
-                              maxFiles={20}
+                    
+                    {/* 統一的圖片上傳區 */}
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 mb-4">
+                      <div className="text-center">
+                        <CloudArrowUpIcon className="mx-auto h-10 w-10 text-gray-400" />
+                        <div className="mt-3">
+                          <label htmlFor="unified-image-upload" className="cursor-pointer">
+                            <span className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                              選擇圖片
+                            </span>
+                            <input
+                              id="unified-image-upload"
+                              type="file"
+                              className="sr-only"
+                              multiple
+                              accept="image/*"
+                              onChange={(e) => {
+                                if (e.target.files) {
+                                  const files = Array.from(e.target.files);
+                                  const totalImages = (formImages?.length || 0) + newImages.length;
+                                  
+                                  if (totalImages + files.length > 20) {
+                                    toast.error('最多只能上傳 20 張圖片');
+                                    return;
+                                  }
+
+                                  const newImageFiles = files.map((file, index) => ({
+                                    id: `local-${Date.now()}-${index}`,
+                                    file,
+                                    preview: URL.createObjectURL(file),
+                                    isMain: totalImages === 0 && index === 0 // 第一張圖片自動設為主圖
+                                  }));
+
+                                  setNewImages([...newImages, ...newImageFiles]);
+                                }
+                              }}
                             />
-                          </div>
-                        )}
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-600 mb-2">新增圖片</h4>
-                          <ProjectImageUploader
-                            value={newImages}
-                            onChange={setNewImages}
-                            maxFiles={20 - formImages.length}
-                          />
+                          </label>
+                          <p className="mt-1 text-xs text-gray-500">
+                            或拖放圖片到此處
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            支援 JPG、PNG、GIF、WebP，最多 20 張
+                          </p>
                         </div>
                       </div>
-                    ) : (
-                      // 新增模式：只顯示圖片上傳
-                      <ProjectImageUploader
-                        value={newImages}
-                        onChange={setNewImages}
-                        maxFiles={20}
-                      />
+                    </div>
+
+                    {/* 統一的圖片顯示區域 */}
+                    {((formImages && formImages.length > 0) || newImages.length > 0) && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-medium text-gray-700">
+                            已選擇 {(formImages?.length || 0) + newImages.length} 張圖片
+                          </p>
+                        </div>
+                        
+                        <div className="grid grid-cols-4 gap-3">
+                          {/* 顯示現有圖片 */}
+                          {formImages && formImages.map((image) => (
+                            <div key={`existing-${image.id}`} className="relative group">
+                              <div className={`aspect-square border-2 rounded-lg overflow-hidden ${
+                                image.image_type === 'main' ? 'border-primary-line' : 'border-gray-200'
+                              }`}>
+                                <img
+                                  src={getImageUrl(image.file_path)}
+                                  alt={image.alt_text || ''}
+                                  className="w-full h-full object-scale-down"
+                                />
+                              </div>
+                              
+                              {/* 主圖標示 */}
+                              {image.image_type === 'main' && (
+                                <div className="absolute top-1 left-1">
+                                  <StarIconSolid className="h-5 w-5 text-primary-line" />
+                                </div>
+                              )}
+
+                              {/* 操作按鈕 */}
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                {image.image_type !== 'main' && editingProject && (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      try {
+                                        await projectService.setMainImage(editingProject.uuid, image.id);
+                                        // 更新本地狀態
+                                        const updatedImages = formImages.map(img => ({
+                                          ...img,
+                                          image_type: img.id === image.id ? 'main' as const : (img.image_type === 'main' ? 'gallery' as const : img.image_type)
+                                        }));
+                                        setFormImages(updatedImages);
+                                        toast.success('已設為主圖');
+                                      } catch (error) {
+                                        toast.error('設定主圖失敗');
+                                      }
+                                    }}
+                                    className="p-1.5 bg-white rounded-full text-gray-700 hover:bg-gray-100 mr-1"
+                                    title="設為主圖"
+                                  >
+                                    <StarIcon className="h-4 w-4" />
+                                  </button>
+                                )}
+                                {editingProject && (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      try {
+                                        await projectService.deleteImage(editingProject.uuid, image.id);
+                                        setFormImages(formImages.filter(img => img.id !== image.id));
+                                        toast.success('圖片已刪除');
+                                      } catch (error) {
+                                        toast.error('刪除圖片失敗');
+                                      }
+                                    }}
+                                    className="p-1.5 bg-white rounded-full text-red-600 hover:bg-red-50"
+                                    title="刪除"
+                                  >
+                                    <TrashIcon className="h-4 w-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+
+                          {/* 顯示新增圖片 */}
+                          {newImages.map((image, index) => (
+                            <div key={`new-${image.id}`} className="relative group">
+                              <div className={`aspect-square border-2 rounded-lg overflow-hidden ${
+                                image.isMain ? 'border-primary-line' : 'border-gray-200'
+                              }`}>
+                                <img
+                                  src={image.preview}
+                                  alt={`新圖片 ${index + 1}`}
+                                  className="w-full h-full object-scale-down"
+                                />
+                              </div>
+                              
+                              {/* 主圖標示 */}
+                              {image.isMain && (
+                                <div className="absolute top-1 left-1">
+                                  <StarIconSolid className="h-5 w-5 text-primary-line" />
+                                </div>
+                              )}
+
+                              {/* 操作按鈕 */}
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                {!image.isMain && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updatedImages = newImages.map(img => ({
+                                        ...img,
+                                        isMain: img.id === image.id
+                                      }));
+                                      setNewImages(updatedImages);
+                                    }}
+                                    className="p-1.5 bg-white rounded-full text-gray-700 hover:bg-gray-100 mr-1"
+                                    title="設為主圖"
+                                  >
+                                    <StarIcon className="h-4 w-4" />
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    URL.revokeObjectURL(image.preview);
+                                    const remainingImages = newImages.filter(img => img.id !== image.id);
+                                    // 如果刪除的是主圖，將第一張設為主圖
+                                    if (image.isMain && remainingImages.length > 0) {
+                                      remainingImages[0].isMain = true;
+                                    }
+                                    setNewImages(remainingImages);
+                                  }}
+                                  className="p-1.5 bg-white rounded-full text-red-600 hover:bg-red-50"
+                                  title="刪除"
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* 空狀態 */}
+                    {(!formImages || formImages.length === 0) && newImages.length === 0 && (
+                      <div className="text-center py-4">
+                        <PhotoIcon className="mx-auto h-10 w-10 text-gray-400" />
+                        <p className="mt-2 text-sm text-gray-500">尚未選擇任何圖片</p>
+                      </div>
                     )}
                   </div>
 
@@ -853,10 +1080,14 @@ const AdminProjects: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={formData.is_featured}
+                        disabled={formData.display_page === '開發專區'}
                         onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                        className="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                        className="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
-                      <span className="ml-2 text-sm text-gray-700">設為精選專案</span>
+                      <span className={`ml-2 text-sm ${formData.display_page === '開發專區' ? 'text-gray-400' : 'text-gray-700'}`}>
+                        設為精選專案
+                        {formData.display_page === '開發專區' && <span className="text-xs block text-gray-400">開發專區不可設為精選</span>}
+                      </span>
                     </label>
                   </div>
                 </div>

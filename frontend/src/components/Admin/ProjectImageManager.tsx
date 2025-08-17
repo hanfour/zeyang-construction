@@ -269,7 +269,7 @@ const ProjectImageManager: React.FC<ProjectImageManagerProps> = ({
             
             <div className="mt-4 flex items-center justify-between">
               <span className="text-sm text-gray-500">
-                已選擇 {previewImages.length} 張圖片
+                已設定 {previewImages.length} 張圖片
               </span>
               <button
                 type="button"
