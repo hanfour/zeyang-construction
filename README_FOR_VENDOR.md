@@ -95,9 +95,11 @@ zeyang-construction-deployment-YYYYMMDD_HHMMSS/
 ./deployment/scripts/start.sh
 ```
 
-## 🌐 生產環境建議
+## 🌐 生產環境部署選項
 
-### 使用 Nginx (推薦)
+### 選項 1: 自建伺服器 (使用 Nginx + PM2)
+
+#### 使用 Nginx (推薦)
 ```bash
 # 安裝 Nginx
 sudo apt install nginx
@@ -109,7 +111,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-### 使用 PM2 (推薦)
+#### 使用 PM2 (推薦)
 ```bash
 # 安裝 PM2
 npm install -g pm2
@@ -119,6 +121,106 @@ cd backend
 pm2 start server.js --name "zeyang-backend"
 pm2 save
 pm2 startup
+```
+
+### 選項 2: 虛擬主機部署 (Shared Hosting)
+
+如果您使用虛擬主機服務，請參考以下配置：
+
+#### Node.js 應用程式設定資訊
+- **Node.js 版本**: 18.19.0 (推薦) / 18.0.0 (最低要求)
+- **應用程式模式**: `Production` (NODE_ENV=production)
+- **應用程式根目錄**: `/public_html/zeyanggroup` (根據您的實際路徑調整)
+- **應用程式 URL**: `https://yourdomain.com` (您的網域名稱)
+- **啟動檔案**: `backend/server.js`
+
+#### 必要環境變數 (Environment Variables)
+在虛擬主機控制面板中設定以下環境變數：
+
+```env
+# 應用程式基礎設定
+NODE_ENV=production
+PORT=5001
+
+# 前端 URL (CORS 設定)
+CLIENT_URL=https://yourdomain.com
+ALLOWED_ORIGINS=https://yourdomain.com
+
+# 資料庫連線設定
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=your_db_user
+DB_PASSWORD=your_secure_password
+DB_NAME=your_db_name
+
+# JWT 認證設定 (請更改為安全的密鑰)
+JWT_SECRET=your-super-secure-jwt-secret-key-for-production
+JWT_EXPIRES_IN=24h
+REFRESH_SECRET=your-super-secure-refresh-token-secret-key
+REFRESH_EXPIRES_IN=7d
+
+# 檔案上傳設定
+UPLOAD_PATH=./uploads
+MAX_FILE_SIZE=268435456
+
+# 郵件服務設定 (聯絡表單功能)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=noreply@yourdomain.com
+SMTP_PASS=your_email_password
+```
+
+#### 虛擬主機部署步驟
+
+1. **建構前端應用程式**
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   ```
+
+2. **上傳檔案到虛擬主機**
+   ```
+   /public_html/yourdomain/
+   ├── backend/
+   │   ├── server.js              # 啟動檔案
+   │   ├── package.json
+   │   ├── routes/, models/, etc.
+   │   └── uploads/               # 確保可寫入
+   ├── frontend/
+   │   └── dist/                  # 前端建構檔案
+   └── .env                       # 環境變數檔案
+   ```
+
+3. **設定資料庫**
+   - 在主機控制面板建立 MySQL 資料庫
+   - 匯入 `backend/database/schema.sql`
+
+4. **安裝套件**
+   ```bash
+   cd backend
+   npm install --production
+   ```
+
+5. **設定網站根目錄**
+   - 將網站根目錄指向 `frontend/dist`
+   - 設定 API 路由代理到 Node.js 應用程式
+
+#### 虛擬主機 .htaccess 設定範例
+在 `frontend/dist/.htaccess` 中：
+```apache
+RewriteEngine On
+
+# API 請求代理到 Node.js 應用程式
+RewriteRule ^api/(.*)$ http://localhost:5001/api/$1 [P,L]
+
+# 檔案上傳代理
+RewriteRule ^uploads/(.*)$ http://localhost:5001/uploads/$1 [P,L]
+
+# 前端路由處理 (React Router)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
 ```
 
 ## 🔧 設定檔案
@@ -180,6 +282,28 @@ VITE_SITE_URL=http://localhost:5173
    chmod 755 backend/uploads/
    ```
 
+### 虛擬主機常見問題
+
+5. **網站無法訪問**
+   - 檢查 Node.js 應用程式是否正在運行
+   - 檢查環境變數設定是否正確
+   - 檢查網域名稱 DNS 設定
+
+6. **API 請求失敗**
+   - 檢查 CORS 設定（ALLOWED_ORIGINS 環境變數）
+   - 檢查資料庫連線狀態
+   - 查看應用程式日誌了解錯誤詳情
+
+7. **檔案上傳失敗**
+   - 檢查 uploads 目錄權限（chmod 755）
+   - 檢查檔案大小限制設定
+   - 確認磁碟空間充足
+
+8. **管理員無法登入**
+   - 確認 JWT_SECRET 環境變數已設定
+   - 檢查資料庫中是否有管理員帳號
+   - 初始帳號：admin@yourdomain.com / admin123456
+
 ### 日誌檢查
 ```bash
 # 後端日誌
@@ -187,6 +311,9 @@ tail -f backend/logs/error.log
 
 # PM2 日誌
 pm2 logs zeyang-backend
+
+# 虛擬主機日誌
+# 通常在主機控制面板的錯誤日誌區域查看
 ```
 
 ## 📞 技術支援
@@ -198,13 +325,45 @@ pm2 logs zeyang-backend
 
 ## 📋 檢查清單
 
-部署完成後，請確認：
+### 自建伺服器部署檢查清單
 - [ ] 前端網站正常顯示 (http://localhost:5173)
 - [ ] 管理後台可登入 (http://localhost:5173/admin)
 - [ ] API 健康檢查正常 (http://localhost:5001/api/health)
 - [ ] 資料庫連線正常
 - [ ] 檔案上傳功能正常
 - [ ] 聯絡表單功能正常
+
+### 虛擬主機部署檢查清單
+- [ ] Node.js 應用程式已設定並運行
+- [ ] 環境變數全部設定完成
+- [ ] 資料庫已建立並匯入結構
+- [ ] 前端靜態檔案可正常訪問
+- [ ] API 請求正常回應
+- [ ] 管理後台登入功能正常
+- [ ] 檔案上傳目錄權限正確
+- [ ] HTTPS SSL 憑證已設定
+- [ ] 網域名稱 DNS 設定正確
+- [ ] 郵件服務設定正確（如需聯絡表單功能）
+
+## 🔐 安全注意事項
+
+### 必須更改的預設設定
+1. **管理員密碼**：登入後立即更改預設管理員密碼
+2. **JWT 密鑰**：使用強密碼替換預設的 JWT_SECRET
+3. **資料庫密碼**：使用複雜密碼保護資料庫
+4. **檔案權限**：確保敏感檔案權限設定正確
+
+### 虛擬主機額外安全措施
+```bash
+# .env 檔案權限（僅擁有者可讀）
+chmod 600 .env
+
+# 應用程式檔案權限（只讀）
+chmod 644 backend/*.js
+
+# 上傳目錄權限（可讀寫）
+chmod 755 backend/uploads
+```
 
 ---
 
