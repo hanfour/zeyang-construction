@@ -52,52 +52,6 @@ export const defaultProjects: Project[] = [
     created_at: '2024-01-01T00:00:00.000Z',
     updated_at: '2024-01-01T00:00:00.000Z'
   },
-  {
-    id: 'default-zeyang-project',
-    uuid: 'default-zeyang-project',
-    title: '澤暘建案',
-    location: '台北市大安區',
-    is_featured: 1,
-    main_image: {
-      id: 'img-project-2',
-      file_path: '/images/project/img-work-1.png',
-      file_name: 'img-work-1.png',
-      mime_type: 'image/png',
-      size: 0,
-      type: 'main' as const,
-      created_at: '2024-01-01T00:00:00.000Z',
-      updated_at: '2024-01-01T00:00:00.000Z'
-    },
-    images: [],
-    tags: [],
-    display_page: '澤暘作品',
-    slug: 'zeyang-project',
-    created_at: '2024-01-01T00:00:00.000Z',
-    updated_at: '2024-01-01T00:00:00.000Z'
-  },
-  {
-    id: 'default-zeyang-new',
-    uuid: 'default-zeyang-new',
-    title: '澤暘新作',
-    location: '台北市信義區',
-    is_featured: 1,
-    main_image: {
-      id: 'img-new-3',
-      file_path: '/images/project/img-work-2.png',
-      file_name: 'img-work-2.png',
-      mime_type: 'image/png',
-      size: 0,
-      type: 'main' as const,
-      created_at: '2024-01-01T00:00:00.000Z',
-      updated_at: '2024-01-01T00:00:00.000Z'
-    },
-    images: [],
-    tags: [],
-    display_page: '澤暘作品',
-    slug: 'zeyang-new',
-    created_at: '2024-01-01T00:00:00.000Z',
-    updated_at: '2024-01-01T00:00:00.000Z'
-  },
   // 開發專區 - 顯示在開發專區頁面
   {
     id: 'default-zhongshan',
