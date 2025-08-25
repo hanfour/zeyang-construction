@@ -74,14 +74,9 @@ class ApiClient {
           }
         }
 
-        // Show error message only for non-401 errors or if it's not a retry scenario
-        if (error.response?.status !== 401) {
-          if (error.response?.data?.message) {
-            toast.error(error.response.data.message);
-          } else if (error.message && !error.message.includes('401')) {
-            toast.error(error.message);
-          }
-        }
+        // Disable all error toast notifications
+        // Only log errors to console for debugging
+        console.error('API Error:', error.response?.data?.message || error.message);
 
         return Promise.reject(error);
       }

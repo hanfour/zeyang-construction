@@ -412,7 +412,7 @@ const HotProjects: React.FC = () => {
               onClick={() => {
                 const currentProject = projects[currentSlideIndex % projects.length];
                 if (currentProject) {
-                  window.location.href = `/projects#project-${currentProject.id}`;
+                  window.location.href = `#/projects?project=${currentProject.id}`;
                 }
               }}
               className="block hover:scale-105 transition-transform duration-300"

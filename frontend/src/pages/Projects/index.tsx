@@ -290,27 +290,31 @@ const ProjectsPage: React.FC = () => {
     
     loadData();
     
-    // Check if there's a project UUID in the URL hash and scroll to it
-    const handleHashScroll = () => {
-      const hash = window.location.hash;
-      if (hash && hash.startsWith('#project-')) {
-        const projectId = hash.replace('#project-', '');
-        setTimeout(() => {
-          const element = document.getElementById(`project-${projectId}`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 1000); // Wait for projects to load
+    // Check if there's a project UUID in the URL query params and scroll to it
+    const handleProjectScroll = () => {
+      // Get query params from hash router URL
+      const hashParts = window.location.hash.split('?');
+      if (hashParts.length > 1) {
+        const params = new URLSearchParams(hashParts[1]);
+        const projectId = params.get('project');
+        if (projectId) {
+          setTimeout(() => {
+            const element = document.getElementById(`project-${projectId}`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 1000); // Wait for projects to load
+        }
       }
     };
 
-    // Check hash on mount and when hash changes
-    handleHashScroll();
-    window.addEventListener('hashchange', handleHashScroll);
+    // Check on mount and when hash changes
+    handleProjectScroll();
+    window.addEventListener('hashchange', handleProjectScroll);
     
     return () => {
       mounted = false;
-      window.removeEventListener('hashchange', handleHashScroll);
+      window.removeEventListener('hashchange', handleProjectScroll);
     };
   }, []);
 
