@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import { getImageUrl } from '@/utils/image';
+import { getDefaultProjects } from '@/config/defaultProjects';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -48,39 +49,54 @@ const HotProjects: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const idleAnimationRef = useRef<GSAPTimeline | null>(null);
 
-  // 獲取精選專案數據
-  const fetchFeaturedProjects = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('http://localhost:5001/api/projects/featured?limit=6&display_page=澤暘作品');
-      if (!response.ok) {
-        throw new Error('Failed to fetch featured projects');
-      }
-      const data = await response.json();
-      
-      // 檢查響應結構：{ success: true, data: { items: [] } }
-      const projectsArray = data.success && data.data && data.data.items ? data.data.items : [];
-      
-      // 過濾符合條件的專案：必須是精選且狀態為預售或銷售中
-      // 注意：API 中 status 是英文 (pre_sale)，is_featured 是數字 (1)
-      // const allowedStatuses = ['pre_sale', 'selling']; // 只顯示預售和銷售中
-      // const filteredProjects = projectsArray.filter((project: any) => 
-      //   project.is_featured === 1 && allowedStatuses.includes(project.status)
-      // );
-      
-      setProjects(projectsArray);
-    } catch (error) {
-      console.error('Error fetching featured projects:', error);
-      // API 失敗時不設定備用數據，讓區塊不顯示
-      setProjects([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // 載入專案數據
   useEffect(() => {
-    fetchFeaturedProjects();
+    let isMounted = true;
+    
+    const loadProjects = async () => {
+      if (!isMounted) return;
+      
+      try {
+        setIsLoading(true);
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+        const response = await fetch(`${apiUrl}/projects/featured?limit=6&display_page=澤暘作品`);
+        
+        if (!isMounted) return;
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch featured projects');
+        }
+        const data = await response.json();
+        
+        // 檢查響應結構：{ success: true, data: { items: [] } }
+        const projectsArray = data.success && data.data && data.data.items ? data.data.items : [];
+        
+        if (projectsArray.length > 0) {
+          setProjects(projectsArray);
+        } else {
+          // 如果沒有資料，使用預設資料
+          const defaultFeaturedProjects = getDefaultProjects('featured');
+          setProjects(defaultFeaturedProjects);
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        console.error('Error fetching featured projects:', error);
+        // API 失敗時使用預設資料
+        const defaultFeaturedProjects = getDefaultProjects('featured');
+        setProjects(defaultFeaturedProjects);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    loadProjects();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // 進場動畫

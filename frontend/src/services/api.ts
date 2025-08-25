@@ -35,14 +35,20 @@ class ApiClient {
       async (error: AxiosError<ApiResponse>) => {
         const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
+        // 不要在 refresh 請求本身觸發重試
+        if (originalRequest.url?.includes('/auth/refresh')) {
+          return Promise.reject(error);
+        }
+
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           
           try {
             const refreshToken = localStorage.getItem('refreshToken');
             if (refreshToken) {
-              const response = await this.post('/auth/refresh', { refreshToken });
-              const { accessToken, refreshToken: newRefreshToken } = response.data;
+              // 使用原始 axios 而非 this.post 來避免遞迴
+              const response = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
+              const { accessToken, refreshToken: newRefreshToken } = response.data.data;
               
               localStorage.setItem('accessToken', accessToken);
               localStorage.setItem('refreshToken', newRefreshToken);
@@ -54,18 +60,27 @@ class ApiClient {
               return this.client(originalRequest);
             }
           } catch (refreshError) {
-            // Refresh failed, redirect to login
+            // Refresh failed, clear tokens but don't redirect on public pages
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
-            window.location.href = '/login';
+            localStorage.removeItem('user');
+            
+            // Only redirect to login if on admin pages
+            if (window.location.pathname.startsWith('/admin')) {
+              window.location.href = '/login';
+            }
+            
+            return Promise.reject(error);
           }
         }
 
-        // Show error message
-        if (error.response?.data?.message) {
-          toast.error(error.response.data.message);
-        } else if (error.message) {
-          toast.error(error.message);
+        // Show error message only for non-401 errors or if it's not a retry scenario
+        if (error.response?.status !== 401) {
+          if (error.response?.data?.message) {
+            toast.error(error.response.data.message);
+          } else if (error.message && !error.message.includes('401')) {
+            toast.error(error.message);
+          }
         }
 
         return Promise.reject(error);

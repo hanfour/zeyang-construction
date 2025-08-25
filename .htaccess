@@ -1,0 +1,21 @@
+# 澤暘建設網站 - Apache 設定
+RewriteEngine On
+
+# API 代理到後端服務
+RewriteRule ^api/(.*)$ http://localhost:5001/api/$1 [P,L]
+
+# 檔案上傳代理
+RewriteRule ^uploads/(.*)$ http://localhost:5001/uploads/$1 [P,L]
+
+# React Router 支援
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api
+RewriteCond %{REQUEST_URI} !^/uploads
+RewriteRule . /index.html [L]
+
+# 防止訪問 .env 檔案
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>

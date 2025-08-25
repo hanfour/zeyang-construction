@@ -8,6 +8,7 @@ import PageBanner from '@/components/Layout/PageBanner';
 import CustomCarousel from '@/components/Carousel/CustomCarousel';
 import { useInView } from 'react-intersection-observer';
 import { GlobeAltIcon } from '@heroicons/react/24/outline';
+import { getDefaultProjects } from '@/config/defaultProjects';
 
 // Simple Project Card Component
 const ProjectCard: React.FC<{ 
@@ -320,18 +321,21 @@ const ProjectsPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const loadProjects = async (retryCount = 0) => {
+  const loadProjects = useCallback(async (retryCount = 0) => {
     try {
       setLoading(true);
       const response = await projectService.getProjects({
         display_page: '澤暘作品'
       });
       
-      if (response.success && response.data?.items) {
+      if (response.success && response.data?.items && response.data.items.length > 0) {
         setProjects(response.data.items);
         setError(null);
       } else {
-        setError('專案列表載入失敗');
+        // 如果沒有資料，使用預設資料
+        const defaultProject = getDefaultProjects('projects');
+        setProjects([defaultProject]);
+        setError(null);
       }
     } catch (err: any) {
       console.error('Failed to load projects:', err);
@@ -347,22 +351,19 @@ const ProjectsPage: React.FC = () => {
         return;
       }
       
-      if (err.response?.status === 429) {
-        setError('請求過於頻繁，請稍後再試');
-      } else {
-        setError('載入專案時發生錯誤');
-      }
+      // API 發生錯誤時，使用預設資料
+      const defaultProject = getDefaultProjects('projects');
+      setProjects([defaultProject]);
+      setError(null);
     } finally {
-      if (!error || !error.includes('重試')) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
-  };
+  }, []);
 
   // Simplified lazy loading function
   const loadProjectDetails = useCallback(async (projectUuid: string) => {
-    // Skip if already loaded or loading
-    if (projectDetails[projectUuid] || loadingDetails.has(projectUuid)) {
+    // Skip if already loaded, loading, or is a default project
+    if (projectDetails[projectUuid] || loadingDetails.has(projectUuid) || projectUuid.startsWith('default-')) {
       return;
     }
 

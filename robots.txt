@@ -1,0 +1,32 @@
+User-agent: *
+Allow: /
+
+# 允許所有搜尋引擎爬取公開頁面
+Allow: /about
+Allow: /team
+Allow: /projects
+Allow: /development
+Allow: /contact
+
+# 禁止爬取管理區域
+Disallow: /admin
+Disallow: /login
+
+# 禁止爬取私人或開發相關文件
+Disallow: /api/
+Disallow: /*.json$
+Disallow: /test/
+Disallow: /dev/
+
+# Sitemap 位置
+Sitemap: https://yourwebsite.com/sitemap.xml
+
+# 特定搜尋引擎設定
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# 爬取延遲設定（可選）
+Crawl-delay: 1

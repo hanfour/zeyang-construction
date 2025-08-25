@@ -1,0 +1,85 @@
+# ========================================
+# 澤暘建設網站 - Apache 伺服器設定
+# ========================================
+# 此檔案應放置在網站根目錄
+# ========================================
+
+# 啟用重寫引擎
+RewriteEngine On
+
+# ===== API 代理設定 =====
+# 將 /api 開頭的請求轉發到後端服務
+# 如果後端在同一台主機的不同 port，請修改下方的 port 號碼
+RewriteRule ^api/(.*)$ http://localhost:5001/api/$1 [P,L]
+
+# ===== 檔案上傳路徑代理 =====
+# 將 /uploads 開頭的請求轉發到後端服務
+RewriteRule ^uploads/(.*)$ http://localhost:5001/uploads/$1 [P,L]
+
+# ===== React Router 設定 =====
+# 支援前端路由（單頁應用程式 SPA）
+# 如果檔案或目錄不存在，則導向 index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api
+RewriteCond %{REQUEST_URI} !^/uploads
+RewriteRule . /index.html [L]
+
+# ===== 安全性設定 =====
+# 防止訪問 .env 檔案
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# 防止訪問 .git 資料夾
+RedirectMatch 404 /\.git
+
+# ===== 效能優化 =====
+# 啟用 Gzip 壓縮（如果模組可用）
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# ===== 快取設定 =====
+# 設定靜態資源的快取時間
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # 圖片快取 1 個月
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    
+    # CSS 和 JS 快取 1 週
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    
+    # 字型快取 1 個月
+    ExpiresByType font/woff2 "access plus 1 month"
+    ExpiresByType font/woff "access plus 1 month"
+    ExpiresByType font/ttf "access plus 1 month"
+</IfModule>
+
+# ===== CORS 設定（如需要） =====
+# 允許跨域請求（根據需要調整）
+<IfModule mod_headers.c>
+    # 允許字型跨域載入
+    <FilesMatch "\.(ttf|ttc|otf|eot|woff|woff2|svg)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
+# ===== 錯誤頁面（選擇性） =====
+# ErrorDocument 404 /404.html
+# ErrorDocument 500 /500.html
+
+# ========================================
+# 注意事項：
+# 1. 如果後端不在 localhost:5001，請修改 API 代理規則
+# 2. 如果網站在子目錄，需要調整 RewriteBase
+# 3. 某些虛擬主機可能不支援所有功能
+# ========================================

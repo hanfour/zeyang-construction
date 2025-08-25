@@ -19,6 +19,11 @@ export const getImageUrl = (relativePath: string): string => {
     return relativePath;
   }
   
+  // If path starts with /images/, it's a local static file in public folder
+  if (relativePath.startsWith('/images/')) {
+    return relativePath;
+  }
+  
   // Remove leading slash if present
   const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
   

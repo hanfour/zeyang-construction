@@ -1,0 +1,64 @@
+# 澤暘建設網站 - Apache 設定
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# 強制 HTTPS (如果需要)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# API 請求代理到後端服務 (只處理 /api 開頭的請求)
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^api/(.*)$ http://localhost:5001/api/$1 [P,L]
+
+# 檔案上傳路徑代理
+RewriteCond %{REQUEST_URI} ^/uploads/
+RewriteRule ^uploads/(.*)$ http://localhost:5001/uploads/$1 [P,L]
+
+# React Router 支援 - 所有其他請求都導向 index.html
+# 這包含 /admin 和其他前端路由
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteCond %{REQUEST_URI} !^/uploads/
+RewriteRule ^.*$ /index.html [L]
+</IfModule>
+
+# 防止訪問敏感檔案
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# 設定 MIME 類型
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+    AddType image/svg+xml .svg
+</IfModule>
+
+# 啟用 Gzip 壓縮
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# 設定快取
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # HTML 不快取
+    ExpiresByType text/html "access plus 0 seconds"
+    
+    # 資源檔案快取
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+</IfModule>

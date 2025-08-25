@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>澤暘建設 - 載入中...</title>
+    <script>
+        // 臨時解決方案：使用 Hash Router 模式
+        // 這可以避免伺服器端路由問題
+        
+        (function() {
+            var path = window.location.pathname;
+            var search = window.location.search;
+            
+            // 如果不是根路徑，轉換為 hash 路由
+            if (path !== '/' && path !== '/index.html') {
+                // 例如: /admin -> /#/admin
+                var newUrl = '/#' + path + search;
+                window.location.replace(newUrl);
+            }
+        })();
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .loading-container {
+            text-align: center;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 0 10px;
+        }
+        p {
+            margin: 0;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <h1>澤暘建設</h1>
+        <p>正在載入網站...</p>
+    </div>
+</body>
+</html>

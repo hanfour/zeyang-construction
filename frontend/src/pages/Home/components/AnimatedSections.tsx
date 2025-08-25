@@ -163,7 +163,7 @@ const AnimatedSections: React.FC = () => {
 
       // 階段 1: 築夢文字淡出
       mainTl.to(dreamContent, {
-        y: -100,
+        x: '-25%',
         opacity: 0,
         duration: 1,
         ease: "power2.inOut"
@@ -175,7 +175,7 @@ const AnimatedSections: React.FC = () => {
         width: '100%',
         duration: 1.5,
         ease: "power2.inOut"
-      }, 0.5);
+      }, 0);
 
       // 階段 3: 精工由上往下覆蓋左側
       mainTl.to(craftSection, {
@@ -183,7 +183,7 @@ const AnimatedSections: React.FC = () => {
         opacity: 1,
         duration: 1.2,
         ease: "power2.out"
-      }, 1.5);
+      }, 1);
 
       // 同時永續由下往上出現在右側
       mainTl.to(sustainSection, {
@@ -191,41 +191,41 @@ const AnimatedSections: React.FC = () => {
         opacity: 1,
         duration: 1.2,
         ease: "power2.out"
-      }, 1.8);
+      }, 1.3);
 
       // 階段 4: 淡出精工和永續，顯示經典
       mainTl.to([craftSection, sustainSection, dreamBg], {
         opacity: 0,
         duration: 0.8,
         ease: "power2.inOut"
-      }, 3.5);
+      }, 3);
 
       mainTl.to(classicSection, {
         opacity: 1,
         duration: 0.8,
         ease: "power2.inOut"
-      }, 3.8);
+      }, 3.3);
 
       // 階段 5: 經典圖片放大
       mainTl.to(classicImage, {
         scale: 1,
         duration: 1.5,
         ease: "power2.out"
-      }, 4.2);
+      }, 3.7);
 
       // 左下角文字淡入
       mainTl.to(classicLeftText, {
         opacity: 1,
         duration: 0.8,
         ease: "power2.out"
-      }, 4.5);
+      }, 4.2);
 
       // 右上角文字淡入
       mainTl.to(classicRightText, {
         opacity: 1,
         duration: 0.8,
         ease: "power2.out"
-      }, 4.8);
+      }, 4.5);
 
       return () => {
         mainTl.kill();

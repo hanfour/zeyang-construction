@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { toast } from 'react-hot-toast';
 import PageBanner from '@/components/Layout/PageBanner';
 import MenuButton from '@/components/Layout/MenuButton';
 import NavigationMenu from '@/components/Layout/NavigationMenu';
 import projectService from '@/services/project.service';
 import { getImageUrl } from '@/utils/image';
 import { Project } from '@/types';
+import { getDefaultProjects } from '@/config/defaultProjects';
 
 
 
@@ -26,7 +26,11 @@ const DevelopmentPage: React.FC = () => {
 
   // 獲取規劃中專案數據
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchPlanningProjects = async () => {
+      if (!isMounted) return;
+      
       try {
         setLoading(true);
         const response = await projectService.getProjects({
@@ -36,18 +40,33 @@ const DevelopmentPage: React.FC = () => {
           limit: 10
         });
 
-        if (response.success && response.data) {
+        if (!isMounted) return;
+
+        if (response.success && response.data && response.data.items.length > 0) {
           setProjects(response.data.items);
+        } else {
+          // 如果沒有資料，使用預設資料
+          const defaultProject = getDefaultProjects('development');
+          setProjects([defaultProject]);
         }
       } catch (error) {
+        if (!isMounted) return;
         console.error('Error fetching planning projects:', error);
-        toast.error('無法載入開發專案');
+        // API 發生錯誤時，使用預設資料
+        const defaultProject = getDefaultProjects('development');
+        setProjects([defaultProject]);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchPlanningProjects();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
 
